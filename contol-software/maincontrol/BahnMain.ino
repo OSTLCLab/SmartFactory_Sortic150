@@ -102,12 +102,3 @@ bool BahnHasStoppedFunc()
   return bahnHasStopped;
 }
 
-void BahnSetSpeed(int speed)
-{
-   if (speed > 300) {
-     speed = 300;
-   }
-   maxSpeed = speed;
-}
-
-
