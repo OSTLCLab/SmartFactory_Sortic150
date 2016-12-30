@@ -6,7 +6,12 @@
 #include <Adafruit_MotorShield.h>
 
 #include "SorticFramework.h"
-#include "SorticVersionSeverin.h"
+
+#include "SorticMachineSeverin.h"
+#include "MoverSeverin.h"
+#include "PlacerSeverin.h"
+#include "DetectorSeverin.h"
+
 
 Adafruit_MotorShield currentMotorShield = Adafruit_MotorShield();
 Adafruit_DCMotor *DriverMotor = currentMotorShield.getMotor(1);
@@ -28,5 +33,6 @@ void setup() {
 }
 
 void loop() {
+  thisSorticMachine.loop();
 
 }
