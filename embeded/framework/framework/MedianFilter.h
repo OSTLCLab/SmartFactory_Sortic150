@@ -8,7 +8,7 @@ class MedianFilter
     MedianFilter(int defaultValue = 150); //(int tempFilterLength)
     void UpdateFilter(int newValueAsInt);
     int getFilterValue();
-    
+
   private:
     int filterLength = 7;
     float values[7];
@@ -17,4 +17,4 @@ class MedianFilter
 };
 
 
-#endif;
+#endif

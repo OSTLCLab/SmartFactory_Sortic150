@@ -23,10 +23,10 @@ class Detector : public Component
 {
   public:
     Detector();
-    byte * getPartArray(); //Funciton returns pointer to static array: https://www.tutorialspoint.com/cplusplus/cpp_return_arrays_from_functions.htm  
+    byte * getPartArray(); //Funciton returns pointer to static array: https://www.tutorialspoint.com/cplusplus/cpp_return_arrays_from_functions.htm
 
   protected:
-  
+
 };
 
 enum MoverPosition {

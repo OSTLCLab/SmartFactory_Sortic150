@@ -9,10 +9,16 @@
 #include "SorticVersionSeverin.h"
 
 Adafruit_MotorShield currentMotorShield = Adafruit_MotorShield();
+Adafruit_DCMotor *DriverMotor = currentMotorShield.getMotor(1);
+Adafruit_DCMotor *PlacerMotorBase = currentMotorShield.getMotor(2);
+Adafruit_DCMotor *PlacerMotorArm = currentMotorShield.getMotor(3);
+Adafruit_DCMotor *PlacerMotorClaw = currentMotorShield.getMotor(4);
 
-PlacerSeverin currentPlacer(&currentMotorShield);
-DetectorSeverin currentDetector;
-MoverSeverin currentMover(&currentMotorShield);
+MFRC522 PartDetector(6,5);
+
+PlacerSeverin currentPlacer(PlacerMotorBase, PlacerMotorArm, PlacerMotorClaw);
+DetectorSeverin currentDetector(&PartDetector);
+MoverSeverin currentMover(DriverMotor);
 
 SorticMachineSeverin thisSorticMachine(&currentPlacer, &currentDetector, &currentMover, &currentMotorShield);
 
@@ -22,4 +28,5 @@ void setup() {
 }
 
 void loop() {
+
 }

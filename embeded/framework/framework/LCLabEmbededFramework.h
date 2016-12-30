@@ -10,7 +10,7 @@ class Component
     void setState(int state);
 
   protected:
-    //AttType AttName;                            
+    //AttType AttName;
 };
 
-#endif;
+#endif
