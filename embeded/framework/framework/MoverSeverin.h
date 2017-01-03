@@ -9,7 +9,7 @@
 class MoverSeverin : public Mover
 {
   public:
-    MoverSeverin(Adafruit_DCMotor *tempDriverMotor);
+    MoverSeverin(Adafruit_DCMotor *tempDriverMotor, int tempDistanceSensorPin);
     void moveToPosition(MoverPosition newTarget);
     bool moverLoop(); //true = complete, false = in progress
   private:
@@ -17,6 +17,7 @@ class MoverSeverin : public Mover
     bool ForwardIsLeft;
     int driveTollerance = 2;
     int maxSpeed = 200;
+    int distanceSensorPin;
     Adafruit_DCMotor *DriverMotor;
 
     //Position Variables

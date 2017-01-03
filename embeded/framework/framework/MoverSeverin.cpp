@@ -4,10 +4,11 @@
 #include "SorticFramework.h"
 #include "MedianFilter.h"
 
-MoverSeverin::MoverSeverin(Adafruit_DCMotor *tempDriverMotor) : Mover() {
+MoverSeverin::MoverSeverin(Adafruit_DCMotor *tempDriverMotor, int tempDistanceSensorPin) : Mover() {
   DriverMotor = tempDriverMotor;
-  rawSensorValue = analogRead(A1);
-  thisMedianFilter = MedianFilter(rawSensorValue); //ToDo: Initialize Filter with correct value
+  distanceSensorPin = tempDistanceSensorPin;
+  rawSensorValue = analogRead(distanceSensorPin);
+  thisMedianFilter = MedianFilter(rawSensorValue);
 
   DriverMotor->setSpeed(0);
   DriverMotor->run(FORWARD);    //FORWARD = Nach Rechts, BACKWARD = Nach Links
@@ -21,7 +22,7 @@ void MoverSeverin::moveToPosition(MoverPosition newTarget) {
 }
 
 bool MoverSeverin::moverLoop() { //true = complete, false = in progress
-  rawSensorValue = analogRead(A1);
+  rawSensorValue = analogRead(distanceSensorPin);
   thisMedianFilter.UpdateFilter(rawSensorValue);
   filteredSensorValue = thisMedianFilter.getFilterValue();
 
