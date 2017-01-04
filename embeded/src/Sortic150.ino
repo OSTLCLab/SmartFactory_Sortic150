@@ -12,7 +12,7 @@
 #include "PlacerSeverin.h"
 #include "DetectorSeverin.h"
 
-//Sensors:
+//Sensor:
 int DistanceSensorPin = A1;
 
 //Motors:

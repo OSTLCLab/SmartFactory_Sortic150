@@ -3,7 +3,7 @@
 
 #include "Arduino.h"
 #include "SorticFramework.h"
-#include "MedianFilter.h"
+#include "filters/MedianFilter.h"
 #include <Adafruit_MotorShield.h>
 
 class MoverSeverin : public Mover

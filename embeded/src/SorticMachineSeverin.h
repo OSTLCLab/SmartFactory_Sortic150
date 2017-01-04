@@ -7,7 +7,7 @@
 
 #include "Arduino.h"
 #include "SorticFramework.h"
-#include "MedianFilter.h"
+#include "filters/MedianFilter.h"
 #include <SPI.h>
 #include <MFRC522.h>
 #include <Wire.h>

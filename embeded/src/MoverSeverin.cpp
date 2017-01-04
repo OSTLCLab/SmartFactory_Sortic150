@@ -2,7 +2,6 @@
 
 #include "Arduino.h"
 #include "SorticFramework.h"
-#include "MedianFilter.h"
 
 MoverSeverin::MoverSeverin(Adafruit_DCMotor *tempDriverMotor, int tempDistanceSensorPin) : Mover() {
   DriverMotor = tempDriverMotor;

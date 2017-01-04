@@ -2,7 +2,7 @@
 #define SorticFramework_h
 
 #include "Arduino.h"
-#include "LCLabEmbededFramework.h"
+#include "Modular.h"
 
 class Placer : public Component
 {
