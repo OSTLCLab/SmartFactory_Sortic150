@@ -1,0 +1,3 @@
+[submodule "embeded/lib/modular"]
+	path = embeded/lib/modular
+	url = https://github.com/HSRLCLab/modular.git

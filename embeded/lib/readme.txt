@@ -34,3 +34,9 @@ include paths and build them.
 
 More information about PlatformIO Library Dependency Finder
 - http://docs.platformio.org/page/librarymanager/ldf.html
+
+Include submodule:
+git submodule add {reponame}
+https://github.com/HSRLCLab/modular.git
+
+git config push.recurseSubmodule on-demand
