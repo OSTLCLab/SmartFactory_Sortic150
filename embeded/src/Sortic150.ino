@@ -26,18 +26,27 @@ Adafruit_DCMotor *PlacerMotorClaw = currentMotorShield.getMotor(4);
 MFRC522 PartDetector(6,5);
 
 //Components:
-PlacerSeverin currentPlacer(PlacerMotorBase, PlacerMotorArm, PlacerMotorClaw);
-DetectorSeverin currentDetector(&PartDetector);
-MoverSeverin currentMover(DriverMotor, DistanceSensorPin);
-
-SorticMachineSeverin thisSorticMachine(&currentPlacer, &currentDetector, &currentMover, &currentMotorShield);
+PlacerSeverin *currentPlacer;
+DetectorSeverin *currentDetector;
+MoverSeverin *currentMover;
+SorticMachineSeverin *thisSorticMachine;
 
 
 void setup() {
   Serial.begin(9600);
+  currentMotorShield.begin();
+  SPI.begin();
+
+  currentPlacer = new PlacerSeverin(PlacerMotorBase, PlacerMotorArm, PlacerMotorClaw);
+  currentDetector = new DetectorSeverin(&PartDetector);
+  currentMover = new MoverSeverin(DriverMotor, DistanceSensorPin);
+
+  thisSorticMachine = new SorticMachineSeverin(currentPlacer, currentDetector, currentMover, &currentMotorShield);
+
 }
 
 void loop() {
-  thisSorticMachine.loop();
+  thisSorticMachine->loop();
+  Serial.println("testing now 4");
 
 }

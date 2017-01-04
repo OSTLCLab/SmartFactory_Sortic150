@@ -9,22 +9,15 @@ SorticMachine::SorticMachine(Placer *tempPlacer, Detector *tempDetector, Mover *
   currentMachineLogicState = idle;
 }
 
-/*
-void SorticMachine::loop() {
-  
-}
-*/
 
 Placer::Placer() {
-  
+
 }
 
 Detector::Detector() {
-  
+
 }
 
 Mover::Mover() {
-  
+
 }
-
-

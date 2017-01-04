@@ -8,11 +8,12 @@ class Placer : public Component
 {
   public:
     Placer();
-    void pickUpLeft();
-    void pickUpRight();
-    void placeLeft();
-    void placeRight();
-    bool placerLoop(); //true = complete, false = in progress
+
+    virtual void pickUpLeft();
+    virtual void pickUpRight();
+    virtual void placeLeft();
+    virtual void placeRight();
+    virtual bool placerLoop(); //true = complete, false = in progress
 
   protected:
     bool hasPart;
@@ -40,8 +41,8 @@ class Mover : public Component
 {
   public:
     Mover();
-    void moveToPosition(MoverPosition newTarget);
-    bool moverLoop(); //true = complete, false = in progress
+    virtual void moveToPosition(MoverPosition newTarget);
+    virtual bool moverLoop(); //true = complete, false = in progress
 
   protected:
     bool movementComplete;
@@ -57,7 +58,7 @@ class SorticMachine
   public:
     //Functions;
     SorticMachine(Placer *tempPlacer, Detector *tempDetector, Mover *tempMover);
-    void loop();
+    virtual void loop();
 
   protected:
     Placer *currentPlacer;

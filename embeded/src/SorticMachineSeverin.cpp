@@ -13,10 +13,19 @@
 
 SorticMachineSeverin::SorticMachineSeverin(Placer *tempPlacer, Detector *tempDetector, Mover *tempMover, Adafruit_MotorShield *tempMotorShield) : SorticMachine(tempPlacer, tempDetector, tempMover) {
   currentMotorShield = tempMotorShield;
-  currentMotorShield -> begin();
-  SPI.begin();
+  //currentMotorShield -> begin();
+  //SPI.begin();
+
+  currentPlacer = tempPlacer;
+  currentDetector = tempDetector;
+  currentMover = tempMover;
+
 }
 
 void SorticMachineSeverin::loop() {
-
+  if(step == 0) {
+    ++step;
+    currentPlacer->pickUpLeft();
+  }
+  bool a = currentPlacer->placerLoop();
 }

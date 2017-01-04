@@ -20,6 +20,11 @@ class SorticMachineSeverin : public SorticMachine
     void loop();
   private:
     Adafruit_MotorShield *currentMotorShield;
+    Placer *currentPlacer;
+    Detector *currentDetector;
+    Mover *currentMover;
+    int step = 0;
+
 };
 
 
