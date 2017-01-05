@@ -25,7 +25,7 @@ class PlacerSeverin : public Placer
     unsigned long startTime;
     bool hasStopped;
 
-    unsigned long baseQuarterTurnTimePercise = 1500;
+    unsigned long baseQuarterTurnTimePercise = 800;
     unsigned long baseQuarterTurnTimeSave = 1500;
     unsigned long armMoveUpTime = 2100;
     unsigned long armMoveDownTime = 2800;

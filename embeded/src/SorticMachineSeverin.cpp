@@ -23,9 +23,21 @@ SorticMachineSeverin::SorticMachineSeverin(Placer *tempPlacer, Detector *tempDet
 }
 
 void SorticMachineSeverin::loop() {
-  if(step == 0) {
-    ++step;
-    currentPlacer->pickUpLeft();
+  bool placerHasStopped = currentPlacer->placerLoop();
+
+  if (placerHasStopped) {
+    switch(step) {
+      case 0:
+      currentPlacer->pickUpLeft();
+      break;
+
+      case 1:
+      currentPlacer->placeRight();
+      break;
+    }
+    step ++;
+
   }
-  bool a = currentPlacer->placerLoop();
+
+
 }

@@ -33,7 +33,7 @@ SorticMachineSeverin *thisSorticMachine;
 
 
 void setup() {
-  Serial.begin(9600);
+  //Serial.begin(9600);
   currentMotorShield.begin();
   SPI.begin();
 
@@ -42,11 +42,9 @@ void setup() {
   currentMover = new MoverSeverin(DriverMotor, DistanceSensorPin);
 
   thisSorticMachine = new SorticMachineSeverin(currentPlacer, currentDetector, currentMover, &currentMotorShield);
-
+  delay(5000);
 }
 
 void loop() {
   thisSorticMachine->loop();
-  Serial.println("testing now 4");
-
 }
