@@ -25,12 +25,12 @@ class PlacerSeverin : public Placer
     unsigned long startTime;
     bool hasStopped;
 
-    unsigned long baseQuarterTurnTimePercise = 800;
-    unsigned long baseQuarterTurnTimeSave = 1500;
+    unsigned long baseQuarterTurnTimePercise = 750;
+    unsigned long baseQuarterTurnTimeSave = 1800;
     unsigned long armMoveUpTime = 2100;
-    unsigned long armMoveDownTime = 2800;
-    unsigned long clawOpenTime = 900;
-    unsigned long clawCloseTime = 1500;
+    unsigned long armMoveDownTime = 2100;
+    unsigned long clawOpenTime = 1200;
+    unsigned long clawCloseTime = 1700;
     int driveSpeed = 200;
 
 };

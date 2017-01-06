@@ -56,7 +56,11 @@ void PlacerSeverin::placeRight() {
 }
 
 bool PlacerSeverin::placerLoop() {
-  Serial.println(step);
+  Serial.print(step);
+  Serial.print(" - ");
+  Serial.print(startTime);
+  Serial.print(" - ");
+  Serial.println(millis());
   switch(step) { //1 = turn,  2 = moveDown, 3 = clawAction, 4 = moveUp, 5 = turnBack
     case 1:
       if(millis()-startTime>baseQuarterTurnTimeSave) {
@@ -87,18 +91,29 @@ bool PlacerSeverin::placerLoop() {
     break;
 
     case 3: //claw Action
-      if(millis()-startTime>clawOpenTime) {
-        step++;
-        PlacerMotorClaw->setSpeed(0);
-        startTime = millis();
-      }
-      else if(action == 1 || action == 2) {
-        PlacerMotorClaw->run(BACKWARD);
-        PlacerMotorClaw->setSpeed(driveSpeed);
+
+      if(action == 1 || action == 2) {
+        if(millis()-startTime>clawCloseTime) {
+          step++;
+          PlacerMotorClaw->setSpeed(0);
+          startTime = millis();
+        }
+        else {
+          PlacerMotorClaw->run(BACKWARD);
+          PlacerMotorClaw->setSpeed(driveSpeed);
+        }
       }
       else if(action == 3 || action == 4) {
-        PlacerMotorClaw->run(FORWARD);
-        PlacerMotorClaw->setSpeed(driveSpeed);
+        if(millis()-startTime>clawOpenTime) {
+          step++;
+          PlacerMotorClaw->setSpeed(0);
+          startTime = millis();
+        }
+        else {
+          PlacerMotorClaw->run(FORWARD);
+          PlacerMotorClaw->setSpeed(driveSpeed);
+        }
+
       }
     break;
 
