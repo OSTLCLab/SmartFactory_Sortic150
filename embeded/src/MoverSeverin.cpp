@@ -13,17 +13,23 @@ MoverSeverin::MoverSeverin(Adafruit_DCMotor *tempDriverMotor, int tempDistanceSe
   DriverMotor->run(FORWARD);    //FORWARD = Nach Rechts, BACKWARD = Nach Links
   DriverMotor->run(RELEASE);
 
+  Serial.begin(9600);
+
 }
 
 void MoverSeverin::moveToPosition(MoverPosition newTarget) {
   bahnHasStopped = false;
-  targetPosition = 150; //ToDo: Create correct target location
+  targetPosition = getPositionValue(newTarget); //ToDo: Create correct target location
 }
 
 bool MoverSeverin::moverLoop() { //true = complete, false = in progress
   rawSensorValue = analogRead(distanceSensorPin);
   thisMedianFilter.UpdateFilter(rawSensorValue);
   filteredSensorValue = thisMedianFilter.getFilterValue();
+
+  Serial.print(rawSensorValue);
+  Serial.print("  ;  ");
+  Serial.println(filteredSensorValue);
 
   if((bahnHasStopped == false)and(filteredSensorValue != 0))
   {
@@ -71,4 +77,12 @@ bool MoverSeverin::moverLoop() { //true = complete, false = in progress
   }
 
   return bahnHasStopped;
+}
+
+int MoverSeverin::getPositionValue(MoverPosition tempPosition) {
+  for(int i = 0; i<4;i++) {
+    if(positionMarked[i]==tempPosition) {
+      return positionValues[i];
+    }
+  }
 }

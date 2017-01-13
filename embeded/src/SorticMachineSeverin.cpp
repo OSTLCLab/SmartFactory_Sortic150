@@ -24,7 +24,26 @@ SorticMachineSeverin::SorticMachineSeverin(Placer *tempPlacer, Detector *tempDet
 
 void SorticMachineSeverin::loop() {
   bool placerHasStopped = currentPlacer->placerLoop();
+  bool moverHasStopped = currentMover->moverLoop();
+  if (moverHasStopped&&placerHasStopped) {
+    switch(step) {
+      case 0:
+      currentMover->moveToPosition(pickUp);
+      break;
 
+      case 1:
+      currentPlacer->pickUpLeft();
+      break;
+
+      case 2:
+      currentMover->moveToPosition(dropC);
+      break;
+
+      case 3:
+      currentPlacer->placeLeft();
+      break;
+    }
+  /*
   if (placerHasStopped) {
     switch(step) {
       case 0:
@@ -35,6 +54,7 @@ void SorticMachineSeverin::loop() {
       currentPlacer->placeRight();
       break;
     }
+    */
     step ++;
 
   }

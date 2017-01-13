@@ -24,7 +24,7 @@ PlacerSeverin::PlacerSeverin(Adafruit_DCMotor *tempPlacerMotorBase, Adafruit_DCM
   hasStopped = true;
   step = 0;
   action = 0;
-  Serial.begin(9600);
+  //Serial.begin(9600);
 }
 
 void PlacerSeverin::pickUpLeft() {
@@ -56,11 +56,13 @@ void PlacerSeverin::placeRight() {
 }
 
 bool PlacerSeverin::placerLoop() {
+  /*
   Serial.print(step);
   Serial.print(" - ");
   Serial.print(startTime);
   Serial.print(" - ");
   Serial.println(millis());
+  */
   switch(step) { //1 = turn,  2 = moveDown, 3 = clawAction, 4 = moveUp, 5 = turnBack
     case 1:
       if(millis()-startTime>baseQuarterTurnTimeSave) {
