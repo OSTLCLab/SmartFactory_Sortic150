@@ -24,9 +24,9 @@ class Detector : public Component
 {
   public:
     Detector();
-    void getPartArray(byte partArray[]); //Function writes result into partArray[]
+    virtual void getPartArray(byte partArray[]); //Function writes result into partArray[]
     //byte * getPartArray(); //Funciton returns pointer to static array: https://www.tutorialspoint.com/cplusplus/cpp_return_arrays_from_functions.htm
-    bool RfidCardIsPresent();
+    virtual bool RfidCardIsPresent();
 
   protected:
 
