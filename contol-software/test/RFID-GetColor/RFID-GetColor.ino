@@ -11,6 +11,7 @@ byte teilSchwarz[8] = {4, 135, 115, 120, 162, 231, 73, 128};
 byte teilGelb[8] = {4, 28, 116, 228, 162, 231, 73, 128};
 byte teilGrauGelb[8] = {4, 161, 115, 94, 162, 231, 73, 128};
 byte teilGrauSchwarz[8] = {4, 42, 117, 211, 162, 231, 73, 128};
+byte teilSchwarzRot[8] = {4, 186, 115, 69, 162, 231, 73, 128};
 
 MFRC522 RfidPart(6,5);
 MFRC522 RfidBox(10,9);
@@ -46,33 +47,29 @@ void loop()
         Serial.print(F("MIFARE_Read() failed: ")); Serial.println(RfidPart.GetStatusCodeName(status));
     }
     
-    if(ArrayIsEqual(bufferArray, teilSchwarz))
-    {
+    if(ArrayIsEqual(bufferArray, teilSchwarz)) {
       Serial.println("Das Teil ist schwarz");
     }
-    else if(ArrayIsEqual(bufferArray, teilGelb))
-    {
+    else if(ArrayIsEqual(bufferArray, teilGelb)) {
       Serial.println("Das Teil ist gelb");
     }
-    else if(ArrayIsEqual(bufferArray, teilGrauGelb))
-    {
+    else if(ArrayIsEqual(bufferArray, teilGrauGelb)) {
       Serial.println("Das Teil ist grau-gelb");
     }
-    else if(ArrayIsEqual(bufferArray, teilGrauSchwarz))
-    {
+    else if(ArrayIsEqual(bufferArray, teilGrauSchwarz)) {
       Serial.println("Das Teil ist grau-schwarz");
     }
-    else
-    {
+    else if(ArrayIsEqual(bufferArray, teilSchwarzRot)) {
+      Serial.println("Das Teil ist schwarz-rot");
+    }
+    else {
       Serial.println("Das Teil ist nicht bekannt");
       Serial.print("Die ID ist: ");
-      for (byte i = 0; i < outputSize; i++)
-      {
+      for (byte i = 0; i < outputSize; i++) {
         //Serial.print(bufferArray[i] < 0x10 ? " 0" : " ");
         Serial.print(bufferArray[i]);
         Serial.print(", ");
-        if(i%8 == 7)
-        {
+        if(i%8 == 7) {
           Serial.println("");
         }
       }

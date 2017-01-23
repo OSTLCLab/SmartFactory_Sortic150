@@ -17,12 +17,44 @@ Adafruit_MotorShield AFMS = Adafruit_MotorShield();
 int programPosition = 0;
 int currentTarget;
 bool runComplete = true;
-bool isNorth = true; // North = PickUp side
-bool opperate = false;
-int maxSpeedDefault = 200;
-int pickUpArmDriveSpeedDefault = 150;
-int pickUpClawDriveSpeedDefault = 200;
 
+struct MachineState
+{
+  int temperature;
+  int soundLevel;
+  int towerPositionA;
+  int towerPositionB;
+  int towerPositionC;
+  float towerBatteryVoltage;
+  int carPosition;
+  bool carError;
+};
+
+struct AmbientState
+{
+  int temperature;
+  int soundLevel;
+};
+
+struct TowerState
+{
+  int towerPositionA;
+  int towerPositionB;
+  int towerPositionC;
+  float towerBatteryVoltage;
+};
+
+AmbientState getAmbientState()
+{
+  AmbientState currentAmbientState;
+  return currentAmbientState;
+}
+
+TowerState getTowerState()
+{
+  TowerState currentTowerState;
+  return a;
+}
 void setup()
 {
   Serial.begin(9600);
@@ -39,8 +71,7 @@ void setup()
 }
 
 void loop()
-{ 
-  serialAPI();
+{
   PickUpBaseLoop();
   PickUpArmLoop();
   PickUpClawLoop();
@@ -51,13 +82,12 @@ void loop()
     switch(programPosition)
     {
       case 0:
-      if (opperate == true) {
-        currentTarget = RfidGetBlockTarget();
-        if(currentTarget != 0)
-        {
-          runComplete = false;
-          Serial.println("Found one");
-        }
+      currentTarget = RfidGetBlockTarget();
+      if(currentTarget != 0)
+      {
+        runComplete = false;
+        Serial.println("Found one");
+        programPosition = 0;
       }
       break;
       
@@ -67,7 +97,7 @@ void loop()
       break;
       
       case 10:
-      //PickUpArmTurnUp();
+      PickUpArmTurnUp();
       break;
       
       case 20:
@@ -91,11 +121,6 @@ void loop()
       case 60:
       //PickUpBaseTurnCounterclockwise();
       BahnMainMoveToPosition(currentTarget);  //Ablageposition
-      if(currentTarget == 530)
-      {
-        PickUpBaseTurnClockwise();
-        isNorth = false;
-      }
       break;
       
       case 70:
@@ -105,23 +130,16 @@ void loop()
       case 80:
       PickUpClawOpen();
       break;
-
-      case 83:
-      PickUpArmTurnUp();
-      break;
-      
-      case 85:
-      if(isNorth == false) 
-      {
-        PickUpBaseTurnCounterclockwise();
-      }
-      isNorth = true;
-      BahnMainMoveToPosition(530);
-      break;
       
       case 90:
       programPosition = 0;
       runComplete = true;
+      
+      
+      /*
+      Serial.println("Complete");
+      while(1);
+      */
       break;
     }
     if(runComplete == false)
@@ -130,39 +148,6 @@ void loop()
        //Serial.println(programPosition);
     }
   }
-  
   delay(10);
-}
-
-void handleSerialInstruction(String task, String value) {
-   // Handle Task instructions
-    if (task == "opperate") {
-      opperate = (bool)value.toInt();
-    }
-    if (task == "speed") {
-       int extra = value.toInt();
-       BahnSetSpeed(maxSpeedDefault + extra);
-    }
-}
-
-void serialAPI() {
-  while (Serial.available() > 0) {
-    //workstate:'workstate',rate:'blinkrate'\n
-    //workstate:1, rate:30\n
-    String msg = Serial.readStringUntil('\n');
-    //workstate:'workstate',rate:'blinkrate'
-    int i = -1;
-    do {
-      i = msg.indexOf(',');
-      String order = msg.substring(0, i);
-      int j = order.indexOf(':');
-      String task = order.substring(0, j);
-      String value = order.substring(j+1);
-      task.trim();
-      value.trim();
-      handleSerialInstruction(task, value);
-      msg = msg.substring(i + 1);      
-    } while (i > 0);
-  }
 }
 

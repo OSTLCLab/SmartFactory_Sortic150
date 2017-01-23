@@ -1,9 +1,10 @@
+bool pickUpBaseIsClockwise;
 bool pickUpBaseHasStopped = true;
 bool pickUpBaseForwardIsClockwise = false;
 
-unsigned long pickUpBaseDriveSpeed = 200;
-unsigned long pickUpBaseTraverseTime = 5000; //In milliseconds
-unsigned long pickUpBaseStartTime;
+int pickUpBaseDriveSpeed = 200;
+int pickUpBaseTraverseTime = 4500; //In milliseconds
+int pickUpBaseStartTime;
 
 Adafruit_DCMotor *pickUpBaseMotor  = AFMS.getMotor(2);
 
@@ -33,36 +34,44 @@ void PickUpBaseLoop()  //Excecute this evey loop in the main program
 
 void PickUpBaseTurnClockwise()
 {
-  pickUpBaseHasStopped = false;
-  pickUpBaseStartTime = millis();
-  
-  if(pickUpBaseForwardIsClockwise)
+  if((pickUpBaseIsClockwise == false)and(pickUpBaseHasStopped == true))
   {
-    pickUpBaseMotor->run(FORWARD);
+    pickUpBaseHasStopped = false;
+    pickUpBaseStartTime = millis();
+    pickUpBaseIsClockwise = true;
+    
+    if(pickUpBaseForwardIsClockwise)
+    {
+      pickUpBaseMotor->run(FORWARD);
+    }
+    else
+    {
+      pickUpBaseMotor->run(BACKWARD);
+    }
+    
+    pickUpBaseMotor->setSpeed(pickUpBaseDriveSpeed);
   }
-  else
-  {
-    pickUpBaseMotor->run(BACKWARD);
-  }
-  
-  pickUpBaseMotor->setSpeed(pickUpBaseDriveSpeed);
 }
 
 void PickUpBaseTurnCounterclockwise()
 {
-  pickUpBaseHasStopped = false;
-  pickUpBaseStartTime = millis();
-  
-  if(pickUpBaseForwardIsClockwise)
+  if((pickUpBaseIsClockwise == true)and(pickUpBaseHasStopped == true))
   {
-    pickUpBaseMotor->run(BACKWARD);
+    pickUpBaseHasStopped = false;
+    pickUpBaseStartTime = millis();
+    pickUpBaseIsClockwise = false;
+    
+    if(pickUpBaseForwardIsClockwise)
+    {
+      pickUpBaseMotor->run(BACKWARD);
+    }
+    else
+    {
+      pickUpBaseMotor->run(FORWARD);
+    }
+    
+    pickUpBaseMotor->setSpeed(pickUpBaseDriveSpeed);
   }
-  else
-  {
-    pickUpBaseMotor->run(FORWARD);
-  }
-  
-  pickUpBaseMotor->setSpeed(pickUpBaseDriveSpeed);
 }
 
 bool pickUpBaseHasStoppedFunc()

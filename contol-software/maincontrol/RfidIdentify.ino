@@ -88,7 +88,7 @@ int RfidGetBlockTarget()
         }
       }
       
-      return(530);
+      return(0);
     }
   }
   else
