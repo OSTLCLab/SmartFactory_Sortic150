@@ -3,17 +3,19 @@
 #include "Arduino.h"
 #include "SorticFramework.h"
 
-MoverSeverin::MoverSeverin(Adafruit_DCMotor *tempDriverMotor, int tempDistanceSensorPin) : Mover() {
+MoverSeverin::MoverSeverin(Adafruit_DCMotor *tempDriverMotor, int tempDistanceSensorPin, int PosPickup, int posDropA, int posDropB, int posDropC) : Mover() {
+  positionValues[0] = PosPickup;
+  positionValues[1] = posDropA;
+  positionValues[2] = posDropB;
+  positionValues[3] = posDropC;
   DriverMotor = tempDriverMotor;
   distanceSensorPin = tempDistanceSensorPin;
   rawSensorValue = analogRead(distanceSensorPin);
   thisMedianFilter = MedianFilter(rawSensorValue);
 
-  DriverMotor->setSpeed(0);
   DriverMotor->run(FORWARD);    //FORWARD = Nach Rechts, BACKWARD = Nach Links
   DriverMotor->run(RELEASE);
-
-  Serial.begin(9600);
+  DriverMotor->setSpeed(0);
 
 }
 
@@ -22,14 +24,29 @@ void MoverSeverin::moveToPosition(MoverPosition newTarget) {
   targetPosition = getPositionValue(newTarget); //ToDo: Create correct target location
 }
 
+int MoverSeverin::getPositionValue(MoverPosition tempPosition) {
+  for(int i = 0; i<4;i++) {
+    if(positionMarked[i]==tempPosition) {
+      return positionValues[i];
+    }
+
+  }
+}
+
 bool MoverSeverin::moverLoop() { //true = complete, false = in progress
+  //Maximum sensor value ~= 565, use max sensor value if larger
+  if(targetPosition > positionMax) {
+    targetPosition = positionMax;
+  }
+
+
   rawSensorValue = analogRead(distanceSensorPin);
   thisMedianFilter.UpdateFilter(rawSensorValue);
   filteredSensorValue = thisMedianFilter.getFilterValue();
 
-  Serial.print(rawSensorValue);
-  Serial.print("  ;  ");
-  Serial.println(filteredSensorValue);
+  if(bahnHasStopped == true) {
+    DriverMotor->run(RELEASE);
+  }
 
   if((bahnHasStopped == false)and(filteredSensorValue != 0))
   {
@@ -77,12 +94,4 @@ bool MoverSeverin::moverLoop() { //true = complete, false = in progress
   }
 
   return bahnHasStopped;
-}
-
-int MoverSeverin::getPositionValue(MoverPosition tempPosition) {
-  for(int i = 0; i<4;i++) {
-    if(positionMarked[i]==tempPosition) {
-      return positionValues[i];
-    }
-  }
 }

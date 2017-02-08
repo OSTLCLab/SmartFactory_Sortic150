@@ -4,20 +4,30 @@
 #include "Arduino.h"
 #include "Modular.h"
 
+enum class PlacerActionType {
+  none,
+  pickUp,
+  place
+};
+
+enum class PlacerActionDirection {
+  left,
+  right,
+  front
+};
+
 class Placer : public Component
 {
   public:
     Placer();
-
-    virtual void pickUpLeft();
-    virtual void pickUpRight();
-    virtual void placeLeft();
-    virtual void placeRight();
+    virtual void setAction(PlacerActionType newPlacerActionType, PlacerActionDirection newPlacerActionDirection);
     virtual bool placerLoop(); //true = complete, false = in progress
 
   protected:
     bool hasPart;
     bool isMoving;
+    PlacerActionType currentPlacerActionType;
+    PlacerActionDirection currentPlacerActionDirection;
 };
 
 class Detector : public Component
@@ -32,12 +42,13 @@ class Detector : public Component
 
 };
 
-enum MoverPosition {
+enum class MoverPosition {
   pickUp,
   dropA,
   dropB,
   dropC
 };
+
 
 class Mover : public Component
 {
@@ -50,7 +61,7 @@ class Mover : public Component
     bool movementComplete;
 };
 
-enum MachineLogicState {
+enum class MachineLogicState {
   idle,
   sorting
 };
@@ -66,7 +77,11 @@ class SorticMachine
     Placer *currentPlacer;
     Detector *currentDetector;
     Mover *currentMover;
-    MachineLogicState currentMachineLogicState;
+    MachineLogicState currentMachineLogicState = MachineLogicState::idle;
+    MoverPosition currentDropTarget;
+    MoverPosition currentPickupTarget;
+    PlacerActionDirection currentPickupDirection;
+    PlacerActionDirection currentPlaceDirection;
 };
 
 #endif

@@ -9,7 +9,7 @@
 class MoverSeverin : public Mover
 {
   public:
-    MoverSeverin(Adafruit_DCMotor *tempDriverMotor, int tempDistanceSensorPin);
+    MoverSeverin(Adafruit_DCMotor *tempDriverMotor, int tempDistanceSensorPin, int PosPickup, int posDropA, int posDropB, int posDropC);
     void moveToPosition(MoverPosition newTarget);
     bool moverLoop(); //true = complete, false = in progress
     int getPositionValue(MoverPosition tempPosition);
@@ -22,8 +22,9 @@ class MoverSeverin : public Mover
     Adafruit_DCMotor *DriverMotor;
 
     //Position Variables
-    MoverPosition positionMarked[4] = {pickUp, dropA, dropB, dropC};
-    int positionValues[4] = {450,350,250,200};
+    MoverPosition positionMarked[4] = {MoverPosition::pickUp, MoverPosition::dropA, MoverPosition::dropB, MoverPosition::dropC};
+    int positionValues[4];
+    int positionMax = 565;   //Maximum sensor value ~= 565, uses max sensor value if larger
     bool bahnHasStopped;
     int rawSensorValue;
     int filteredSensorValue;

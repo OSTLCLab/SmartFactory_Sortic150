@@ -36,10 +36,9 @@ void setup() {
   //Serial.begin(9600);
   currentMotorShield.begin();
   SPI.begin();
-
   currentPlacer = new PlacerSeverin(PlacerMotorBase, PlacerMotorArm, PlacerMotorClaw);
   currentDetector = new DetectorSeverin(&PartDetector);
-  currentMover = new MoverSeverin(DriverMotor, DistanceSensorPin);
+  currentMover = new MoverSeverin(DriverMotor, DistanceSensorPin, 510, 400, 300, 200);
 
   thisSorticMachine = new SorticMachineSeverin(currentPlacer, currentDetector, currentMover, &currentMotorShield);
   delay(5000);

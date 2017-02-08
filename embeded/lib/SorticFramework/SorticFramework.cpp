@@ -6,7 +6,7 @@ SorticMachine::SorticMachine(Placer *tempPlacer, Detector *tempDetector, Mover *
   currentPlacer = tempPlacer;
   currentDetector = tempDetector;
   currentMover = tempMover;
-  currentMachineLogicState = idle;
+  currentMachineLogicState = MachineLogicState::idle;
 }
 
 
