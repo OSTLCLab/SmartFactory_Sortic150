@@ -1,0 +1,629 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagram program="umlet" version="14.2">
+  <zoom_level>5</zoom_level>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>380</x>
+      <y>790</y>
+      <w>250</w>
+      <h>65</h>
+    </coordinates>
+    <panel_attributes>CommunicationConnection : Abstract
+--
+- int *adressList
+- unsigned int numberOfAdresses
+--
++ CommunicationConnection(int *adressList, unsigned int numberOfAdresses)
++ virtual String listen()
++ virtual bool sendMessage(Message transmission)
++ bool hasConnectionAttached(int connection)</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>385</x>
+      <y>160</y>
+      <w>205</w>
+      <h>90</h>
+    </coordinates>
+    <panel_attributes>Component : Abstract
+--
+- componentSate _componentState = idle
+- MachineState stateBeforeInterrupt
+- int adress
+- int target
+--
++ Component(int adress, int target)
++ virtual Message componentLoop()
++ virtual bool recieveMessage(Message transmission)
++ void setInterrupt(bool enableInterrupt)
++ int getAdress()</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>225</x>
+      <y>160</y>
+      <w>100</w>
+      <h>50</h>
+    </coordinates>
+    <panel_attributes>enum class ComponentState
+--
+idle
+working
+error
+interrupt</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>40</x>
+      <y>330</y>
+      <w>285</w>
+      <h>105</h>
+    </coordinates>
+    <panel_attributes>CommunicationNode
+--
+- Component *firstComponent;
+- Component *secondComponent;
+- Component *thirdComponent;
+- Component *fourthComponent;
+- CommunicationConnection *firstCommunicationConnection;
+--
++ (Component *firstComponent, Component *secondComponent,
+      Component *thirdComponent, Component *fourthComponent,
+      CommunicationConnection *firstCommunicationConnection)
++ void setInterrupt(bool enableInterrupt)
++ void loopAllAttached()
+- bool sendMessage(Message transmission);</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>650</x>
+      <y>160</y>
+      <w>300</w>
+      <h>145</h>
+    </coordinates>
+    <panel_attributes>SorticController
+--
+- int placerAdress
+- int detectorAdress
+- int moverAdress
+- MoverPosition currentDropTarget
+- MoverPosition currentPickupTarget
+- PlacerActionDirection currentPickupDirection
+- PlacerActionDirection currentPlaceDirection
+- bool moverIsFinished
+- bool placerIsFinished
+- String currentPartMessage
+- bool setNextIdle = false
+- bool partDetected = false
+- int step = 1
+--
++ SorticController(int adress, int target, int mover, int placer, int detector)
++ Message componentLoop()
++ bool recieveMessage(Message transmission)</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>650</x>
+      <y>790</y>
+      <w>215</w>
+      <h>50</h>
+    </coordinates>
+    <panel_attributes>SerialConnection
+--
+
+--
++ SerialConnection(int *adressList, unsigned int numberOfAdresses, int baudRate)
++ String listen()
++ bool sendMessage(Message transmission)</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>625</x>
+      <y>790</y>
+      <w>35</w>
+      <h>15</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;-</panel_attributes>
+    <additional_attributes>10.0;10.0;50.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>585</x>
+      <y>160</y>
+      <w>75</w>
+      <h>15</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;-</panel_attributes>
+    <additional_attributes>10.0;10.0;130.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>320</x>
+      <y>220</y>
+      <w>75</w>
+      <h>125</h>
+    </coordinates>
+    <panel_attributes/>
+    <additional_attributes>10.0;230.0;100.0;230.0;100.0;10.0;130.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>320</x>
+      <y>340</y>
+      <w>70</w>
+      <h>465</h>
+    </coordinates>
+    <panel_attributes/>
+    <additional_attributes>10.0;10.0;100.0;10.0;100.0;910.0;120.0;910.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>320</x>
+      <y>155</y>
+      <w>75</w>
+      <h>20</h>
+    </coordinates>
+    <panel_attributes/>
+    <additional_attributes>10.0;20.0;130.0;20.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>650</x>
+      <y>515</y>
+      <w>215</w>
+      <h>75</h>
+    </coordinates>
+    <panel_attributes>Placer : Abstract
+--
+bool hasPart
+bool isMoving
+- PlacerActionType currentPlacerActionType
+- PlacerActionDirection currentPlacerActionDirection
+--
++ Placer(int adress, int target)
++ virtual Message componentLoop()
++ bool recieveMessage(int sender, String message)</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>585</x>
+      <y>190</y>
+      <w>75</w>
+      <h>340</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;-</panel_attributes>
+    <additional_attributes>10.0;10.0;70.0;10.0;70.0;660.0;130.0;660.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>860</x>
+      <y>510</y>
+      <w>50</w>
+      <h>20</h>
+    </coordinates>
+    <panel_attributes/>
+    <additional_attributes>10.0;20.0;80.0;20.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLNote</id>
+    <coordinates>
+      <x>900</x>
+      <y>515</y>
+      <w>70</w>
+      <h>50</h>
+    </coordinates>
+    <panel_attributes>Placer Messages
+--
+Pickup Left
+Pickup Right
+Place Left
+Place Right</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>650</x>
+      <y>705</y>
+      <w>215</w>
+      <h>50</h>
+    </coordinates>
+    <panel_attributes>Detector : Abstract
+--
+bool scanning
+--
++ Detector(int adress, int target)
++ virtual Message componentLoop
++ bool recieveMessage(Message transmission)</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>650</x>
+      <y>350</y>
+      <w>210</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>Mover : Abstract
+--
+- bool movementComplete
+- MoverPosition currentTarget
+--
++ Mover(int adress, int target)
++ virtual Message componentLoop()
++ bool recieveMessage(Message transmission)</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLNote</id>
+    <coordinates>
+      <x>895</x>
+      <y>350</y>
+      <w>70</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>Mover Messages
+--
+MoveTo PosA
+MoveTo PosB
+MoveTo PosC
+
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>855</x>
+      <y>345</y>
+      <w>50</w>
+      <h>20</h>
+    </coordinates>
+    <panel_attributes/>
+    <additional_attributes>10.0;20.0;80.0;20.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>895</x>
+      <y>395</y>
+      <w>110</w>
+      <h>50</h>
+    </coordinates>
+    <panel_attributes>enum class MoverPosition
+--
+pickUp
+dropA
+dropB
+dropC</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>855</x>
+      <y>360</y>
+      <w>50</w>
+      <h>50</h>
+    </coordinates>
+    <panel_attributes/>
+    <additional_attributes>10.0;10.0;60.0;10.0;60.0;80.0;80.0;80.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>900</x>
+      <y>645</y>
+      <w>110</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>enum class PlacerActionDirection
+--
+left
+right
+front</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>900</x>
+      <y>595</y>
+      <w>110</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>enum class PlacerActionType
+--
+none
+pickUp
+place</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>860</x>
+      <y>535</y>
+      <w>50</w>
+      <h>75</h>
+    </coordinates>
+    <panel_attributes/>
+    <additional_attributes>10.0;10.0;30.0;10.0;30.0;130.0;80.0;130.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>860</x>
+      <y>555</y>
+      <w>50</w>
+      <h>105</h>
+    </coordinates>
+    <panel_attributes/>
+    <additional_attributes>10.0;10.0;20.0;10.0;20.0;190.0;80.0;190.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>585</x>
+      <y>175</y>
+      <w>75</w>
+      <h>190</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;-</panel_attributes>
+    <additional_attributes>10.0;10.0;100.0;10.0;100.0;360.0;130.0;360.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>860</x>
+      <y>700</y>
+      <w>50</w>
+      <h>20</h>
+    </coordinates>
+    <panel_attributes/>
+    <additional_attributes>10.0;20.0;80.0;20.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLNote</id>
+    <coordinates>
+      <x>900</x>
+      <y>705</y>
+      <w>70</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>Placer Messages
+--
+scan enable
+scan disable</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>585</x>
+      <y>205</y>
+      <w>75</w>
+      <h>515</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;-</panel_attributes>
+    <additional_attributes>10.0;10.0;40.0;10.0;50.0;1010.0;130.0;1010.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1020</x>
+      <y>745</y>
+      <w>225</w>
+      <h>55</h>
+    </coordinates>
+    <panel_attributes>DetectionSeverin
+--
+- MMFRC522 PartDetector
+--
++ DetectorSeverin(int adress, int target, MFRC522 *tempPartDetector)
++ Message componentLoop()</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1020</x>
+      <y>350</y>
+      <w>520</w>
+      <h>165</h>
+    </coordinates>
+    <panel_attributes>MoverSeverin
+--
+- MedianFilter thisMedianFilter
+- bool ForwardIsLeft = true
+- bool isInitialized = false
+- int driveTollerance = 2
+- int maxSpeed = 200
+- int distanceSensorPin
+- Adafruit_DCMotor *DriverMotor
+- MoverPosition positionMarked[4] = {MoverPosition::pickUp, MoverPosition::dropA, MoverPosition::dropB, MoverPosition::dropC}
+- int positionValues[4]
+- int positionMax = 565
+- bool bahnHasStopped
+- int rawSensorValue
+- int filteredSensorValue
+- int targetPosition
+- int currentPosition
+- int distanceToTarget
+--
++ MoverSeverin(int adress, int target, Adafruit_DCMotor *tempDriverMotor, int tempDistanceSensorPin, int PosPickup, int posDropA, int posDropB, int posDropC)
++ Message componentLoop()</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>240</x>
+      <y>225</y>
+      <w>85</w>
+      <h>50</h>
+    </coordinates>
+    <panel_attributes>Message
+--
++ void switchAdresses()
++ int target
++ int sender
++ String message
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>320</x>
+      <y>200</y>
+      <w>75</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes/>
+    <additional_attributes>10.0;60.0;60.0;60.0;60.0;10.0;130.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>855</x>
+      <y>375</y>
+      <w>175</w>
+      <h>95</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;-</panel_attributes>
+    <additional_attributes>10.0;10.0;40.0;10.0;40.0;170.0;330.0;170.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>860</x>
+      <y>745</y>
+      <w>170</w>
+      <h>15</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;-</panel_attributes>
+    <additional_attributes>10.0;10.0;320.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLNote</id>
+    <coordinates>
+      <x>985</x>
+      <y>160</y>
+      <w>70</w>
+      <h>65</h>
+    </coordinates>
+    <panel_attributes>Mover Messages
+--
+Detector : error
+Detector : adress
+Mover : complete
+Placer : complete
+begin
+stop
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>945</x>
+      <y>155</y>
+      <w>50</w>
+      <h>20</h>
+    </coordinates>
+    <panel_attributes/>
+    <additional_attributes>10.0;20.0;80.0;20.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>860</x>
+      <y>525</y>
+      <w>170</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;-</panel_attributes>
+    <additional_attributes>10.0;10.0;50.0;10.0;50.0;100.0;320.0;100.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1020</x>
+      <y>570</y>
+      <w>520</w>
+      <h>145</h>
+    </coordinates>
+    <panel_attributes>PlacerSeverin
+--
+- Adafruit_DCMotor *PlacerMotorBase
+- Adafruit_DCMotor *PlacerMotorArm
+- Adafruit_DCMotor *PlacerMotorClaw
+- int step //0 = no step, 1 = turn,  2 = moveDown, 3 = clawAction, 4 = moveUp, 5 = turnBack
+- unsigned long startTime
+- bool hasStopped = true
+- bool isInitialized = false
+- unsigned long baseQuarterTurnTimePercise = 600
+- unsigned long baseQuarterTurnTimeSave = 2000
+- unsigned long armMoveUpTime = 2100
+- unsigned long armMoveDownTime = 2100
+- unsigned long clawOpenTime = 1200
+- unsigned long clawCloseTime = 1700
+- int driveSpeed = 200
+--
++ PlacerSeverin(int adress, int target, Adafruit_DCMotor *tempPlacerMotorBase, Adafruit_DCMotor *tempPlacerMotorArm, Adafruit_DCMotor *tempPlacerMotorClaw)
++ Message componentLoop()</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>985</x>
+      <y>235</y>
+      <w>105</w>
+      <h>65</h>
+    </coordinates>
+    <panel_attributes>enum class partColor
+--
+none
+teilSchwarz
+teilGrau
+teilGrauGelb
+teilGrauSchwarz
+notDeclared</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>945</x>
+      <y>230</y>
+      <w>50</w>
+      <h>20</h>
+    </coordinates>
+    <panel_attributes/>
+    <additional_attributes>10.0;20.0;80.0;20.0</additional_attributes>
+  </element>
+</diagram>
