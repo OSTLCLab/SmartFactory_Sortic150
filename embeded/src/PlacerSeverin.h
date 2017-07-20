@@ -10,12 +10,6 @@ class PlacerSeverin : public Placer
   public:
     PlacerSeverin(Adafruit_DCMotor *tempPlacerMotorBase, Adafruit_DCMotor *tempPlacerMotorArm, Adafruit_DCMotor *tempPlacerMotorClaw);
     void setAction(PlacerActionType newPlacerActionType, PlacerActionDirection newPlacerActionDirection);
-    /*
-    void pickUpLeft();
-    void pickUpRight();
-    void placeLeft();
-    void placeRight();
-    */
     bool placerLoop(); //true = complete, false = in progress
 
   private:

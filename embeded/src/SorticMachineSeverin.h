@@ -2,7 +2,6 @@
 #define SorticMachineSeverin_h
 
 #include "MoverSeverin.h"
-#include "PlacerSeverin.h"
 #include "DetectorSeverin.h"
 
 #include "Arduino.h"

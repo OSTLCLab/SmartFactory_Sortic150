@@ -1,7 +1,6 @@
 #include "SorticMachineSeverin.h"
 
 #include "MoverSeverin.h"
-#include "PlacerSeverin.h"
 #include "DetectorSeverin.h"
 
 #include "Arduino.h"
@@ -20,8 +19,6 @@ SorticMachineSeverin::SorticMachineSeverin(Placer *tempPlacer, Detector *tempDet
   currentDetector = tempDetector;
   currentMover = tempMover;
 
-  Serial.begin(9600);
-
 }
 
 void SorticMachineSeverin::loop() {
@@ -33,6 +30,7 @@ void SorticMachineSeverin::loop() {
   if(currentMachineLogicState == MachineLogicState::idle) {
     //identify part
     currentPartColor = identifyPart(currentPart);
+
 
     //if part detected
     if (currentPartColor != partColor::none) {
@@ -97,7 +95,7 @@ void SorticMachineSeverin::loop() {
   if(currentMachineLogicState == MachineLogicState::sorting) {
     if (moverHasStopped&&placerHasStopped) {
       step ++;
-      //Serial.println(step);
+      Serial.println(step);
 
       switch(step) {
 
@@ -150,7 +148,7 @@ partColor SorticMachineSeverin::identifyPart(byte partArray[])
   3) identify part
   */
   if(currentDetector->RfidCardIsPresent()){
-    
+
     currentDetector->getPartArray(currentPart);
 
     if(arrayByte8Equals(currentPart,teilArraySchwarz)){
