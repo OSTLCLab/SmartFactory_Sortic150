@@ -23,9 +23,11 @@ class PlacerPerformance : public Placer
     int last_receive_string = i_receive_string;
     String Send_String[1];
     String Receive_String[5];
-
+    String currentState;
+    int currentPosition;
+    int direction;
     void bluetoothEvent ();
-    void bluetoothControl ();
+    void bluetoothAction (String action);
 };
 
 #endif

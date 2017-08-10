@@ -37,6 +37,7 @@ void PlacerSeverin::setAction(PlacerActionType newPlacerActionType, PlacerAction
   else {
     startTime = millis();
     hasStopped = false;
+
     step = 1;
   }
 }
