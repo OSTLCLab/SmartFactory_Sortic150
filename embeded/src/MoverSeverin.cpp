@@ -29,7 +29,6 @@ int MoverSeverin::getPositionValue(MoverPosition tempPosition) {
     if(positionMarked[i]==tempPosition) {
       return positionValues[i];
     }
-
   }
 }
 
@@ -43,7 +42,7 @@ bool MoverSeverin::moverLoop() { //true = complete, false = in progress
   rawSensorValue = analogRead(distanceSensorPin);
   thisMedianFilter.UpdateFilter(rawSensorValue);
   filteredSensorValue = thisMedianFilter.getFilterValue();
-
+  //Serial.println(filteredSensorValue);
   if(bahnHasStopped == true) {
     DriverMotor->run(RELEASE);
   }

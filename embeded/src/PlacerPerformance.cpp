@@ -7,14 +7,24 @@
 PlacerPerformance::PlacerPerformance(SoftwareSerial *tempBluetooth) : Placer() {
   bluetooth = tempBluetooth;
   bluetooth->begin(57600);
-  delay(2000);
   this->setAction(PlacerActionType::none, PlacerActionDirection::front);
-  Serial.write("Placer Performance is Ready");
+  Serial.println("Placer Performance is Ready");
+  Serial.print("Action Directions: ");
+  Serial.print((int)PlacerActionDirection::front);
+  Serial.print(" , ");
+  Serial.print((int)PlacerActionDirection::left);
+  Serial.print(" , ");
+  Serial.println((int)PlacerActionDirection::right);
 }
 
 void PlacerPerformance::setAction(PlacerActionType newPlacerActionType, PlacerActionDirection newPlacerActionDirection) {
   currentPlacerActionType = newPlacerActionType;
   currentPlacerActionDirection = newPlacerActionDirection;
+
+  Serial.print("New Action: ");
+  Serial.print((int)currentPlacerActionType);
+  Serial.print(" : ");
+  Serial.println((int)currentPlacerActionDirection);
   if(currentPlacerActionType == PlacerActionType::none){
     direction = 0;
     step = 5;
@@ -22,26 +32,31 @@ void PlacerPerformance::setAction(PlacerActionType newPlacerActionType, PlacerAc
     bluetooth->write("setMotors(0)\n");
   }
   else {
-    //bluetooth->write("setMotors(1)\n");
-    //Serial.write("TEST");
-    /*bluetooth->write("setMotors(1)\n");
-    bluetooth->write("gotoPosition(4)\n");
-    delay(5000);
-    bluetooth->write("gotoPosition(5)\n");
-    delay(5000);*/
     hasStopped = false;
     bluetooth->write("setMotors(1)\n");
 
     if(currentPlacerActionType == PlacerActionType::pickUp) {
       if (currentPlacerActionDirection == PlacerActionDirection::left) {
-        Serial.println("New Job: Pickup Left");
+        Serial.println("Pickup Left");
         direction = 1;
         step = 1;
       }
       if (currentPlacerActionDirection == PlacerActionDirection::right) {
-        Serial.println("New Job: Pickup Right");
+        Serial.println("Pickup Right");
         step = 9;
         direction = -1;
+      }
+    }
+    if(currentPlacerActionType == PlacerActionType::place) {
+      if (currentPlacerActionDirection == PlacerActionDirection::left) {
+        Serial.println("Drop Left");
+        direction = -1;
+        step = 4;
+      }
+      if (currentPlacerActionDirection == PlacerActionDirection::right) {
+        Serial.println("Drop Right");
+        step = 6;
+        direction = 1;
       }
     }
   }
@@ -49,18 +64,23 @@ void PlacerPerformance::setAction(PlacerActionType newPlacerActionType, PlacerAc
 
 bool PlacerPerformance::placerLoop() {
   // Move Placer accoring to action
-  if (currentState == "arrivedPosition" && currentPosition == step) {
-    if (step == 5) {
-      this->setAction(PlacerActionType::none, PlacerActionDirection::front);
+  if (currentPlacerActionType != PlacerActionType::none) {
+    if (currentState == "arrivedPosition" && currentPosition == step) {
+      if (step == 5) {
+        this->setAction(PlacerActionType::none, PlacerActionDirection::front);
+      }
+      step += direction;
+      // In case of place action move back to pos 5 after placing
+      if (step < 1 || step > 9) {
+        step = 5;
+      }
+      delay(500);
     }
-    step += direction;
-    delay(100);
+    if (currentState != "waiting") {
+      bluetoothAction("gotoPosition("+ String(step) +")\n");
+    }
+    this->bluetoothEvent();
   }
-  if (currentState != "waiting") {
-    bluetoothAction("gotoPosition("+ String(step) +")\n");
-  }
-
-  this->bluetoothEvent();
   return hasStopped;
 }
 
@@ -86,7 +106,8 @@ void PlacerPerformance::bluetoothEvent() {
       flag_receive_complete = true;
       currentState = Receive_String[0];
       currentPosition = Receive_String[1].toInt();
-      Serial.println(currentState + ": " + currentPosition);
+      //DEBUG Print bluetooth message
+      //Serial.println(currentState + ": " + currentPosition);
       Receive_String[0] = "";
       Receive_String[1] = "";
       Receive_String[2] = "";

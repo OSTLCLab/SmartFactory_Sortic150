@@ -49,7 +49,7 @@ void setup() {
   currentMover = new MoverSeverin(DriverMotor, DistanceSensorPin, 510, 400, 300, 200);
 
   thisSorticMachine = new SorticMachineSeverin(currentPlacer, currentDetector, currentMover, &currentMotorShield);
-  delay(5000);
+  delay(2000);
 }
 
 void loop() {

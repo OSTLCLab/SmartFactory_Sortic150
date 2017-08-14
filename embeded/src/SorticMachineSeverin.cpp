@@ -22,15 +22,14 @@ SorticMachineSeverin::SorticMachineSeverin(Placer *tempPlacer, Detector *tempDet
 }
 
 void SorticMachineSeverin::loop() {
-  //delay(1000);
+  delay(10);
   bool placerHasStopped = currentPlacer->placerLoop();
   bool moverHasStopped = currentMover->moverLoop();
-
+  //Serial.println("Maschine Loop");
   //if state == idle
   if(currentMachineLogicState == MachineLogicState::idle) {
     //identify part
     currentPartColor = identifyPart(currentPart);
-
 
     //if part detected
     if (currentPartColor != partColor::none) {
@@ -38,7 +37,6 @@ void SorticMachineSeverin::loop() {
 
       //set sorting state
       currentMachineLogicState = MachineLogicState::sorting;
-
       step = 0;
 
       //set pickup targets
@@ -84,11 +82,12 @@ void SorticMachineSeverin::loop() {
           Serial.println("");
           break;
       }
-
-      //set pickup targets
       currentPickupTarget = MoverPosition::pickUp;
       currentPickupDirection = PlacerActionDirection::left;
+    } else {
+      //Serial.println("No part detected");
     }
+
   }
 
   //if state == sorting
