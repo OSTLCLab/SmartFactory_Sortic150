@@ -4,10 +4,11 @@
 #include "SorticFramework.h"
 #include <SoftwareSerial.h>
 
-PlacerPerformance::PlacerPerformance(SoftwareSerial *tempBluetooth) : Placer() {
+PlacerPerformance::PlacerPerformance(SoftwareSerial *tempBluetooth)
+{
   bluetooth = tempBluetooth;
   bluetooth->begin(57600);
-  this->setAction(PlacerActionType::none, PlacerActionDirection::front);
+  setAction(PlacerActionType::none, PlacerActionDirection::front);
   Serial.println("Placer Performance is Ready");
   Serial.print("Action Directions: ");
   Serial.print((int)PlacerActionDirection::front);
@@ -17,43 +18,52 @@ PlacerPerformance::PlacerPerformance(SoftwareSerial *tempBluetooth) : Placer() {
   Serial.println((int)PlacerActionDirection::right);
 }
 
-void PlacerPerformance::setAction(PlacerActionType newPlacerActionType, PlacerActionDirection newPlacerActionDirection) {
-  currentPlacerActionType = newPlacerActionType;
-  currentPlacerActionDirection = newPlacerActionDirection;
+void PlacerPerformance::setAction(PlacerActionType newPlacerActionType, PlacerActionDirection newPlacerActionDirection)
+{
+  state.currentActionType = newPlacerActionType;
+  state.currentActionDirection = newPlacerActionDirection;
 
   Serial.print("New Action: ");
-  Serial.print((int)currentPlacerActionType);
+  Serial.println((int)state.currentActionType);
   Serial.print(" : ");
-  Serial.println((int)currentPlacerActionDirection);
-  if(currentPlacerActionType == PlacerActionType::none){
+  Serial.print((int)state.currentActionDirection);
+  if (state.currentActionType == PlacerActionType::none)
+  {
+    state.hasStopped = true;
     direction = 0;
     step = 5;
-    hasStopped = true;
     bluetooth->write("setMotors(0)\n");
   }
-  else {
-    hasStopped = false;
+  else
+  {
+    state.hasStopped = false;
     bluetooth->write("setMotors(1)\n");
 
-    if(currentPlacerActionType == PlacerActionType::pickUp) {
-      if (currentPlacerActionDirection == PlacerActionDirection::left) {
+    if (state.currentActionType == PlacerActionType::pickUp)
+    {
+      if (state.currentActionDirection == PlacerActionDirection::left)
+      {
         Serial.println("Pickup Left");
         direction = 1;
         step = 1;
       }
-      if (currentPlacerActionDirection == PlacerActionDirection::right) {
+      if (state.currentActionDirection == PlacerActionDirection::right)
+      {
         Serial.println("Pickup Right");
         step = 9;
         direction = -1;
       }
     }
-    if(currentPlacerActionType == PlacerActionType::place) {
-      if (currentPlacerActionDirection == PlacerActionDirection::left) {
+    if (state.currentActionType == PlacerActionType::place)
+    {
+      if (state.currentActionDirection == PlacerActionDirection::left)
+      {
         Serial.println("Drop Left");
         direction = -1;
         step = 4;
       }
-      if (currentPlacerActionDirection == PlacerActionDirection::right) {
+      if (state.currentActionDirection == PlacerActionDirection::right)
+      {
         Serial.println("Drop Right");
         step = 6;
         direction = 1;
@@ -62,47 +72,61 @@ void PlacerPerformance::setAction(PlacerActionType newPlacerActionType, PlacerAc
   }
 }
 
-bool PlacerPerformance::placerLoop() {
+PlacerState PlacerPerformance::loop()
+{
   // Move Placer accoring to action
-  if (currentPlacerActionType != PlacerActionType::none) {
-    if (currentState == "arrivedPosition" && currentPosition == step) {
-      if (step == 5) {
-        this->setAction(PlacerActionType::none, PlacerActionDirection::front);
+  if (state.currentActionType != PlacerActionType::none)
+  {
+    if (currentState == "arrivedPosition" && currentPosition == step)
+    {
+      if (step == 5)
+      {
+        setAction(PlacerActionType::none, PlacerActionDirection::front);
       }
       step += direction;
       // In case of place action move back to pos 5 after placing
-      if (step < 1 || step > 9) {
+      if (step < 1 || step > 9)
+      {
         step = 5;
       }
       delay(500);
     }
-    if (currentState != "waiting") {
-      bluetoothAction("gotoPosition("+ String(step) +")\n");
+    if (currentState != "waiting")
+    {
+      bluetoothAction("gotoPosition(" + String(step) + ")\n");
     }
     this->bluetoothEvent();
   }
-  return hasStopped;
+  return this->state;
 }
 
-void PlacerPerformance::bluetoothAction (String action) {
-    bluetooth->print(action);
-    Serial.println(action);
-    currentState = "waiting";
+void PlacerPerformance::bluetoothAction(String action)
+{
+  bluetooth->print(action);
+  Serial.println(action);
+  currentState = "waiting";
 }
 
-void PlacerPerformance::bluetoothEvent() {
-  if (bluetooth->available() > 0 && flag_receive_complete != true) {
+void PlacerPerformance::bluetoothEvent()
+{
+  if (bluetooth->available() > 0 && flag_receive_complete != true)
+  {
     delay(1);
+    //bluetooth->readStringUntil('\n');
+
     char inChar = (char)bluetooth->read();
-    if (inChar == '(' || inChar == ')' || inChar == '\n' || inChar == ',') {
+    if (inChar == '(' || inChar == ')' || inChar == '\n' || inChar == ',')
+    {
       last_receive_string = i_receive_string;
       i_receive_string = 4;
     }
     Receive_String[i_receive_string] += inChar;
-    if (i_receive_string == 4) {
+    if (i_receive_string == 4)
+    {
       i_receive_string = last_receive_string + 1;
     }
-    if (inChar == '\n') {
+    if (inChar == '\n')
+    {
       flag_receive_complete = true;
       currentState = Receive_String[0];
       currentPosition = Receive_String[1].toInt();

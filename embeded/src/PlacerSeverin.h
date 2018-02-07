@@ -5,6 +5,7 @@
 #include "SorticFramework.h"
 #include <Adafruit_MotorShield.h>
 
+/*
 class PlacerSeverin : public Placer
 {
   public:
@@ -30,5 +31,5 @@ class PlacerSeverin : public Placer
     int driveSpeed = 200;
 
 };
-
+*/
 #endif

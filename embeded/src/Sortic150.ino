@@ -7,11 +7,11 @@
 #include <SoftwareSerial.h>
 
 #include <SorticFramework.h>
-#include <SorticMachineSeverin.h>
-#include <RailMover.h>
+#include <SorticMachine.h>
+#include <Chassis.h>
 #include <PlacerSeverin.h>
 #include <PlacerPerformance.h>
-#include <BluetoothDetector.h>
+#include <RfidDetector.h>
 
 //Sensors:
 int DistanceSensorPin = A1;
@@ -27,10 +27,10 @@ MFRC522 PartDetector(6, 5);
 SoftwareSerial Bluetooth(2, 3); // TX | RX
 
 //Components:
-Placer *currentPlacer;
-BluetoothDetector *currentDetector;
-RailMover *currentMover;
-SorticMachineSeverin *thisSorticMachine;
+PlacerPerformance *placer;
+RfidDetector *rfidDetector;
+Chassis *chassis;
+SorticMachine *thisSorticMachine;
 
 void setup()
 {
@@ -39,15 +39,16 @@ void setup()
   SPI.begin();
   //currentPlacer = new PlacerSeverin(PlacerMotorBase, PlacerMotorArm, PlacerMotorClaw);
 
-  currentPlacer = new PlacerPerformance(&Bluetooth);
-  currentDetector = new BluetoothDetector(&PartDetector);
-  currentMover = new RailMover(DriverMotor, DistanceSensorPin, 510, 400, 300, 200);
+  placer = new PlacerPerformance(&Bluetooth);
+  rfidDetector = new RfidDetector(&PartDetector);
+  chassis = new Chassis(DriverMotor, DistanceSensorPin, 510, 400, 300, 200);
 
-  thisSorticMachine = new SorticMachineSeverin(currentPlacer, currentDetector, currentMover, &currentMotorShield);
+  thisSorticMachine = new SorticMachine(placer, rfidDetector, chassis, &currentMotorShield);
   delay(2000);
 }
 
 void loop()
 {
+  //currentMover->moverLoop();
   thisSorticMachine->loop();
 }

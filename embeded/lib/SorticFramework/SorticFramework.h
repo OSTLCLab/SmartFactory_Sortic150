@@ -1,6 +1,6 @@
 #ifndef SorticFramework_h
 #define SorticFramework_h
-
+/*
 #include <Arduino.h>
 #include <Component.h>
 
@@ -17,8 +17,8 @@ enum class PlacerActionDirection
   right,
   front
 };
-
-class Placer : public Component
+template <typename T>
+class Placer : public Component<T>
 {
 public:
   Placer();
@@ -32,7 +32,8 @@ protected:
   PlacerActionDirection currentPlacerActionDirection;
 };
 
-class Detector : public Component
+template <typename T>
+class Detector : public Component<T>
 {
 public:
   Detector();
@@ -41,7 +42,7 @@ public:
   virtual bool RfidCardIsPresent();
 };
 
-enum class MoverPosition
+enum class ChassisPosition
 {
   pickUp,
   dropA,
@@ -49,18 +50,19 @@ enum class MoverPosition
   dropC
 };
 
-class Mover : public Component
+template <typename T>
+class Mover : public Component<T>
 {
 public:
   Mover();
-  virtual void moveToPosition(MoverPosition newTarget);
+  virtual void moveToPosition(ChassisPosition newTarget);
   virtual bool moverLoop(); //true = complete, false = in progress
 
 protected:
   bool movementComplete;
 };
 
-enum class MachineLogicState
+enum class MachineJob
 {
   idle,
   sorting
@@ -77,11 +79,10 @@ protected:
   Placer *currentPlacer;
   Detector *currentDetector;
   Mover *currentMover;
-  MachineLogicState currentMachineLogicState = MachineLogicState::idle;
-  MoverPosition currentDropTarget;
-  MoverPosition currentPickupTarget;
+  MachineJob state.job = MachineJob::idle;
+  ChassisPosition currentDropTarget;
+  ChassisPosition currentPickupTarget;
   PlacerActionDirection currentPickupDirection;
   PlacerActionDirection currentPlaceDirection;
-};
-
+};*/
 #endif

@@ -1,3 +1,4 @@
+/*
 #include "PlacerSeverin.h"
 
 #include "Arduino.h"
@@ -135,3 +136,4 @@ bool PlacerSeverin::placerLoop() {
 
   return hasStopped;
 }
+*/
