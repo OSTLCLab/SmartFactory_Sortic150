@@ -1,16 +1,17 @@
 #include "SorticMachineSeverin.h"
 
 #include "MoverSeverin.h"
-#include "DetectorSeverin.h"
+#include "BluetoothDetector.h"
 
 #include "Arduino.h"
 #include "SorticFramework.h"
-#include <SPI.h> //Required for setup
-#include <MFRC522.h> //Required?
-#include <Wire.h> //Required?
+#include <SPI.h>                  //Required for setup
+#include <MFRC522.h>              //Required?
+#include <Wire.h>                 //Required?
 #include <Adafruit_MotorShield.h> //Required for setup
 
-SorticMachineSeverin::SorticMachineSeverin(Placer *tempPlacer, Detector *tempDetector, Mover *tempMover, Adafruit_MotorShield *tempMotorShield) : SorticMachine(tempPlacer, tempDetector, tempMover) {
+SorticMachineSeverin::SorticMachineSeverin(Placer *tempPlacer, Detector *tempDetector, Mover *tempMover, Adafruit_MotorShield *tempMotorShield) : SorticMachine(tempPlacer, tempDetector, tempMover)
+{
   currentMotorShield = tempMotorShield;
   //currentMotorShield -> begin();
   //SPI.begin();
@@ -18,21 +19,23 @@ SorticMachineSeverin::SorticMachineSeverin(Placer *tempPlacer, Detector *tempDet
   currentPlacer = tempPlacer;
   currentDetector = tempDetector;
   currentMover = tempMover;
-
 }
 
-void SorticMachineSeverin::loop() {
+void SorticMachineSeverin::loop()
+{
   delay(10);
   bool placerHasStopped = currentPlacer->placerLoop();
   bool moverHasStopped = currentMover->moverLoop();
   //Serial.println("Maschine Loop");
   //if state == idle
-  if(currentMachineLogicState == MachineLogicState::idle) {
+  if (currentMachineLogicState == MachineLogicState::idle)
+  {
     //identify part
     currentPartColor = identifyPart(currentPart);
 
     //if part detected
-    if (currentPartColor != partColor::none) {
+    if (currentPartColor != partColor::none)
+    {
       Serial.println("Detected");
 
       //set sorting state
@@ -40,98 +43,104 @@ void SorticMachineSeverin::loop() {
       step = 0;
 
       //set pickup targets
-      switch(currentPartColor) {
-        case partColor::none:
-          Serial.println("none");
-          break;
+      switch (currentPartColor)
+      {
+      case partColor::none:
+        Serial.println("none");
+        break;
 
-        case partColor::teilSchwarz:
-          Serial.println("schwarz");
-          currentDropTarget = MoverPosition::dropA;
-          currentPlaceDirection = PlacerActionDirection::left;
-          break;
+      case partColor::teilSchwarz:
+        Serial.println("schwarz");
+        currentDropTarget = MoverPosition::dropA;
+        currentPlaceDirection = PlacerActionDirection::left;
+        break;
 
-        case partColor::teilGrau:
-          Serial.println("grau");
-          currentDropTarget = MoverPosition::dropA;
-          currentPlaceDirection = PlacerActionDirection::right;
-          break;
+      case partColor::teilGrau:
+        Serial.println("grau");
+        currentDropTarget = MoverPosition::dropA;
+        currentPlaceDirection = PlacerActionDirection::right;
+        break;
 
-        case partColor::teilGrauGelb:
-          Serial.println("grauGelb");
-          currentDropTarget = MoverPosition::dropB;
-          currentPlaceDirection = PlacerActionDirection::left;
-          break;
+      case partColor::teilGrauGelb:
+        Serial.println("grauGelb");
+        currentDropTarget = MoverPosition::dropB;
+        currentPlaceDirection = PlacerActionDirection::left;
+        break;
 
-        case partColor::teilGrauSchwarz:
-          Serial.println("grauSchwarz");
-          currentDropTarget = MoverPosition::dropB;
-          currentPlaceDirection = PlacerActionDirection::right;
-          break;
+      case partColor::teilGrauSchwarz:
+        Serial.println("grauSchwarz");
+        currentDropTarget = MoverPosition::dropB;
+        currentPlaceDirection = PlacerActionDirection::right;
+        break;
 
-        case partColor::notDeclared:
-          Serial.println("not declared");
-          currentDropTarget = MoverPosition::pickUp;
-          currentPlaceDirection = PlacerActionDirection::right;
+      case partColor::notDeclared:
+        Serial.println("not declared");
+        currentDropTarget = MoverPosition::pickUp;
+        currentPlaceDirection = PlacerActionDirection::right;
 
-          //display byte array
-          for(int i = 0; i<8; i++) {
-            Serial.print(currentPart[i]);
-            Serial.print(" ");
-          }
-          Serial.println("");
-          break;
+        //display byte array
+        for (int i = 0; i < 8; i++)
+        {
+          Serial.print(currentPart[i]);
+          Serial.print(" ");
+        }
+        Serial.println("");
+        break;
       }
       currentPickupTarget = MoverPosition::pickUp;
       currentPickupDirection = PlacerActionDirection::left;
-    } else {
+    }
+    else
+    {
       //Serial.println("No part detected");
     }
-
   }
 
   //if state == sorting
-  if(currentMachineLogicState == MachineLogicState::sorting) {
-    if (moverHasStopped&&placerHasStopped) {
-      step ++;
+  if (currentMachineLogicState == MachineLogicState::sorting)
+  {
+    if (moverHasStopped && placerHasStopped)
+    {
+      step++;
       Serial.println(step);
 
-      switch(step) {
+      switch (step)
+      {
 
-        case 10:
+      case 10:
         currentMover->moveToPosition(currentPickupTarget);
         break;
 
-        case 20:
+      case 20:
         currentPlacer->setAction(PlacerActionType::pickUp, currentPickupDirection);
         break;
 
-        case 30:
+      case 30:
         currentMover->moveToPosition(currentDropTarget);
         break;
 
-        case 40:
+      case 40:
         currentPlacer->setAction(PlacerActionType::place, currentPlaceDirection);
         break;
 
-        case 50:
+      case 50:
         currentMover->moveToPosition(currentPickupTarget);
         break;
 
-        case 60:
+      case 60:
         currentMachineLogicState = MachineLogicState::idle;
         step = 0;
         break;
       }
     }
   }
-
 }
 
-bool SorticMachineSeverin::arrayByte8Equals(byte a[8], byte b[8]) {
-  for(int i = 0; i<7; i++)
+bool SorticMachineSeverin::arrayByte8Equals(byte a[8], byte b[8])
+{
+  for (int i = 0; i < 7; i++)
   {
-    if(a[i] != b[i])
+    if (a[i] != b[i])
     {
       return false;
     }
@@ -146,27 +155,34 @@ partColor SorticMachineSeverin::identifyPart(byte partArray[])
   2) get part array
   3) identify part
   */
-  if(currentDetector->RfidCardIsPresent()){
+  if (currentDetector->RfidCardIsPresent())
+  {
 
     currentDetector->getPartArray(currentPart);
 
-    if(arrayByte8Equals(currentPart,teilArraySchwarz)){
+    if (arrayByte8Equals(currentPart, teilArraySchwarz))
+    {
       return partColor::teilSchwarz;
     }
-    else if(arrayByte8Equals(currentPart,teilArrayGrau)) {
+    else if (arrayByte8Equals(currentPart, teilArrayGrau))
+    {
       return partColor::teilGrau;
     }
-    else if(arrayByte8Equals(currentPart,teilArrayGrauGelb)) {
+    else if (arrayByte8Equals(currentPart, teilArrayGrauGelb))
+    {
       return partColor::teilGrauGelb;
     }
-    else if(arrayByte8Equals(currentPart,teilArrayGrauSchwarz)) {
+    else if (arrayByte8Equals(currentPart, teilArrayGrauSchwarz))
+    {
       return partColor::teilGrauSchwarz;
     }
-    else {
+    else
+    {
       return partColor::notDeclared;
     }
-
-  } else {
+  }
+  else
+  {
     return partColor::none;
   }
 }

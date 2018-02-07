@@ -12,8 +12,7 @@
 #include "MoverSeverin.h"
 #include "PlacerSeverin.h"
 #include "PlacerPerformance.h"
-#include "DetectorSeverin.h"
-
+#include "BluetoothDetector.h"
 
 //Sensors:
 int DistanceSensorPin = A1;
@@ -26,32 +25,33 @@ Adafruit_DCMotor *PlacerMotorArm = currentMotorShield.getMotor(3);
 Adafruit_DCMotor *PlacerMotorClaw = currentMotorShield.getMotor(4);*/
 
 //RFID Detectors:
-MFRC522 PartDetector(6,5);
+MFRC522 PartDetector(6, 5);
 
 //Bluetooth:
 SoftwareSerial Bluetooth(2, 3); // TX | RX
 
 //Components:
 Placer *currentPlacer;
-DetectorSeverin *currentDetector;
+BluetoothDetector *currentDetector;
 MoverSeverin *currentMover;
 SorticMachineSeverin *thisSorticMachine;
 
-
-void setup() {
+void setup()
+{
   Serial.begin(9600);
   currentMotorShield.begin();
   SPI.begin();
   //currentPlacer = new PlacerSeverin(PlacerMotorBase, PlacerMotorArm, PlacerMotorClaw);
 
   currentPlacer = new PlacerPerformance(&Bluetooth);
-  currentDetector = new DetectorSeverin(&PartDetector);
+  currentDetector = new BluetoothDetector(&PartDetector);
   currentMover = new MoverSeverin(DriverMotor, DistanceSensorPin, 510, 400, 300, 200);
 
   thisSorticMachine = new SorticMachineSeverin(currentPlacer, currentDetector, currentMover, &currentMotorShield);
   delay(2000);
 }
 
-void loop() {
+void loop()
+{
   thisSorticMachine->loop();
 }
