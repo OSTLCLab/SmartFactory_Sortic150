@@ -5,27 +5,20 @@
 #include <Adafruit_MotorShield.h>
 #include <filters/MedianFilter.h>
 #include <Component.h>
+#include <ConfigReciever.h>
 
 struct ChassisState
 {
   bool hasStopped = true;
 };
 
-enum class ChassisPosition
-{
-  pickUp,
-  dropA,
-  dropB,
-  dropC
-};
-
 class Chassis : public Component<ChassisState>
 {
 public:
-  Chassis(Adafruit_DCMotor *tempDriverMotor, int tempDistanceSensorPin, int PosPickup, int posDropA, int posDropB, int posDropC);
-  void moveToPosition(ChassisPosition newTarget);
-  ChassisState loop(); //true = complete, false = in progress
-  int getPositionValue(ChassisPosition tempPosition);
+  Chassis(Adafruit_DCMotor *motor, int tempDistanceSensorPin, int startPosition);
+
+  void moveToPosition(int newTarget);
+  ChassisState loop();
 
 private:
   MedianFilter thisMedianFilter;
@@ -37,7 +30,6 @@ private:
   ChassisState state;
 
   //Position Variables
-  ChassisPosition positionMarked[4] = {ChassisPosition::pickUp, ChassisPosition::dropA, ChassisPosition::dropB, ChassisPosition::dropC};
   int positionValues[4];
   int positionMax = 565; //Maximum sensor value ~= 565, uses max sensor value if larger
   int rawSensorValue;

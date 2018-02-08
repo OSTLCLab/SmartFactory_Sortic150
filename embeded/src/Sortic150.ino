@@ -12,6 +12,7 @@
 #include <PlacerSeverin.h>
 #include <PlacerPerformance.h>
 #include <RfidDetector.h>
+#include <ConfigReciever.h>
 
 //Sensors:
 int DistanceSensorPin = A1;
@@ -31,7 +32,13 @@ PlacerPerformance *placer;
 RfidDetector *rfidDetector;
 Chassis *chassis;
 SorticMachine *thisSorticMachine;
+ConfigReciever *configReciever;
 
+static const RFidChip chips[4] = {
+    {(byte[]){4, 135, 115, 120, 162, 231, 73, 128}, 400, PlacerActionDirection::left},
+    {(byte[]){4, 42, 117, 211, 162, 231, 73, 128}, 300, PlacerActionDirection::left},
+    {(byte[]){4, 161, 115, 94, 162, 231, 73, 128}, 200, PlacerActionDirection::left},
+    {(byte[]){1, 2, 3, 4, 5, 6, 7, 8}, 400, PlacerActionDirection::left}};
 void setup()
 {
   Serial.begin(9600);
@@ -41,14 +48,21 @@ void setup()
 
   placer = new PlacerPerformance(&Bluetooth);
   rfidDetector = new RfidDetector(&PartDetector);
-  chassis = new Chassis(DriverMotor, DistanceSensorPin, 510, 400, 300, 200);
+  chassis = new Chassis(DriverMotor, DistanceSensorPin, 510);
 
-  thisSorticMachine = new SorticMachine(placer, rfidDetector, chassis, &currentMotorShield);
+  Config config{510,
+                510,
+                (RFidChip *)chips,
+                4};
+
+  configReciever = new ConfigReciever{config};
+
+  thisSorticMachine = new SorticMachine(placer, rfidDetector, chassis, &currentMotorShield, configReciever);
+
   delay(2000);
 }
 
 void loop()
 {
-  //currentMover->moverLoop();
   thisSorticMachine->loop();
 }

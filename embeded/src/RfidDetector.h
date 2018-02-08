@@ -9,15 +9,15 @@
 
 struct RfidDetectorState
 {
-  byte partArray[8];
-  bool rfIdIsPresent = false;
+  byte partArray[8]{};
+  bool cardDetected = false;
 };
 class RfidDetector : public Component<RfidDetectorState>
 {
 public:
   RfidDetector(MFRC522 *mfrc522);
-  bool RfidCardIsPresent();
-  RfidDetectorState loop(); //Funciton returns pointer to static array: https://www.tutorialspoint.com/cplusplus/cpp_return_arrays_from_functions.htm
+  RfidDetectorState loop();
+
 private:
   RfidDetectorState state;
   MFRC522 mfrc522;
