@@ -13,25 +13,24 @@
 #include <PlacerPerformance.h>
 #include <RfidDetector.h>
 #include <ConfigReciever.h>
+#include <ArduinoJson.h>
 
-//Sensors:
-int DistanceSensorPin = A1;
+#define distanceSensorPin A1
+#define bluetoothTx 2
+#define bluetoothRx 3
+#define rfidDetectorSelectPin 6
+#define rfidDetectorPowerDownPin 5
+#define motor 1
 
-//Motors:
-Adafruit_MotorShield currentMotorShield = Adafruit_MotorShield();
-Adafruit_DCMotor *DriverMotor = currentMotorShield.getMotor(1);
+Adafruit_MotorShield currentMotorShield{};
+Adafruit_DCMotor *driverMotor = currentMotorShield.getMotor(motor);
+MFRC522 partDetector{rfidDetectorSelectPin, rfidDetectorPowerDownPin};
+SoftwareSerial bluetooth{bluetoothTx, bluetoothRx};
 
-//RFID Detectors:
-MFRC522 PartDetector(6, 5);
-
-//Bluetooth:
-SoftwareSerial Bluetooth(2, 3); // TX | RX
-
-//Components:
 PlacerPerformance *placer;
 RfidDetector *rfidDetector;
 Chassis *chassis;
-SorticMachine *thisSorticMachine;
+SorticMachine *sorticMachine;
 ConfigReciever *configReciever;
 
 static const RFidChip chips[4] = {
@@ -39,30 +38,29 @@ static const RFidChip chips[4] = {
     {(byte[]){4, 42, 117, 211, 162, 231, 73, 128}, 300, PlacerActionDirection::left},
     {(byte[]){4, 161, 115, 94, 162, 231, 73, 128}, 200, PlacerActionDirection::left},
     {(byte[]){1, 2, 3, 4, 5, 6, 7, 8}, 400, PlacerActionDirection::left}};
+
+static const Config initialConfig{510,
+                                  510,
+                                  (RFidChip *)chips,
+                                  4,
+                                  true};
+
 void setup()
 {
   Serial.begin(9600);
   currentMotorShield.begin();
   SPI.begin();
-  //currentPlacer = new PlacerSeverin(PlacerMotorBase, PlacerMotorArm, PlacerMotorClaw);
 
-  placer = new PlacerPerformance(&Bluetooth);
-  rfidDetector = new RfidDetector(&PartDetector);
-  chassis = new Chassis(DriverMotor, DistanceSensorPin, 510);
-
-  Config config{510,
-                510,
-                (RFidChip *)chips,
-                4};
-
-  configReciever = new ConfigReciever{config};
-
-  thisSorticMachine = new SorticMachine(placer, rfidDetector, chassis, &currentMotorShield, configReciever);
+  placer = new PlacerPerformance{&bluetooth};
+  rfidDetector = new RfidDetector{&partDetector};
+  chassis = new Chassis{driverMotor, distanceSensorPin, 510};
+  configReciever = new ConfigReciever{initialConfig};
+  sorticMachine = new SorticMachine{placer, rfidDetector, chassis, &currentMotorShield, configReciever};
 
   delay(2000);
 }
 
 void loop()
 {
-  thisSorticMachine->loop();
+  sorticMachine->loop();
 }

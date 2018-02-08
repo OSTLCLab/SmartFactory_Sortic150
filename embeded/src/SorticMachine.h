@@ -37,7 +37,6 @@ struct SorticMachineState
   RfidDetectorState rfidDetectorState;
   Config configState;
   ChassisState chassisState;
-  bool fullStop;
 };
 
 class SorticMachine : public Component<SorticMachineState>

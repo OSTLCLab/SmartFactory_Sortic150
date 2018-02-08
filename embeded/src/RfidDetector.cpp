@@ -19,6 +19,8 @@ RfidDetectorState RfidDetector::loop()
     return state;
   }
 
+  Serial.println("Card detected");
+
   byte blockSize = 18;
   MFRC522::StatusCode status{mfrc522.MIFARE_Read(0, state.partArray, &blockSize)};
   Serial.println("Actual RFIDScanner status[" + String(status) + "] Status Ok[" + String(MFRC522::STATUS_OK) + "]");

@@ -23,26 +23,23 @@ SorticMachine::SorticMachine(PlacerPerformance *placer,
   this->rfidDetector = rfidDetector;
   this->chassis = chassis;
   this->configReciever = configReciever;
-  state.fullStop = false;
 }
 
 SorticMachineState SorticMachine::loop()
 {
-  if (state.fullStop)
+  state.configState = configReciever->loop();
+
+  if (!state.configState.powerOn)
   {
     return state;
   }
 
-  delay(10);
   state.placerState = placer->loop();
   state.chassisState = chassis->loop();
   state.rfidDetectorState = rfidDetector->loop();
-  state.configState = configReciever->loop();
 
   if (state.job == MachineJob::idle && state.rfidDetectorState.cardDetected)
   {
-    Serial.println("Card detected");
-
     int rfidIndex = this->getIndexOfRFidChip(state.configState, state.rfidDetectorState.partArray);
 
     if (rfidIndex != -1)
@@ -61,6 +58,7 @@ SorticMachineState SorticMachine::loop()
     {
       Serial.println("MachineJob::sorting");
     }
+
     if (state.chassisState.hasStopped && state.placerState.hasStopped)
     {
       step++;
@@ -69,14 +67,12 @@ SorticMachineState SorticMachine::loop()
       case 10:
         chassis->moveToPosition(state.configState.startPosition);
         break;
-
       case 30:
         chassis->moveToPosition(targetPosition);
         break;
       case 50:
         chassis->moveToPosition(state.configState.startPosition);
         break;
-
       case 60:
         state.job = MachineJob::idle;
         step = 0;

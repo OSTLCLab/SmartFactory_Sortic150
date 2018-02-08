@@ -13,9 +13,9 @@ enum class PlacerActionType
 
 enum class PlacerActionDirection
 {
-  left,
-  right,
-  front
+  front = 1,
+  left = 2,
+  right = 4,
 };
 
 struct PlacerState

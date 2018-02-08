@@ -1,11 +1,15 @@
-#ifndef Chassis_h
-#define Chassis_h
-
 #include <Arduino.h>
 #include <Adafruit_MotorShield.h>
 #include <filters/MedianFilter.h>
 #include <Component.h>
 #include <ConfigReciever.h>
+
+#ifndef Chassis_h
+#define Chassis_h
+
+#define CHASIS_POS_MAX 565
+#define DRIVE_TOLERANCE 2
+#define MAX_MOTORSPEED 200
 
 struct ChassisState
 {
@@ -15,28 +19,18 @@ struct ChassisState
 class Chassis : public Component<ChassisState>
 {
 public:
-  Chassis(Adafruit_DCMotor *motor, int tempDistanceSensorPin, int startPosition);
+  Chassis(Adafruit_DCMotor *motor, uint8_t distanceSensorPin, int startPosition);
 
   void moveToPosition(int newTarget);
   ChassisState loop();
 
 private:
-  MedianFilter thisMedianFilter;
-  bool ForwardIsLeft = true;
-  int driveTollerance = 2;
-  int maxSpeed = 200;
-  int distanceSensorPin;
-  Adafruit_DCMotor *DriverMotor;
+  MedianFilter medianFilter;
+  uint8_t distanceSensorPin;
+  Adafruit_DCMotor *motor;
   ChassisState state;
 
-  //Position Variables
-  int positionValues[4];
-  int positionMax = 565; //Maximum sensor value ~= 565, uses max sensor value if larger
-  int rawSensorValue;
-  int filteredSensorValue;
   int targetPosition;
-  int currentPosition;
-  int distanceToTarget;
 };
 
 #endif

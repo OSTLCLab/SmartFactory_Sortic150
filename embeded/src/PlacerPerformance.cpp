@@ -9,13 +9,6 @@ PlacerPerformance::PlacerPerformance(SoftwareSerial *tempBluetooth)
   bluetooth = tempBluetooth;
   bluetooth->begin(57600);
   setAction(PlacerActionType::none, PlacerActionDirection::front);
-  Serial.println("Placer Performance is Ready");
-  Serial.print("Action Directions: ");
-  Serial.print((int)PlacerActionDirection::front);
-  Serial.print(" , ");
-  Serial.print((int)PlacerActionDirection::left);
-  Serial.print(" , ");
-  Serial.println((int)PlacerActionDirection::right);
 }
 
 void PlacerPerformance::setAction(PlacerActionType newPlacerActionType, PlacerActionDirection newPlacerActionDirection)
@@ -23,10 +16,6 @@ void PlacerPerformance::setAction(PlacerActionType newPlacerActionType, PlacerAc
   state.currentActionType = newPlacerActionType;
   state.currentActionDirection = newPlacerActionDirection;
 
-  Serial.print("New Action: ");
-  Serial.println((int)state.currentActionType);
-  Serial.print(" : ");
-  Serial.print((int)state.currentActionDirection);
   if (state.currentActionType == PlacerActionType::none)
   {
     state.hasStopped = true;

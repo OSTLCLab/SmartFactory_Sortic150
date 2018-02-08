@@ -1,18 +1,16 @@
-#include "Chassis.h"
+#include <Chassis.h>
+#include <Arduino.h>
+#include <Adafruit_MotorShield.h>
 
-#include "Arduino.h"
-#include "SorticFramework.h"
-
-Chassis::Chassis(Adafruit_DCMotor *motor, int tempDistanceSensorPin, int startPosition)
+Chassis::Chassis(Adafruit_DCMotor *motor, uint8_t distanceSensorPin, int startPosition)
 {
-  DriverMotor = motor;
-  distanceSensorPin = tempDistanceSensorPin;
-  rawSensorValue = analogRead(distanceSensorPin);
-  thisMedianFilter = MedianFilter(rawSensorValue);
-  DriverMotor->run(FORWARD); //FORWARD = Nach Rechts, BACKWARD = Nach Links
-  DriverMotor->run(RELEASE);
-  DriverMotor->setSpeed(0);
-  moveToPosition(startPosition);
+  this->motor = motor;
+  this->distanceSensorPin = distanceSensorPin;
+  this->medianFilter = MedianFilter{analogRead(distanceSensorPin)};
+  this->motor->run(FORWARD);
+  this->motor->run(RELEASE);
+  this->motor->setSpeed(0);
+  this->moveToPosition(startPosition);
 }
 
 void Chassis::moveToPosition(int newTarget)
@@ -22,73 +20,42 @@ void Chassis::moveToPosition(int newTarget)
 }
 
 ChassisState Chassis::loop()
-{ //true = complete, false = in progress
+{
   //Maximum sensor value ~= 565, use max sensor value if larger
   if (state.hasStopped)
   {
     return state;
   }
 
-  if (targetPosition > positionMax)
+  if (targetPosition > CHASIS_POS_MAX)
   {
-    targetPosition = positionMax;
+    targetPosition = CHASIS_POS_MAX;
   }
 
-  rawSensorValue = analogRead(distanceSensorPin);
-  thisMedianFilter.UpdateFilter(rawSensorValue);
-  filteredSensorValue = thisMedianFilter.getFilterValue();
+  int sensorValue = analogRead(distanceSensorPin);
+  int currentPosition = medianFilter.getFilterValue(sensorValue);
+  int distanceToTarget = abs(currentPosition - targetPosition);
 
-  if (filteredSensorValue != 0)
+  //set direction
+  motor->run(currentPosition > targetPosition ? FORWARD : BACKWARD);
+
+  //Set Speed relative to target
+  if (distanceToTarget > 150)
   {
-    //Funktion fuer Uebertragung in nutzbare grösse
-    int currentPosition = filteredSensorValue;
+    motor->setSpeed(MAX_MOTORSPEED);
+  }
+  else
+  {
+    motor->setSpeed(distanceToTarget + 70);
+  }
 
-    //In richtige Richtung fahren
-    if (currentPosition > targetPosition)
-    {
-      //Drive left
-      if (ForwardIsLeft)
-      {
-        DriverMotor->run(FORWARD);
-      }
-      else
-      {
-        DriverMotor->run(BACKWARD);
-      }
-    }
-    else
-    {
-      //Drive right
-      if (ForwardIsLeft)
-      {
-        DriverMotor->run(BACKWARD);
-      }
-      else
-      {
-        DriverMotor->run(FORWARD);
-      }
-    }
-
-    distanceToTarget = abs(currentPosition - targetPosition);
-
-    //Set Speed relative to target
-    if (distanceToTarget > 150)
-    {
-      DriverMotor->setSpeed(maxSpeed);
-    }
-    else
-    {
-      DriverMotor->setSpeed(distanceToTarget + 70);
-    }
-
-    //Stop at target
-    if (distanceToTarget < driveTollerance)
-    {
-      Serial.println("Position[" + String(targetPosition) + "] arrived");
-      DriverMotor->run(RELEASE);
-      DriverMotor->setSpeed(0);
-      state.hasStopped = true;
-    }
+  //Stop at target
+  if (distanceToTarget < DRIVE_TOLERANCE)
+  {
+    Serial.println("Position[" + String(targetPosition) + "] arrived");
+    motor->run(RELEASE);
+    motor->setSpeed(0);
+    state.hasStopped = true;
   }
 
   return state;
