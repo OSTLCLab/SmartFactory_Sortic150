@@ -19,10 +19,11 @@ class SorticMachine : public Actor<Config>
 public:
   SorticMachine(Actor<PlacerPosition> *placer,
                 Component<byte *> *rfidDetector,
-                Actor<int> *chassis) : placer{placer},
-                                       chassis{chassis},
-                                       rfidDetector{rfidDetector}
+                Actor<int> *chassis, Config initialConfig) : placer{placer},
+                                                             chassis{chassis},
+                                                             rfidDetector{rfidDetector}
   {
+    this->data = initialConfig;
   }
 
 protected:

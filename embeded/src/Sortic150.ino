@@ -58,19 +58,13 @@ void setup()
   rfidDetector = new RfidDetector{partDetector};
   chassis = new Chassis{driverMotor, distanceSensorPin};
   configReciever = new ConfigReciever{initialConfig};
-  sorticMachine = new SorticMachine{placer, rfidDetector, chassis};
+  sorticMachine = new SorticMachine{placer, rfidDetector, chassis, initialConfig};
   delay(2000);
 }
 
 void loop()
 {
   configReciever->on();
-  State state = configReciever->getState();
-  Serial.println(state);
-  if (state == State::Finish)
-  {
-    sorticMachine->setAction(configReciever->getData());
-  }
-
+  sorticMachine->setAction(configReciever->getData());
   sorticMachine->getData();
 }

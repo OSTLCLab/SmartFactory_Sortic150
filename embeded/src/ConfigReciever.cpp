@@ -7,8 +7,10 @@ Config ConfigReciever::loop()
 {
   if (!Serial.available())
   {
+    state = State::Finish;
     return data;
   }
+
   Serial.println("Recieve Message.");
   String readedString = Serial.readString();
 
