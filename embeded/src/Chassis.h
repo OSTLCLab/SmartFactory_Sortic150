@@ -1,8 +1,7 @@
 #include <Arduino.h>
 #include <Adafruit_MotorShield.h>
 #include <filters/MedianFilter.h>
-#include <Component.h>
-#include <ConfigReciever.h>
+#include <Actor.h>
 
 #ifndef Chassis_h
 #define Chassis_h
@@ -11,26 +10,18 @@
 #define DRIVE_TOLERANCE 2
 #define MAX_MOTORSPEED 200
 
-struct ChassisState
-{
-  bool hasStopped = true;
-};
-
-class Chassis : public Component<ChassisState>
+class Chassis : public Actor<int>
 {
 public:
-  Chassis(Adafruit_DCMotor *motor, uint8_t distanceSensorPin, int startPosition);
-
-  void moveToPosition(int newTarget);
-  ChassisState loop();
+  Chassis(Adafruit_DCMotor *motor, uint8_t distanceSensorPin);
 
 private:
   MedianFilter medianFilter;
   uint8_t distanceSensorPin;
   Adafruit_DCMotor *motor;
-  ChassisState state;
 
-  int targetPosition;
+protected:
+  int loop();
 };
 
 #endif

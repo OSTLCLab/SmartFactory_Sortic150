@@ -2,11 +2,12 @@
 #define ConfigReciever_h
 
 #include <Arduino.h>
-#include <PlacerPerformance.h>
+#include <Component.h>
 #include <SPI.h>
 #include <MFRC522.h>
 #include <Wire.h>
 #include <ArduinoJson.h>
+#include <PlacerPerformance.h>
 
 #define RFID_LENGTH 8
 
@@ -54,11 +55,15 @@ struct Config
 class ConfigReciever : public Component<Config>
 {
 public:
-  ConfigReciever(Config init) : config{init}, buffer{} {}
+  ConfigReciever(Config init) : buffer{}
+  {
+    this->data = init;
+  }
+
+protected:
   Config loop();
 
 private:
-  Config config;
   StaticJsonBuffer<200> buffer;
 };
 

@@ -1,12 +1,13 @@
 #include <Arduino.h>
 #include <ArduinoJson.h>
 #include <ConfigReciever.h>
+#include <PlacerPerformance.h>
 
 Config ConfigReciever::loop()
 {
   if (!Serial.available())
   {
-    return config;
+    return data;
   }
   Serial.println("Recieve Message.");
   String readedString = Serial.readString();
@@ -18,40 +19,41 @@ Config ConfigReciever::loop()
     Serial.println("Parsing JSON fail. Bad format.");
     Serial.println(readedString);
     buffer.clear();
-    return config;
+    state = State::Invalid;
+    return data;
   }
 
   if (root.containsKey("powerOn"))
   {
-    config.powerOn = root["powerOn"];
-    Serial.println("Power [" + String(config.powerOn) + "]");
+    data.powerOn = root["powerOn"];
+    Serial.println("Power [" + String(data.powerOn) + "]");
   }
 
   if (root.containsKey("startPosition"))
   {
-    config.startPosition = root["startPosition"];
-    Serial.println("Startposition [" + String(config.startPosition) + "]");
+    data.startPosition = root["startPosition"];
+    Serial.println("startPosition [" + String(data.startPosition) + "]");
   }
 
   if (root.containsKey("sizeOfRfidChips"))
   {
-    config.sizeOfRfidChips = root["sizeOfRfidChips"];
-    Serial.println("SizeOfRfidChips [" + String(config.sizeOfRfidChips) + "]");
+    data.sizeOfRfidChips = root["sizeOfRfidChips"];
+    Serial.println("SizeOfRfidChips [" + String(data.sizeOfRfidChips) + "]");
   }
 
   if (root.containsKey("index") && root.containsKey("position"))
   {
     int index = root["index"];
-    config.rfidChips[index].targetPosition = root["position"];
-    Serial.println("RfidChip [" + String(index) + "] targetPosition [" + String(config.rfidChips[index].targetPosition) + "]");
+    data.rfidChips[index].targetPosition = root["position"];
+    Serial.println("RfidChip [" + String(index) + "] targetPosition [" + String(data.rfidChips[index].targetPosition) + "]");
   }
 
   if (root.containsKey("index") && root.containsKey("direction"))
   {
     int index = root["index"];
-    int directionAsint = root["direction"];
-    config.rfidChips[index].targetDirection = (PlacerActionDirection)directionAsint;
-    Serial.println("RfidChip [" + String(index) + "] targetDirection [" + String((int)config.rfidChips[index].targetDirection) + "]");
+    int directionAsInt = root["direction"];
+    data.rfidChips[index].targetDirection = (PlacerActionDirection)directionAsInt;
+    Serial.println("RfidChip [" + String(index) + "] targetDirection [" + String(directionAsInt) + "]");
   }
 
   if (root.containsKey("index") && root.containsKey("nr"))
@@ -62,12 +64,16 @@ Config ConfigReciever::loop()
     Serial.print("RfidChip [" + String(index) + "] nr [");
     for (int i = 0; i < RFID_LENGTH; i++)
     {
-      config.rfidChips[index].rfidChip[i] = (byte)rfidNr[i];
-      Serial.print(config.rfidChips[index].rfidChip[i]);
+      data.rfidChips[index].rfidChip[i] = (byte)rfidNr[i];
+      Serial.print(data.rfidChips[index].rfidChip[i]);
       i == RFID_LENGTH - 1 ? Serial.println("]") : Serial.print(",");
     };
   }
 
   Serial.flush();
   buffer.clear();
+
+  state = State::Finish;
+
+  return data;
 }

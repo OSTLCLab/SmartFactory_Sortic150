@@ -1,8 +1,8 @@
 #ifndef PlacerPerformance_h
 #define PlacerPerformance_h
 
-#include "Arduino.h"
-#include "Component.h"
+#include <Arduino.h>
+#include <Actor.h>
 #include <SoftwareSerial.h>
 enum class PlacerActionType
 {
@@ -18,27 +18,26 @@ enum class PlacerActionDirection
   right = 4,
 };
 
-struct PlacerState
+struct PlacerPosition
 {
-  int position{};
-  float battery{};
-  bool hasStopped = true;
-  PlacerActionType currentActionType = PlacerActionType::none;
-  PlacerActionDirection currentActionDirection = PlacerActionDirection::front;
+  PlacerActionType actionType{PlacerActionType::none};
+  PlacerActionDirection direction{PlacerActionDirection::front};
 };
 
-class PlacerPerformance : public Component<PlacerState>
+class PlacerPerformance : public Actor<PlacerPosition>
 {
 public:
-  PlacerPerformance(SoftwareSerial *bluetooth);
-  void setAction(PlacerActionType newPlacerActionType, PlacerActionDirection newPlacerActionDirection);
-  PlacerState loop();
+  PlacerPerformance(SoftwareSerial bluetooth) : bluetooth{bluetooth}
+  {
+  }
+  void setPlacer(PlacerActionType newPlacerActionType, PlacerActionDirection newPlacerActionDirection);
+
+protected:
+  PlacerPosition loop();
 
 private:
-  PlacerState state;
-  SoftwareSerial *bluetooth;
+  SoftwareSerial &bluetooth;
   int step;
-  unsigned long startTime;
   bool flag_send_complete = false;
   bool flag_receive_complete = false;
   int i_receive_string = 0;
@@ -47,6 +46,8 @@ private:
   String Receive_String[5];
   String currentState;
   int currentPosition;
+  PlacerActionType currentActionType = PlacerActionType::none;
+  PlacerActionDirection currentActionDirection = PlacerActionDirection::front;
   int direction;
   void bluetoothEvent();
   void bluetoothAction(String action);

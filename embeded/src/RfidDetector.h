@@ -7,20 +7,16 @@
 #include <MFRC522.h>
 #include <Wire.h>
 
-struct RfidDetectorState
-{
-  byte partArray[8]{};
-  bool cardDetected = false;
-};
-class RfidDetector : public Component<RfidDetectorState>
+class RfidDetector : public Component<byte *>
 {
 public:
-  RfidDetector(MFRC522 *mfrc522);
-  RfidDetectorState loop();
+  RfidDetector(MFRC522 &mfrc522) : mfrc522{mfrc522} {}
+
+protected:
+  byte *loop();
 
 private:
-  RfidDetectorState state;
-  MFRC522 mfrc522;
+  MFRC522 &mfrc522;
 };
 
 #endif

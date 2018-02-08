@@ -1,86 +1,73 @@
-#include "Chassis.h"
-#include "RfidDetector.h"
-#include "PlacerPerformance.h"
-#include "SorticMachine.h"
-#include "ConfigReciever.h"
+#include <Actor.h>
+#include <ConfigReciever.h>
+#include <SorticMachine.h>
+#include <PlacerPerformance.h>
 
-#include "Arduino.h"
-#include "SorticFramework.h"
-#include <SPI.h>                  //Required for setup
-#include <MFRC522.h>              //Required?
-#include <Wire.h>                 //Required?
-#include <Adafruit_MotorShield.h> //Required for setup
+#include <Arduino.h>
+#include <SPI.h>
 
-SorticMachine::SorticMachine(PlacerPerformance *placer,
-                             RfidDetector *rfidDetector,
-                             Chassis *chassis,
-                             Adafruit_MotorShield *currentMotorShield,
-                             ConfigReciever *configReciever)
+Config SorticMachine::loop()
 {
-  this->currentMotorShield = currentMotorShield;
-  this->state.job = MachineJob::idle;
-  this->placer = placer;
-  this->rfidDetector = rfidDetector;
-  this->chassis = chassis;
-  this->configReciever = configReciever;
-}
+  placer->getData();
+  int chassisPosition = chassis->getData();
+  byte *rfidNr = rfidDetector->getData();
 
-SorticMachineState SorticMachine::loop()
-{
-  state.configState = configReciever->loop();
-
-  if (!state.configState.powerOn)
+  if (chassis->getState() == State::Off &&
+      placer->getState() == State::Off &&
+      rfidDetector->getState() == State::Off)
   {
-    return state;
+    Serial.println("init State");
+    chassis->setAction(data.startPosition);
+    chassis->on();
   }
 
-  state.placerState = placer->loop();
-  state.chassisState = chassis->loop();
-  state.rfidDetectorState = rfidDetector->loop();
-
-  if (state.job == MachineJob::idle && state.rfidDetectorState.cardDetected)
+  if (chassis->getState() == State::Finish &&
+      placer->getState() == State::Off &&
+      rfidDetector->getState() == State::Off)
   {
-    int rfidIndex = this->getIndexOfRFidChip(state.configState, state.rfidDetectorState.partArray);
-
-    if (rfidIndex != -1)
+    Serial.println("Handle Chip");
+    int index = this->getIndexOfRFidChip(data, rfidNr);
+    PlacerPosition position = {};
+    if (index == -1)
     {
-      Serial.println("Card associated");
-
-      targetPosition = state.configState.rfidChips[rfidIndex].targetPosition;
-      state.job = MachineJob::sorting;
-      step = 0;
+      Serial.println("Get Chip");
+      placer->setAction(position);
     }
+    else
+    {
+      Serial.println("Store Chip");
+      position.direction = data.rfidChips[index].targetDirection;
+      placer->setAction(position);
+    }
+
+    chassis->off();
+    placer->on();
   }
 
-  if (state.job == MachineJob::sorting)
+  if (chassis->getState() == State::Off &&
+      placer->getState() == State::Finish &&
+      rfidDetector->getState() == State::Off && chassisPosition == data.startPosition)
   {
-    if (step == 0)
-    {
-      Serial.println("MachineJob::sorting");
-    }
-
-    if (state.chassisState.hasStopped && state.placerState.hasStopped)
-    {
-      step++;
-      switch (step)
-      {
-      case 10:
-        chassis->moveToPosition(state.configState.startPosition);
-        break;
-      case 30:
-        chassis->moveToPosition(targetPosition);
-        break;
-      case 50:
-        chassis->moveToPosition(state.configState.startPosition);
-        break;
-      case 60:
-        state.job = MachineJob::idle;
-        step = 0;
-        break;
-      }
-    }
+    Serial.println("Scan RFID at Pos0");
+    rfidDetector->on();
+    placer->off();
   }
-  return state;
+  else
+  {
+    placer->off();
+  }
+
+  if (chassis->getState() == State::Off &&
+      placer->getState() == State::Off &&
+      rfidDetector->getState() == State::Finish)
+  {
+    Serial.println("Go2PosX");
+    chassis->setAction(this->getIndexOfRFidChip(data, rfidNr));
+    chassis->on();
+    rfidDetector->off();
+  }
+
+  return data;
 }
 
 int SorticMachine::getIndexOfRFidChip(Config config, byte detectedRfid[8])

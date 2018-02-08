@@ -4,27 +4,19 @@
 #include <MFRC522.h>
 #include <RfidDetector.h>
 
-RfidDetector::RfidDetector(MFRC522 *RfidDetector)
-{
-  state = {};
-  mfrc522 = *RfidDetector;
-  mfrc522.PCD_Init();
-}
-
-RfidDetectorState RfidDetector::loop()
+byte *RfidDetector::loop()
 {
   if (!mfrc522.PICC_IsNewCardPresent())
   {
-    state.cardDetected = false;
-    return state;
+    return data;
   }
 
   Serial.println("Card detected");
-
   byte blockSize = 18;
-  MFRC522::StatusCode status{mfrc522.MIFARE_Read(0, state.partArray, &blockSize)};
+  MFRC522::StatusCode status{mfrc522.MIFARE_Read(0, data, &blockSize)};
   Serial.println("Actual RFIDScanner status[" + String(status) + "] Status Ok[" + String(MFRC522::STATUS_OK) + "]");
-  state.cardDetected = status == MFRC522::STATUS_OK;
 
-  return state;
+  state = status == MFRC522::STATUS_OK ? State::Finish : State::Invalid;
+
+  return data;
 }

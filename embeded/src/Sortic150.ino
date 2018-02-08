@@ -1,5 +1,4 @@
 #include <Arduino.h>
-
 #include <SPI.h>
 #include <MFRC522.h>
 #include <Wire.h>
@@ -13,6 +12,8 @@
 #include <PlacerPerformance.h>
 #include <RfidDetector.h>
 #include <ConfigReciever.h>
+#include <Component.h>
+#include <Actor.h>
 #include <ArduinoJson.h>
 
 #define distanceSensorPin A1
@@ -27,12 +28,6 @@ Adafruit_DCMotor *driverMotor = currentMotorShield.getMotor(motor);
 MFRC522 partDetector{rfidDetectorSelectPin, rfidDetectorPowerDownPin};
 SoftwareSerial bluetooth{bluetoothTx, bluetoothRx};
 
-PlacerPerformance *placer;
-RfidDetector *rfidDetector;
-Chassis *chassis;
-SorticMachine *sorticMachine;
-ConfigReciever *configReciever;
-
 static const RFidChip chips[4] = {
     {(byte[]){4, 135, 115, 120, 162, 231, 73, 128}, 400, PlacerActionDirection::left},
     {(byte[]){4, 42, 117, 211, 162, 231, 73, 128}, 300, PlacerActionDirection::left},
@@ -45,22 +40,37 @@ static const Config initialConfig{510,
                                   4,
                                   true};
 
+static Actor<PlacerPosition> *placer;
+static Component<byte *> *rfidDetector;
+static Actor<int> *chassis;
+static Component<Config> *configReciever;
+Actor<Config> *sorticMachine;
+
 void setup()
 {
   Serial.begin(9600);
   currentMotorShield.begin();
   SPI.begin();
+  bluetooth.begin(57600);
+  partDetector.PCD_Init();
 
-  placer = new PlacerPerformance{&bluetooth};
-  rfidDetector = new RfidDetector{&partDetector};
-  chassis = new Chassis{driverMotor, distanceSensorPin, 510};
+  placer = new PlacerPerformance{bluetooth};
+  rfidDetector = new RfidDetector{partDetector};
+  chassis = new Chassis{driverMotor, distanceSensorPin};
   configReciever = new ConfigReciever{initialConfig};
-  sorticMachine = new SorticMachine{placer, rfidDetector, chassis, &currentMotorShield, configReciever};
-
+  sorticMachine = new SorticMachine{placer, rfidDetector, chassis};
   delay(2000);
 }
 
 void loop()
 {
-  sorticMachine->loop();
+  configReciever->on();
+  State state = configReciever->getState();
+  Serial.println(state);
+  if (state == State::Finish)
+  {
+    sorticMachine->setAction(configReciever->getData());
+  }
+
+  sorticMachine->getData();
 }

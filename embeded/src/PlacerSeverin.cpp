@@ -22,7 +22,7 @@ PlacerSeverin::PlacerSeverin(Adafruit_DCMotor *tempPlacerMotorBase, Adafruit_DCM
   PlacerMotorClaw->run(RELEASE);
   PlacerMotorClaw->setSpeed(0);
 
-  hasStopped = true;
+  hasFinish = true;
   step = 0;
   //Serial.begin(9600);
 }
@@ -36,8 +36,8 @@ void PlacerSeverin::setAction(PlacerActionType newPlacerActionType, PlacerAction
     PlacerMotorBase->run(RELEASE);
   }
   else {
-    startTime = millis();
-    hasStopped = false;
+    OnTime = millis();
+    hasFinish = false;
 
     step = 1;
   }
@@ -46,10 +46,10 @@ void PlacerSeverin::setAction(PlacerActionType newPlacerActionType, PlacerAction
 bool PlacerSeverin::placerLoop() {
   switch(step) { //1 = turn,  2 = moveDown, 3 = clawAction, 4 = moveUp, 5 = turnBack
     case 1: //turn
-      if((millis()-startTime>baseQuarterTurnTimeSave)||(currentPlacerActionDirection == PlacerActionDirection::front)) {
+      if((millis()-OnTime>baseQuarterTurnTimeSave)||(currentPlacerActionDirection == PlacerActionDirection::front)) {
         step++;
         PlacerMotorBase->setSpeed(0);
-        startTime = millis();
+        OnTime = millis();
       }
       else if(currentPlacerActionDirection == PlacerActionDirection::left) {
         PlacerMotorBase->run(FORWARD);
@@ -62,10 +62,10 @@ bool PlacerSeverin::placerLoop() {
     break;
 
     case 2: //moveDown
-      if(millis()-startTime>armMoveDownTime) {
+      if(millis()-OnTime>armMoveDownTime) {
         step++;
         PlacerMotorArm->setSpeed(0);
-        startTime = millis();
+        OnTime = millis();
       }
       else if(currentPlacerActionType != PlacerActionType::none) {
         PlacerMotorArm->run(FORWARD);
@@ -76,10 +76,10 @@ bool PlacerSeverin::placerLoop() {
     case 3: //claw Action
 
       if(currentPlacerActionType == PlacerActionType::pickUp) {
-        if(millis()-startTime>clawCloseTime) {
+        if(millis()-OnTime>clawCloseTime) {
           step++;
           PlacerMotorClaw->setSpeed(0);
-          startTime = millis();
+          OnTime = millis();
         }
         else {
           PlacerMotorClaw->run(BACKWARD);
@@ -87,10 +87,10 @@ bool PlacerSeverin::placerLoop() {
         }
       }
       else if(currentPlacerActionType == PlacerActionType::place) {
-        if(millis()-startTime>clawOpenTime) {
+        if(millis()-OnTime>clawOpenTime) {
           step++;
           PlacerMotorClaw->setSpeed(0);
-          startTime = millis();
+          OnTime = millis();
         }
         else {
           PlacerMotorClaw->run(FORWARD);
@@ -101,10 +101,10 @@ bool PlacerSeverin::placerLoop() {
     break;
 
     case 4: //moveUp
-      if(millis()-startTime>armMoveUpTime) {
+      if(millis()-OnTime>armMoveUpTime) {
         step++;
         PlacerMotorArm->setSpeed(0);
-        startTime = millis();
+        OnTime = millis();
       }
       else if(currentPlacerActionType != PlacerActionType::none) {
         PlacerMotorArm->run(BACKWARD);
@@ -113,7 +113,7 @@ bool PlacerSeverin::placerLoop() {
     break;
 
     case 5: //turnBack
-      if((millis()-startTime>baseQuarterTurnTimeSave)||(currentPlacerActionDirection == PlacerActionDirection::front)) {
+      if((millis()-OnTime>baseQuarterTurnTimeSave)||(currentPlacerActionDirection == PlacerActionDirection::front)) {
         step++;
         PlacerMotorBase->setSpeed(0);
       }
@@ -128,12 +128,12 @@ bool PlacerSeverin::placerLoop() {
     break;
 
     case 6:
-      hasStopped = true;
+      hasFinish = true;
       currentPlacerActionType = PlacerActionType::none;
       step = 0;
     break;
   }
 
-  return hasStopped;
+  return hasFinish;
 }
 */

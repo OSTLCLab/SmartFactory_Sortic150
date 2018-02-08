@@ -19,8 +19,8 @@ class PlacerSeverin : public Placer
     Adafruit_DCMotor *PlacerMotorClaw;
 
     int step; //0 = no step, 1 = turn,  2 = moveDown, 3 = clawAction, 4 = moveUp, 5 = turnBack
-    unsigned long startTime;
-    bool hasStopped;
+    unsigned long OnTime;
+    bool hasFinish;
 
     unsigned long baseQuarterTurnTimePercise = 600;
     unsigned long baseQuarterTurnTimeSave = 2000;

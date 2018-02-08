@@ -1,67 +1,38 @@
-#ifndef SorticMachine_h
-#define SorticMachine_h
+#include <Chassis.h>
+#include <RfidDetector.h>
+#include <PlacerPerformance.h>
+#include <ConfigReciever.h>
 
-#include "Chassis.h"
-#include "RfidDetector.h"
-#include "PlacerPerformance.h"
-#include "ConfigReciever.h"
-
-#include "Arduino.h"
-#include "Component.h"
-#include "filters/MedianFilter.h"
+#include <Arduino.h>
+#include <Actor.h>
+#include <filters/MedianFilter.h>
 #include <SPI.h>
 #include <MFRC522.h>
 #include <Wire.h>
 #include <Adafruit_MotorShield.h>
 
-enum class partColor
-{
-  none,
-  teilSchwarz,
-  teilGrau,
-  teilGrauGelb,
-  teilGrauSchwarz,
-  notDeclared
-};
+#ifndef SorticMachine_h
+#define SorticMachine_h
 
-enum class MachineJob
-{
-  idle,
-  sorting
-};
-
-struct SorticMachineState
-{
-  MachineJob job;
-  PlacerState placerState;
-  RfidDetectorState rfidDetectorState;
-  Config configState;
-  ChassisState chassisState;
-};
-
-class SorticMachine : public Component<SorticMachineState>
+class SorticMachine : public Actor<Config>
 {
 public:
-  SorticMachine(PlacerPerformance *placer,
-                RfidDetector *rfidDetector,
-                Chassis *chassis,
-                Adafruit_MotorShield *currentMotorShield,
-                ConfigReciever *configReciever);
+  SorticMachine(Actor<PlacerPosition> *placer,
+                Component<byte *> *rfidDetector,
+                Actor<int> *chassis) : placer{placer},
+                                       chassis{chassis},
+                                       rfidDetector{rfidDetector}
+  {
+  }
 
-  SorticMachineState loop();
-
-  bool arrayByte8Equals(byte a[8], byte b[8]);
+protected:
+  Config loop();
 
 private:
-  PlacerPerformance *placer;
-  RfidDetector *rfidDetector;
-  Chassis *chassis;
-  Adafruit_MotorShield *currentMotorShield;
-  ConfigReciever *configReciever;
-  SorticMachineState state;
-  int targetPosition;
+  Actor<PlacerPosition> *placer;
+  Actor<int> *chassis;
+  Component<byte *> *rfidDetector;
   int getIndexOfRFidChip(Config config, byte detectedRfid[8]);
-  int step = 0;
 };
 
 #endif
