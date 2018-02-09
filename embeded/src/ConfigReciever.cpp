@@ -1,7 +1,7 @@
 #include <Arduino.h>
 #include <ArduinoJson.h>
 #include <ConfigReciever.h>
-#include <PlacerPerformance.h>
+#include <Placer.h>
 
 Config ConfigReciever::loop()
 {
@@ -54,7 +54,7 @@ Config ConfigReciever::loop()
   {
     int index = root["index"];
     int directionAsInt = root["direction"];
-    data.rfidChips[index].targetDirection = (PlacerActionDirection)directionAsInt;
+    data.rfidChips[index].placerPosition = (PlacerPosition)directionAsInt;
     Serial.println("RfidChip [" + String(index) + "] targetDirection [" + String(directionAsInt) + "]");
   }
 

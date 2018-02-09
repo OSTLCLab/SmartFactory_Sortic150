@@ -1,7 +1,7 @@
 #include <Actor.h>
 #include <ConfigReciever.h>
 #include <SorticMachine.h>
-#include <PlacerPerformance.h>
+#include <Placer.h>
 
 #include <Arduino.h>
 #include <SPI.h>
@@ -9,7 +9,8 @@
 Config SorticMachine::loop()
 {
   PlacerPosition placerPosition = placer->getData();
-  int chassisPosition = chassis->getData();
+  placer->setAction(PlacerPosition::Front);
+  /* int chassisPosition = chassis->getData();
   byte *rfidNr = rfidDetector->getData();
   int index = -1;
   if (chassis->getState() == State::Finish)
@@ -28,7 +29,9 @@ Config SorticMachine::loop()
   delay(50);
   Serial.println();
 
-  if (chassis->getState() == State::Off &&
+  placer->on();*/
+
+  /*if (chassis->getState() == State::Off &&
       placer->getState() == State::Off &&
       rfidDetector->getState() == State::Off)
   {
@@ -41,6 +44,7 @@ Config SorticMachine::loop()
       placer->getState() == State::Off &&
       rfidDetector->getState() == State::Off && (index < 0 || data.rfidChips[index].targetPosition != chassisPosition))
   {
+    Serial.println("...");
     PlacerPosition position = {};
     placer->setAction(position);
     placer->on();
@@ -51,8 +55,8 @@ Config SorticMachine::loop()
       placer->getState() == State::Finish &&
       rfidDetector->getState() == State::Off)
   {
-    rfidDetector->on();
     placer->off();
+    rfidDetector->on();
   }
 
   //RFIDgescannt
@@ -78,6 +82,7 @@ Config SorticMachine::loop()
       placer->getState() == State::Off &&
       rfidDetector->getState() == State::Off && index >= 0 && data.rfidChips[index].targetPosition == chassisPosition)
   {
+    Serial.println("...");
     chassis->off();
     PlacerPosition position = {};
     position.direction = data.rfidChips[index].targetDirection;
@@ -92,7 +97,7 @@ Config SorticMachine::loop()
   {
     chassis->setAction(data.startPosition);
     chassis->on();
-  }
+  }*/
 
   return data;
 }

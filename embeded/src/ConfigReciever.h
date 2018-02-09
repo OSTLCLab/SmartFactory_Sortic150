@@ -7,7 +7,7 @@
 #include <MFRC522.h>
 #include <Wire.h>
 #include <ArduinoJson.h>
-#include <PlacerPerformance.h>
+#include <Placer.h>
 
 #define RFID_LENGTH 8
 
@@ -15,13 +15,13 @@ struct RFidChip
 {
   byte *rfidChip;
   int targetPosition;
-  PlacerActionDirection targetDirection;
+  PlacerPosition placerPosition;
 
   RFidChip(byte *chips,
            int targetPosition,
-           PlacerActionDirection targetDirection) : rfidChip{chips},
-                                                    targetPosition{targetPosition},
-                                                    targetDirection{targetDirection}
+           PlacerPosition placerPosition) : rfidChip{chips},
+                                            targetPosition{targetPosition},
+                                            placerPosition{placerPosition}
   {
   }
 };

@@ -9,7 +9,7 @@
 #include <SorticMachine.h>
 #include <Chassis.h>
 #include <PlacerSeverin.h>
-#include <PlacerPerformance.h>
+#include <Placer.h>
 #include <RfidDetector.h>
 #include <ConfigReciever.h>
 #include <Component.h>
@@ -29,10 +29,10 @@ MFRC522 partDetector{rfidDetectorSelectPin, rfidDetectorPowerDownPin};
 SoftwareSerial bluetooth{bluetoothTx, bluetoothRx};
 
 static const RFidChip chips[4] = {
-    {(byte[]){4, 135, 115, 120, 162, 231, 73, 128}, 400, PlacerActionDirection::left},
-    {(byte[]){4, 42, 117, 211, 162, 231, 73, 128}, 300, PlacerActionDirection::left},
-    {(byte[]){4, 161, 115, 94, 162, 231, 73, 128}, 200, PlacerActionDirection::left},
-    {(byte[]){1, 2, 3, 4, 5, 6, 7, 8}, 400, PlacerActionDirection::left}};
+    {(byte[]){4, 135, 115, 120, 162, 231, 73, 128}, 400, PlacerPosition::PickUpLeft},
+    {(byte[]){4, 42, 117, 211, 162, 231, 73, 128}, 300, PlacerPosition::PickUpLeft},
+    {(byte[]){4, 161, 115, 94, 162, 231, 73, 128}, 200, PlacerPosition::PickUpLeft},
+    {(byte[]){1, 2, 3, 4, 5, 6, 7, 8}, 400, PlacerPosition::PickUpLeft}};
 
 static const Config initialConfig{510,
                                   510,
@@ -54,7 +54,7 @@ void setup()
   bluetooth.begin(57600);
   partDetector.PCD_Init();
 
-  placer = new PlacerPerformance{bluetooth};
+  placer = new Placer{bluetooth};
   rfidDetector = new RfidDetector{partDetector};
   chassis = new Chassis{driverMotor, distanceSensorPin};
   configReciever = new ConfigReciever{initialConfig};
