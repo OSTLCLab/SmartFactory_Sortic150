@@ -32,17 +32,20 @@ struct Config
   int unknownPosition;
   RFidChip *rfidChips;
   int sizeOfRfidChips;
+  PlacerPosition placerStartPosition;
   bool powerOn;
   Config(
       int startPosition,
       int unknownPosition,
       RFidChip *chips,
       int sizeOfRfidChips,
-      bool powerOn) : startPosition{startPosition},
-                      unknownPosition{unknownPosition},
-                      rfidChips{chips},
-                      sizeOfRfidChips{sizeOfRfidChips},
-                      powerOn{powerOn}
+      bool powerOn,
+      PlacerPosition placerStartPosition) : startPosition{startPosition},
+                                            unknownPosition{unknownPosition},
+                                            rfidChips{chips},
+                                            sizeOfRfidChips{sizeOfRfidChips},
+                                            powerOn{powerOn},
+                                            placerStartPosition{placerStartPosition}
   {
   }
   Config() : startPosition{},

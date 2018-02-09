@@ -13,10 +13,11 @@
 class Chassis : public Actor<int>
 {
 public:
-  Chassis(Adafruit_DCMotor *motor, uint8_t distanceSensorPin);
+  Chassis(Adafruit_DCMotor *motor, uint8_t distanceSensorPin) : distanceSensorPin{distanceSensorPin},
+                                                                motor{motor} {}
 
 private:
-  MedianFilter medianFilter;
+  MedianFilter medianFilter{};
   uint8_t distanceSensorPin;
   Adafruit_DCMotor *motor;
 

@@ -5,7 +5,6 @@
 #include <Adafruit_MotorShield.h>
 #include <SoftwareSerial.h>
 
-#include <SorticFramework.h>
 #include <SorticMachine.h>
 #include <Chassis.h>
 #include <PlacerSeverin.h>
@@ -34,17 +33,18 @@ static const RFidChip chips[4] = {
     {(byte[]){4, 161, 115, 94, 162, 231, 73, 128}, 200, PlacerPosition::PickUpLeft},
     {(byte[]){1, 2, 3, 4, 5, 6, 7, 8}, 400, PlacerPosition::PickUpLeft}};
 
-static const Config initialConfig{510,
-                                  510,
-                                  (RFidChip *)chips,
-                                  4,
-                                  true};
+static Config initialConfig{510,
+                            510,
+                            (RFidChip *)chips,
+                            4,
+                            true,
+                            PlacerPosition::Front};
 
-static Actor<PlacerPosition> *placer;
-static Component<byte *> *rfidDetector;
-static Actor<int> *chassis;
-static Component<Config> *configReciever;
-Actor<Config> *sorticMachine;
+static Actor<PlacerPosition> *placer = new Placer{bluetooth};
+static Component<byte *> *rfidDetector = new RfidDetector{partDetector};
+static Actor<int> *chassis = new Chassis{driverMotor, distanceSensorPin};
+static Component<Config> *configReciever = new ConfigReciever{initialConfig};
+Actor<Config> *sorticMachine = new SorticMachine{placer, rfidDetector, chassis, initialConfig};
 
 void setup()
 {
@@ -53,18 +53,13 @@ void setup()
   SPI.begin();
   bluetooth.begin(57600);
   partDetector.PCD_Init();
-
-  placer = new Placer{bluetooth};
-  rfidDetector = new RfidDetector{partDetector};
-  chassis = new Chassis{driverMotor, distanceSensorPin};
-  configReciever = new ConfigReciever{initialConfig};
-  sorticMachine = new SorticMachine{placer, rfidDetector, chassis, initialConfig};
-  delay(2000);
 }
 
 void loop()
 {
   configReciever->on();
   sorticMachine->setAction(configReciever->getData());
-  sorticMachine->getData();
+
+  initialConfig = sorticMachine->getData();
+  initialConfig.powerOn ? sorticMachine->on() : sorticMachine->off();
 }

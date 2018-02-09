@@ -1,16 +1,6 @@
 #include <Chassis.h>
 #include <Arduino.h>
-#include <Adafruit_MotorShield.h>
 
-Chassis::Chassis(Adafruit_DCMotor *motor, uint8_t distanceSensorPin)
-{
-  this->distanceSensorPin = distanceSensorPin;
-  this->motor = motor;
-  this->medianFilter = MedianFilter{analogRead(this->distanceSensorPin)};
-  this->motor->run(FORWARD);
-  this->motor->run(RELEASE);
-  this->motor->setSpeed(0);
-}
 int Chassis::loop()
 {
   //Maximum sensor value ~= 565, use max sensor value if larger
