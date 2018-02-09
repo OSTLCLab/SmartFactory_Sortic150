@@ -33,7 +33,15 @@ private:
   Actor<PlacerPosition> *placer;
   Actor<int> *chassis;
   Component<byte *> *rfidDetector;
-  int getIndexOfRFidChip(Config config, byte detectedRfid[8]);
+  int getIndexOfRFidChip();
+  void printStatus();
+  bool chassIsAtStartPosition();
+  bool placerIsAtStartPosition();
+  bool allOff();
+  bool chipDetected();
+  bool placerHasChip();
+  bool chassisReachedDestination();
+  bool allFinished();
 };
 
 #endif

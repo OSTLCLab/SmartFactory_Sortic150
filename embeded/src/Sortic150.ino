@@ -38,7 +38,8 @@ static Config initialConfig{510,
                             (RFidChip *)chips,
                             4,
                             true,
-                            PlacerPosition::Front};
+                            PlacerPosition::Front,
+                            PlacerPosition::PickUpLeft};
 
 static Actor<PlacerPosition> *placer = new Placer{bluetooth};
 static Component<byte *> *rfidDetector = new RfidDetector{partDetector};

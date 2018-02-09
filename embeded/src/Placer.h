@@ -17,14 +17,14 @@ enum PlacerPosition
 class Placer : public Actor<PlacerPosition>
 {
 public:
-  Placer(SoftwareSerial &bluetooth) : bluetooth{bluetooth} {}
+  Placer(SoftwareSerial &bluetooth) : bluetooth{bluetooth}, motorIsOn{false} {}
 
 protected:
   PlacerPosition loop();
 
 private:
   // todo.. weshalb soll der motor hier und nicht beim greifarm selbst reguliert werden?
-  bool motorIsOn{true};
+  bool motorIsOn;
   SoftwareSerial &bluetooth;
 };
 
