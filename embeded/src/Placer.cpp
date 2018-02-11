@@ -5,7 +5,6 @@
 
 PlacerPosition Placer::loop()
 {
-  Serial.println("...");
   if (!motorIsOn)
   {
     bluetooth.println("setMotors(1)");
@@ -22,10 +21,10 @@ PlacerPosition Placer::loop()
     bluetooth.println("gotoPosition(" + String(data) + ")");
     if (bluetooth.available())
     {
-      int actualPosition = bluetooth.parseInt();
+      data = (PlacerPosition)bluetooth.parseInt();
 
       Serial.println("Placerposition[" + String(actualPosition) + "]");
-      if (actualPosition == (int)data)
+      if (data == targetPosition)
       {
         bluetooth.println("setMotors(0)");
         motorIsOn = false;
