@@ -10,6 +10,7 @@ Config ConfigReciever::loop()
     state = State::Finish;
     return sensorData;
   }
+  StaticJsonBuffer<200> buffer;
 
   debugLn("Recieve Message.");
   String readedString = Serial.readString();
@@ -31,43 +32,55 @@ Config ConfigReciever::loop()
     debugLn("Power [" + String(sensorData.powerOn) + "]");
   }
 
-  if (root.containsKey("startPosition"))
+  if (root.containsKey("chassisStart"))
   {
-    sensorData.startPosition = root["startPosition"];
-    debugLn("startPosition [" + String(sensorData.startPosition) + "]");
+    sensorData.chassisStart = root["chassisStart"];
+    debugLn("chassisStart [" + String(sensorData.chassisStart) + "]");
   }
 
-  if (root.containsKey("sizeOfRfidChips"))
+  if (root.containsKey("rfidSourcePosition"))
   {
-    sensorData.sizeOfRfidChips = root["sizeOfRfidChips"];
-    debugLn("SizeOfRfidChips [" + String(sensorData.sizeOfRfidChips) + "]");
+    int rfidSourcePosition = root["rfidSourcePosition"];
+    sensorData.rfidSourcePosition = (PlacerPosition)rfidSourcePosition;
+    debugLn("rfidSourcePosition [" + String(sensorData.rfidSourcePosition) + "]");
   }
 
-  if (root.containsKey("index") && root.containsKey("position"))
+  if (root.containsKey("placerSleepPosition"))
   {
-    int index = root["index"];
-    sensorData.rfidChips[index].targetPosition = root["position"];
-    debugLn("RfidChip [" + String(index) + "] targetPosition [" + String(sensorData.rfidChips[index].targetPosition) + "]");
+    int placerSleepPosition = root["placerSleepPosition"];
+    sensorData.placerSleepPosition = (PlacerPosition)placerSleepPosition;
+
+    debugLn("placerSleepPosition [" + String(sensorData.placerSleepPosition) + "]");
   }
 
-  if (root.containsKey("index") && root.containsKey("direction"))
+  if (root.containsKey("unknownPosition"))
   {
-    int index = root["index"];
-    int directionAsInt = root["direction"];
-    sensorData.rfidChips[index].placerPosition = (PlacerPosition)directionAsInt;
-    debugLn("RfidChip [" + String(index) + "] targetDirection [" + String(directionAsInt) + "]");
+    sensorData.unknownPosition = root["unknownPosition"];
+    debugLn("unknownPosition [" + String(sensorData.unknownPosition) + "]");
   }
 
-  if (root.containsKey("index") && root.containsKey("nr"))
+  if (root.containsKey("id"))
   {
-    int index = root["index"];
-    JsonArray &rfidNr = root["nr"];
+    JsonArray &arr = root["id"];
+    byte rfid[RFID_LENGTH];
+    arr.copyTo(rfid);
 
-    debug("RfidChip [" + String(index) + "] nr [");
+    int dest = root["dest"];
+    int placer = root["placer"];
+    RFidChip newChip{rfid, dest, (PlacerPosition)placer};
+    int index = getIndexOfRFidChip(rfid);
+    if (index == -1)
+    {
+      sensorData.rfidCount++;
+      index = sensorData.rfidCount;
+    }
+    sensorData.rfids[index] = newChip;
+
+    debugLn("New RfidChip[" + String(index) + "]");
+    debug("RfidChip [" + String(index) + "] id [");
     for (int i = 0; i < RFID_LENGTH; i++)
     {
-      sensorData.rfidChips[index].rfidChip[i] = (byte)rfidNr[i];
-      debug(sensorData.rfidChips[index].rfidChip[i]);
+      debug(newChip.id[i]);
 
       if (i == RFID_LENGTH - 1)
       {
@@ -79,11 +92,20 @@ Config ConfigReciever::loop()
       }
     };
   }
-
-  Serial.flush();
-  buffer.clear();
-
   state = State::Finish;
 
   return sensorData;
+}
+
+int ConfigReciever::getIndexOfRFidChip(byte *rfId)
+{
+  for (int index = 0; index < RFID_LENGTH; index++)
+  {
+    if (!memcmp(rfId, sensorData.rfids[index].id, RFID_LENGTH * sizeof(byte)))
+    {
+      return index;
+    }
+  }
+
+  return -1;
 }

@@ -8,7 +8,7 @@
 #define RFIDDETECTOR_POWEROFF 5
 #define MOTOR_NR 1
 #define CHASIS_POS_MAX 565
-#define DRIVE_TOLERANCE 2
+#define CHASSIS_TOLERANCE 2
 #define MAX_MOTORSPEED 200
 #define DEBUG //enable || disable debug msg
 

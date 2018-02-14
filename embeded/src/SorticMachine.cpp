@@ -8,7 +8,6 @@
 
 void SorticMachine::printStatus()
 {
-  debugLn();
   debugLn("State:[On:1, Off:2, Invalid:4, Finish:8]:");
   debugLn("Chassis:" + String(chassis->getState()));
   debugLn("Placer:" + String(placer->getState()));
@@ -26,12 +25,12 @@ void SorticMachine::printStatus()
 
 bool SorticMachine::chassIsAtStartPosition()
 {
-  return sensorData.startPosition == chassis->getData();
+  return abs(sensorData.chassisStart - chassis->getData()) <= CHASSIS_TOLERANCE;
 }
 
 bool SorticMachine::placerIsAtStartPosition()
 {
-  return sensorData.placerStartPosition == placer->getData();
+  return sensorData.placerSleepPosition == placer->getData();
 }
 
 bool SorticMachine::chipDetected()
@@ -68,6 +67,10 @@ bool SorticMachine::allFinished()
 
 Config SorticMachine::loop()
 {
+  chassis->execute();
+  placer->execute();
+  rfidDetector->execute();
+
   printStatus();
 
   if (chassIsAtStartPosition() && placerIsAtStartPosition())
@@ -79,41 +82,42 @@ Config SorticMachine::loop()
 
     if (chipDetected())
     {
-      placer->setAction(sensorData.chipPosition);
+      placer->setAction(sensorData.rfidSourcePosition);
       placer->on();
     }
   }
 
   if (placerHasChip())
   {
-    chassis->setAction(sensorData.rfidChips[getIndexOfRFidChip()].targetPosition);
+    chassis->setAction(sensorData.rfids[getIndexOfRFidChip()].destination);
     chassis->on();
   }
 
   if (chassisReachedDestination())
   {
-    placer->setAction(sensorData.rfidChips[getIndexOfRFidChip()].placerPosition);
+    placer->setAction(sensorData.rfids[getIndexOfRFidChip()].placerPosition);
     placer->on();
   }
 
   if ((allFinished() || allOff()) && !placerIsAtStartPosition() && !chassIsAtStartPosition())
   {
-    placer->setAction(sensorData.placerStartPosition);
-    placer->on();
-  }
-  /*
-  if ((allFinished() || allOff()) && !placerIsAtStartPosition())
-  {
-    placer->setAction(data.placerStartPosition);
+    placer->setAction(sensorData.placerSleepPosition);
+    chassis->setAction(sensorData.chassisStart);
+
     placer->on();
   }
 
   if ((allFinished() || allOff()) && placerIsAtStartPosition() && !chassIsAtStartPosition())
   {
-    chassis->setAction(data.startPosition);
     chassis->on();
   }
-
+  /*
+  
+ if ((allFinished() || allOff()) && !placerIsAtStartPosition())
+  {
+    placer->setAction(sensorData.placerSleepPosition);
+    placer->on();
+  }
   if (allFinished() && placerIsAtStartPosition() && chassIsAtStartPosition())
   {
     chassis->off();
@@ -126,11 +130,11 @@ Config SorticMachine::loop()
 
 int SorticMachine::getIndexOfRFidChip()
 {
-  for (int index = 0; index < sensorData.sizeOfRfidChips; index++)
+  for (int index = 0; index < sensorData.rfidCount; index++)
   {
-    RFidChip rfidChip = sensorData.rfidChips[index];
+    RFidChip id = sensorData.rfids[index];
 
-    if (!memcmp(rfidChip.rfidChip, rfidDetector->getData(), RFID_LENGTH * sizeof(byte)))
+    if (!memcmp(id.id, rfidDetector->getData(), RFID_LENGTH * sizeof(byte)))
     {
       return index;
     }

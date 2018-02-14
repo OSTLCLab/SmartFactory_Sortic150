@@ -9,14 +9,14 @@
 
 struct RFidChip
 {
-  byte *rfidChip;
-  int targetPosition;
+  byte *id;
+  int destination;
   PlacerPosition placerPosition;
 
   RFidChip(byte *chips,
-           int targetPosition,
-           PlacerPosition placerPosition) : rfidChip{chips},
-                                            targetPosition{targetPosition},
+           int destination,
+           PlacerPosition placerPosition) : id{chips},
+                                            destination{destination},
                                             placerPosition{placerPosition}
   {
   }
@@ -24,40 +24,40 @@ struct RFidChip
 
 struct Config
 {
-  int startPosition;
+  int chassisStart;
   int unknownPosition;
-  RFidChip *rfidChips;
-  int sizeOfRfidChips;
+  RFidChip *rfids;
+  int rfidCount;
   bool powerOn;
-  PlacerPosition placerStartPosition;
-  PlacerPosition chipPosition;
+  PlacerPosition placerSleepPosition;
+  PlacerPosition rfidSourcePosition;
   Config(
-      int startPosition,
+      int chassisStart,
       int unknownPosition,
       RFidChip *chips,
-      int sizeOfRfidChips,
+      int rfidCount,
       bool powerOn,
-      PlacerPosition placerStartPosition,
-      PlacerPosition chipPosition) : startPosition{startPosition},
-                                     unknownPosition{unknownPosition},
-                                     rfidChips{chips},
-                                     sizeOfRfidChips{sizeOfRfidChips},
-                                     powerOn{powerOn},
-                                     placerStartPosition{placerStartPosition},
-                                     chipPosition{chipPosition}
+      PlacerPosition placerSleepPosition,
+      PlacerPosition rfidSourcePosition) : chassisStart{chassisStart},
+                                           unknownPosition{unknownPosition},
+                                           rfids{chips},
+                                           rfidCount{rfidCount},
+                                           powerOn{powerOn},
+                                           placerSleepPosition{placerSleepPosition},
+                                           rfidSourcePosition{rfidSourcePosition}
   {
   }
-  Config() : startPosition{},
+  Config() : chassisStart{},
              unknownPosition{},
-             rfidChips{},
-             sizeOfRfidChips{},
+             rfids{},
+             rfidCount{},
              powerOn{} {}
 };
 
 class ConfigReciever : public Component<Config>
 {
 public:
-  ConfigReciever(Config init) : buffer{}
+  ConfigReciever(Config init)
   {
     this->sensorData = init;
   }
@@ -66,7 +66,7 @@ protected:
   Config loop();
 
 private:
-  StaticJsonBuffer<200> buffer;
+  int getIndexOfRFidChip(byte *id);
 };
 
 #endif
