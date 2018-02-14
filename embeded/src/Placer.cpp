@@ -5,33 +5,31 @@
 
 PlacerPosition Placer::loop()
 {
-  if (!motorIsOn)
+  if (targetValue == sensorData)
   {
-    bluetooth.println("setMotors(1)");
-    if (bluetooth.available())
-    {
-      int motorState = bluetooth.parseInt();
-
-      Serial.println("Motorstate[" + String(motorState) + "]");
-      motorIsOn = motorState != 0;
-    }
-  }
-  else
-  {
-    bluetooth.println("gotoPosition(" + String(data) + ")");
-    if (bluetooth.available())
-    {
-      data = (PlacerPosition)bluetooth.parseInt();
-
-      Serial.println("Placerposition[" + String(actualPosition) + "]");
-      if (data == targetPosition)
-      {
-        bluetooth.println("setMotors(0)");
-        motorIsOn = false;
-        state = State::Finish;
-      }
-    }
+    bluetooth.println("setMotors(0)");
+    state = Finish;
+    return sensorData;
   }
 
-  return data;
+  bluetooth.println("setMotors(1)");
+  bluetooth.println("gotoPosition(" + String(targetValue) + ")");
+
+  if (bluetooth.available())
+  {
+    String response = bluetooth.readStringUntil('\n');
+
+    if (response.startsWith("arrivedPosition("))
+    {
+      int parsedValue = (int)(response.charAt(16) - '0');
+      sensorData = (PlacerPosition)parsedValue;
+      Serial.println("Placerposition[" + String(parsedValue) + "]");
+    }
+    else
+    {
+      Serial.println(response);
+    }
+  }
+
+  return sensorData;
 }

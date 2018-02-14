@@ -32,9 +32,9 @@ struct Config
   int unknownPosition;
   RFidChip *rfidChips;
   int sizeOfRfidChips;
+  bool powerOn;
   PlacerPosition placerStartPosition;
   PlacerPosition chipPosition;
-  bool powerOn;
   Config(
       int startPosition,
       int unknownPosition,
@@ -63,7 +63,7 @@ class ConfigReciever : public Component<Config>
 public:
   ConfigReciever(Config init) : buffer{}
   {
-    this->data = init;
+    this->sensorData = init;
   }
 
 protected:

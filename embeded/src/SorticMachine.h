@@ -23,7 +23,7 @@ public:
                                                              chassis{chassis},
                                                              rfidDetector{rfidDetector}
   {
-    this->data = initialConfig;
+    this->sensorData = initialConfig;
   }
 
 protected:

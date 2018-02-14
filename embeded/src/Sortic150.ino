@@ -4,6 +4,7 @@
 #include <Wire.h>
 #include <Adafruit_MotorShield.h>
 #include <SoftwareSerial.h>
+#include <ArduinoJson.h>
 
 #include <SorticMachine.h>
 #include <Chassis.h>
@@ -13,14 +14,7 @@
 #include <ConfigReciever.h>
 #include <Component.h>
 #include <Actor.h>
-#include <ArduinoJson.h>
-
-#define distanceSensorPin A1
-#define bluetoothTx 2
-#define bluetoothRx 3
-#define rfidDetectorSelectPin 6
-#define rfidDetectorPowerDownPin 5
-#define motor 1
+#include <Config.h>
 
 Adafruit_MotorShield currentMotorShield{};
 Adafruit_DCMotor *driverMotor = currentMotorShield.getMotor(motor);
@@ -54,13 +48,13 @@ void setup()
   SPI.begin();
   bluetooth.begin(57600);
   partDetector.PCD_Init();
+  configReciever->on();
 }
 
 void loop()
 {
-  configReciever->on();
+  configReciever->execute();
   sorticMachine->setAction(configReciever->getData());
-
-  initialConfig = sorticMachine->getData();
-  initialConfig.powerOn ? sorticMachine->on() : sorticMachine->off();
+  sorticMachine->execute();
+  configReciever->getData().powerOn ? sorticMachine->on() : sorticMachine->off();
 }

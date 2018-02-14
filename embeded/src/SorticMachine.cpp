@@ -26,12 +26,12 @@ void SorticMachine::printStatus()
 
 bool SorticMachine::chassIsAtStartPosition()
 {
-  return data.startPosition == chassis->getData();
+  return sensorData.startPosition == chassis->getData();
 }
 
 bool SorticMachine::placerIsAtStartPosition()
 {
-  return data.placerStartPosition == placer->getData();
+  return sensorData.placerStartPosition == placer->getData();
 }
 
 bool SorticMachine::chipDetected()
@@ -79,26 +79,26 @@ Config SorticMachine::loop()
 
     if (chipDetected())
     {
-      placer->setAction(data.chipPosition);
+      placer->setAction(sensorData.chipPosition);
       placer->on();
     }
   }
 
   if (placerHasChip())
   {
-    chassis->setAction(data.rfidChips[getIndexOfRFidChip()].targetPosition);
+    chassis->setAction(sensorData.rfidChips[getIndexOfRFidChip()].targetPosition);
     chassis->on();
   }
 
   if (chassisReachedDestination())
   {
-    placer->setAction(data.rfidChips[getIndexOfRFidChip()].placerPosition);
+    placer->setAction(sensorData.rfidChips[getIndexOfRFidChip()].placerPosition);
     placer->on();
   }
 
   if ((allFinished() || allOff()) && !placerIsAtStartPosition() && !chassIsAtStartPosition())
   {
-    placer->setAction(data.placerStartPosition);
+    placer->setAction(sensorData.placerStartPosition);
     placer->on();
   }
   /*
@@ -121,14 +121,14 @@ Config SorticMachine::loop()
     rfidDetector->off();
   }*/
 
-  return data;
+  return sensorData;
 }
 
 int SorticMachine::getIndexOfRFidChip()
 {
-  for (int index = 0; index < data.sizeOfRfidChips; index++)
+  for (int index = 0; index < sensorData.sizeOfRfidChips; index++)
   {
-    RFidChip rfidChip = data.rfidChips[index];
+    RFidChip rfidChip = sensorData.rfidChips[index];
 
     if (!memcmp(rfidChip.rfidChip, rfidDetector->getData(), RFID_LENGTH * sizeof(byte)))
     {
