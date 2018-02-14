@@ -1,5 +1,5 @@
 #include <Chassis.h>
-//#include <Debug.h>
+#include <Debug.h>
 #include <Arduino.h>
 
 int Chassis::loop()
@@ -10,7 +10,7 @@ int Chassis::loop()
     this->setAction(CHASIS_POS_MAX);
   }
 
-  int sensorValue = analogRead(distanceSensorPin);
+  int sensorValue = analogRead(DISTANCE_SENSOR);
   int currentPosition = medianFilter.getFilterValue(sensorValue);
   int distanceToTarget = abs(currentPosition - this->targetValue);
 
@@ -30,7 +30,7 @@ int Chassis::loop()
   //Stop at target
   if (distanceToTarget < DRIVE_TOLERANCE)
   {
-    //debugLn("Position[" + String(this->targetValue) + "] arrived");
+    debugLn("Position[" + String(this->targetValue) + "] arrived");
     motor->run(RELEASE);
     motor->setSpeed(0);
     state = State::Finish;

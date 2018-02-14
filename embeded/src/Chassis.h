@@ -6,19 +6,15 @@
 #ifndef Chassis_h
 #define Chassis_h
 
-#define CHASIS_POS_MAX 565
-#define DRIVE_TOLERANCE 2
-#define MAX_MOTORSPEED 200
-
 class Chassis : public Actor<int>
 {
 public:
-  Chassis(Adafruit_DCMotor *motor, uint8_t distanceSensorPin) : distanceSensorPin{distanceSensorPin},
-                                                                motor{motor} {}
+  Chassis(Adafruit_DCMotor *motor, uint8_t DISTANCE_SENSOR) : DISTANCE_SENSOR{DISTANCE_SENSOR},
+                                                              motor{motor} {}
 
 private:
   MedianFilter medianFilter{};
-  uint8_t distanceSensorPin;
+  uint8_t DISTANCE_SENSOR;
   Adafruit_DCMotor *motor;
 
 protected:

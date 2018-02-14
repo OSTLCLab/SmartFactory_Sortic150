@@ -2,13 +2,13 @@
 #include <ConfigReciever.h>
 #include <SorticMachine.h>
 #include <Placer.h>
-#include <Streaming.h>
 
 #include <Debug.h>
 #include <SPI.h>
 
 void SorticMachine::printStatus()
 {
+  debugLn();
   debugLn("State:[On:1, Off:2, Invalid:4, Finish:8]:");
   debugLn("Chassis:" + String(chassis->getState()));
   debugLn("Placer:" + String(placer->getState()));
@@ -21,6 +21,7 @@ void SorticMachine::printStatus()
   {
     debugLn("placerIsAtStartPosition");
   }
+  debugLn();
 }
 
 bool SorticMachine::chassIsAtStartPosition()

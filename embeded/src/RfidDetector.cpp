@@ -1,7 +1,4 @@
 #include <Debug.h>
-#include <Component.h>
-#include <SPI.h>
-#include <MFRC522.h>
 #include <RfidDetector.h>
 
 byte *RfidDetector::loop()

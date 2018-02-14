@@ -1,11 +1,8 @@
 #ifndef RfidDetector_h
 #define RfidDetector_h
 
-#include <Arduino.h>
 #include <Component.h>
-#include <SPI.h>
 #include <MFRC522.h>
-#include <Wire.h>
 
 class RfidDetector : public Component<byte *>
 {

@@ -7,7 +7,6 @@
 #include <Actor.h>
 #include <filters/MedianFilter.h>
 #include <SPI.h>
-#include <MFRC522.h>
 #include <Wire.h>
 #include <Adafruit_MotorShield.h>
 

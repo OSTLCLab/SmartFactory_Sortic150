@@ -1,7 +1,5 @@
 #include <Placer.h>
 #include <Debug.h>
-#include <SorticFramework.h>
-#include <SoftwareSerial.h>
 
 PlacerPosition Placer::loop()
 {

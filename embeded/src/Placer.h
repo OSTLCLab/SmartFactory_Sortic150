@@ -1,7 +1,6 @@
 #ifndef Placer_h
 #define Placer_h
 
-#include <Arduino.h>
 #include <Actor.h>
 #include <SoftwareSerial.h>
 
@@ -23,7 +22,7 @@ protected:
   PlacerPosition loop();
 
 private:
-  // todo.. weshalb soll der motor hier und nicht beim greifarm selbst reguliert werden?
+  // todo.. weshalb soll der MOTOR_NR hier und nicht beim greifarm selbst reguliert werden?
   SoftwareSerial &bluetooth;
 };
 

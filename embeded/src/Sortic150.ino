@@ -1,25 +1,18 @@
 #include <Arduino.h>
 #include <SPI.h>
-#include <MFRC522.h>
-#include <Wire.h>
-#include <Adafruit_MotorShield.h>
-#include <SoftwareSerial.h>
-#include <ArduinoJson.h>
 
 #include <SorticMachine.h>
 #include <Chassis.h>
-#include <PlacerSeverin.h>
 #include <Placer.h>
-#include <RfidDetector.h>
 #include <ConfigReciever.h>
 #include <Component.h>
 #include <Actor.h>
 #include <Config.h>
 
 Adafruit_MotorShield currentMotorShield{};
-Adafruit_DCMotor *driverMotor = currentMotorShield.getMotor(motor);
-MFRC522 partDetector{rfidDetectorSelectPin, rfidDetectorPowerDownPin};
-SoftwareSerial bluetooth{bluetoothTx, bluetoothRx};
+Adafruit_DCMotor *driverMotor = currentMotorShield.getMotor(MOTOR_NR);
+MFRC522 partDetector{RFIDDETECTOR_SELECT, RFIDDETECTOR_POWEROFF};
+SoftwareSerial bluetooth{BLUETOOTH_TX, BLUETOOTH_RX};
 
 static const RFidChip chips[4] = {
     {(byte[]){4, 135, 115, 120, 162, 231, 73, 128}, 400, PlacerPosition::PickUpLeft},
@@ -37,7 +30,7 @@ static Config initialConfig{510,
 
 static Actor<PlacerPosition> *placer = new Placer{bluetooth};
 static Component<byte *> *rfidDetector = new RfidDetector{partDetector};
-static Actor<int> *chassis = new Chassis{driverMotor, distanceSensorPin};
+static Actor<int> *chassis = new Chassis{driverMotor, DISTANCE_SENSOR};
 static Component<Config> *configReciever = new ConfigReciever{initialConfig};
 Actor<Config> *sorticMachine = new SorticMachine{placer, rfidDetector, chassis, initialConfig};
 

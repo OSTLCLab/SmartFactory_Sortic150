@@ -1,11 +1,7 @@
 #ifndef ConfigReciever_h
 #define ConfigReciever_h
 
-#include <Arduino.h>
 #include <Component.h>
-#include <SPI.h>
-#include <MFRC522.h>
-#include <Wire.h>
 #include <ArduinoJson.h>
 #include <Placer.h>
 
