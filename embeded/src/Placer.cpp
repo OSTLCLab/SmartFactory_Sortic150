@@ -1,5 +1,5 @@
 #include <Placer.h>
-#include <Arduino.h>
+#include <Debug.h>
 #include <SorticFramework.h>
 #include <SoftwareSerial.h>
 
@@ -23,11 +23,11 @@ PlacerPosition Placer::loop()
     {
       int parsedValue = (int)(response.charAt(16) - '0');
       sensorData = (PlacerPosition)parsedValue;
-      Serial.println("Placerposition[" + String(parsedValue) + "]");
+      debugLn("Placerposition[" + String(parsedValue) + "]");
     }
     else
     {
-      Serial.println(response);
+      debugLn(response);
     }
   }
 

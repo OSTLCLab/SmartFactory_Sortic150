@@ -2,26 +2,25 @@
 #include <ConfigReciever.h>
 #include <SorticMachine.h>
 #include <Placer.h>
+#include <Streaming.h>
 
-#include <Arduino.h>
+#include <Debug.h>
 #include <SPI.h>
 
 void SorticMachine::printStatus()
 {
-  Serial.println();
-  Serial.println("State:[On:1, Off:2, Invalid:4, Finish:8]:");
-  Serial.println("Chassis:" + String(chassis->getState()));
-  Serial.println("Placer:" + String(placer->getState()));
-  Serial.println("RfidDetector:" + String(rfidDetector->getState()));
+  debugLn("State:[On:1, Off:2, Invalid:4, Finish:8]:");
+  debugLn("Chassis:" + String(chassis->getState()));
+  debugLn("Placer:" + String(placer->getState()));
+  debugLn("RfidDetector:" + String(rfidDetector->getState()));
   if (chassIsAtStartPosition())
   {
-    Serial.println("chassIsAtStartPosition");
+    debugLn("chassIsAtStartPosition");
   }
   if (placerIsAtStartPosition())
   {
-    Serial.println("placerIsAtStartPosition");
+    debugLn("placerIsAtStartPosition");
   }
-  Serial.println();
 }
 
 bool SorticMachine::chassIsAtStartPosition()

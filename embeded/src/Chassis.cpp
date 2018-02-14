@@ -1,4 +1,5 @@
 #include <Chassis.h>
+//#include <Debug.h>
 #include <Arduino.h>
 
 int Chassis::loop()
@@ -29,7 +30,7 @@ int Chassis::loop()
   //Stop at target
   if (distanceToTarget < DRIVE_TOLERANCE)
   {
-    Serial.println("Position[" + String(this->targetValue) + "] arrived");
+    //debugLn("Position[" + String(this->targetValue) + "] arrived");
     motor->run(RELEASE);
     motor->setSpeed(0);
     state = State::Finish;

@@ -1,4 +1,4 @@
-#include <Arduino.h>
+#include <Debug.h>
 #include <Component.h>
 #include <SPI.h>
 #include <MFRC522.h>
@@ -11,10 +11,10 @@ byte *RfidDetector::loop()
     return sensorData;
   }
 
-  Serial.println("Card detected");
+  debugLn("Card detected");
   byte blockSize = 18;
   MFRC522::StatusCode status{mfrc522.MIFARE_Read(0, sensorData, &blockSize)};
-  Serial.println("Actual RFIDScanner status[" + String(status) + "] Status Ok[" + String(MFRC522::STATUS_OK) + "]");
+  debugLn("Actual RFIDScanner status[" + String(status) + "] Status Ok[" + String(MFRC522::STATUS_OK) + "]");
 
   state = status == MFRC522::STATUS_OK ? State::Finish : State::Invalid;
 

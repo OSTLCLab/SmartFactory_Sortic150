@@ -1,4 +1,4 @@
-#include <Arduino.h>
+
 #include <Adafruit_MotorShield.h>
 #include <filters/MedianFilter.h>
 #include <Actor.h>

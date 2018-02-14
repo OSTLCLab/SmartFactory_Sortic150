@@ -48,11 +48,11 @@ void setup()
   SPI.begin();
   bluetooth.begin(57600);
   partDetector.PCD_Init();
-  configReciever->on();
 }
 
 void loop()
 {
+  configReciever->on();
   configReciever->execute();
   sorticMachine->setAction(configReciever->getData());
   sorticMachine->execute();
