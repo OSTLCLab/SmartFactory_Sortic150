@@ -54,5 +54,4 @@ void loop()
   sorticMachine->setAction(configReciever->getData());
   sorticMachine->execute();
   configReciever->getData().powerOn ? sorticMachine->on() : sorticMachine->off();
-  delay(1000);
 }
