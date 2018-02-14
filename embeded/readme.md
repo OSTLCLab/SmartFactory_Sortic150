@@ -1,4 +1,4 @@
-# Send commands to sortic150
+# Send Commands To sortic150
 
 These params would be sended via serial port:
 ```
@@ -36,4 +36,4 @@ example change sleepposition:
 ```
 
 # Change Debugmode
-To enable/disable Debugmode add/remove the DEBUG prop in src/Conf.h file.
+To enable/disable debugmode add/remove the DEBUG prop in src/Conf.h file.
