@@ -6,12 +6,96 @@
 #include <Debug.h>
 #include <SPI.h>
 
+Config SorticMachine::loop()
+{
+  chassis->execute();
+  placer->execute();
+  rfidDetector->execute();
+
+  printStatus();
+
+  if (chassIsAtStartPosition() && placerIsAtStartPosition())
+  {
+    chassis->off();
+
+    if (allOff())
+    {
+      rfidDetector->on();
+    }
+
+    if (chipDetected())
+    {
+      placer->setAction(sensorData.rfidSourcePosition);
+      placer->on();
+    }
+  }
+
+  if (placerHasChip())
+  {
+    chassis->setAction(sensorData.rfids[getIndexOfRFidChip()].destination);
+    chassis->on();
+  }
+
+  if (chassisReachedDestination())
+  {
+    placer->setAction(sensorData.rfids[getIndexOfRFidChip()].placerPosition);
+    placer->on();
+  }
+
+  if ((allFinished() || allOff()) && !placerIsAtStartPosition() && !chassIsAtStartPosition())
+  {
+    placer->setAction(sensorData.placerSleepPosition);
+    chassis->setAction(sensorData.chassisStart);
+
+    placer->on();
+  }
+
+  if (placerIsAtStartPosition() && !chassIsAtStartPosition())
+  {
+    chassis->on();
+  }
+
+  /*
+  
+ if ((allFinished() || allOff()) && !placerIsAtStartPosition())
+  {
+    placer->setAction(sensorData.placerSleepPosition);
+    placer->on();
+  }
+  if (allFinished() && placerIsAtStartPosition() && chassIsAtStartPosition())
+  {
+    chassis->off();
+    placer->off();
+    rfidDetector->off();
+  }*/
+
+  return sensorData;
+}
+
+void SorticMachine::printComponentStatus(String name, State state)
+{
+  switch (state)
+  {
+  case State::On:
+    debugLn(name + " is on.");
+    break;
+  case State::Invalid:
+    debugLn(name + " is invalid.");
+    break;
+  case State::Off:
+    debugLn(name + " is off.");
+    break;
+  case State::Finish:
+    debugLn(name + " is finish.");
+    break;
+  }
+}
+
 void SorticMachine::printStatus()
 {
-  debugLn("State:[On:1, Off:2, Invalid:4, Finish:8]:");
-  debugLn("Chassis:" + String(chassis->getState()));
-  debugLn("Placer:" + String(placer->getState()));
-  debugLn("RfidDetector:" + String(rfidDetector->getState()));
+  printComponentStatus("Chassis", chassis->getState());
+  printComponentStatus("Placer", placer->getState());
+  printComponentStatus("RfidDetector", rfidDetector->getState());
   if (chassIsAtStartPosition())
   {
     debugLn("chassIsAtStartPosition");
@@ -63,69 +147,6 @@ bool SorticMachine::allFinished()
   return chassis->getState() == State::Finish &&
          placer->getState() == State::Finish &&
          rfidDetector->getState() == State::Finish;
-}
-
-Config SorticMachine::loop()
-{
-  chassis->execute();
-  placer->execute();
-  rfidDetector->execute();
-
-  printStatus();
-
-  if (chassIsAtStartPosition() && placerIsAtStartPosition())
-  {
-    if (allOff())
-    {
-      rfidDetector->on();
-    }
-
-    if (chipDetected())
-    {
-      placer->setAction(sensorData.rfidSourcePosition);
-      placer->on();
-    }
-  }
-
-  if (placerHasChip())
-  {
-    chassis->setAction(sensorData.rfids[getIndexOfRFidChip()].destination);
-    chassis->on();
-  }
-
-  if (chassisReachedDestination())
-  {
-    placer->setAction(sensorData.rfids[getIndexOfRFidChip()].placerPosition);
-    placer->on();
-  }
-
-  if ((allFinished() || allOff()) && !placerIsAtStartPosition() && !chassIsAtStartPosition())
-  {
-    placer->setAction(sensorData.placerSleepPosition);
-    chassis->setAction(sensorData.chassisStart);
-
-    placer->on();
-  }
-
-  if ((allFinished() || allOff()) && placerIsAtStartPosition() && !chassIsAtStartPosition())
-  {
-    chassis->on();
-  }
-  /*
-  
- if ((allFinished() || allOff()) && !placerIsAtStartPosition())
-  {
-    placer->setAction(sensorData.placerSleepPosition);
-    placer->on();
-  }
-  if (allFinished() && placerIsAtStartPosition() && chassIsAtStartPosition())
-  {
-    chassis->off();
-    placer->off();
-    rfidDetector->off();
-  }*/
-
-  return sensorData;
 }
 
 int SorticMachine::getIndexOfRFidChip()
