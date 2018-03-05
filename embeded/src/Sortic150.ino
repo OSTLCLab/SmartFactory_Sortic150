@@ -1,57 +1,57 @@
 #include <Arduino.h>
-
 #include <SPI.h>
-#include <MFRC522.h>
-#include <Wire.h>
-#include <Adafruit_MotorShield.h>
-#include <SoftwareSerial.h>
 
-#include "SorticFramework.h"
+#include <SorticMachine.h>
+#include <Chassis.h>
+#include <Placer.h>
+#include <ConfigReciever.h>
+#include <Component.h>
+#include <Actor.h>
+#include <Config.h>
 
-#include "SorticMachineSeverin.h"
-#include "MoverSeverin.h"
-#include "PlacerSeverin.h"
-#include "PlacerPerformance.h"
-#include "DetectorSeverin.h"
+Adafruit_MotorShield currentMotorShield{};
+Adafruit_DCMotor *driverMotor = currentMotorShield.getMotor(MOTOR_NR);
+MFRC522 partDetector{RFIDDETECTOR_SELECT, RFIDDETECTOR_POWEROFF};
+SoftwareSerial bluetooth{BLUETOOTH_TX, BLUETOOTH_RX};
 
+static const RFidChip chips[8] = {
+    {(byte[]){4, 135, 115, 120, 162, 231, 73, 128}, 400, PlacerPosition::PickUpLeft},
+    {(byte[]){4, 42, 117, 211, 162, 231, 73, 128}, 300, PlacerPosition::PickUpLeft},
+    {(byte[]){4, 161, 115, 94, 162, 231, 73, 128}, 200, PlacerPosition::PickUpLeft},
+    {(byte[]){0, 0, 0, 0, 0, 0, 0, 0}, 510, PlacerPosition::Front},
+    {(byte[]){0, 0, 0, 0, 0, 0, 0, 0}, 510, PlacerPosition::Front},
+    {(byte[]){0, 0, 0, 0, 0, 0, 0, 0}, 510, PlacerPosition::Front},
+    {(byte[]){0, 0, 0, 0, 0, 0, 0, 0}, 510, PlacerPosition::Front},
+    {(byte[]){0, 0, 0, 0, 0, 0, 0, 0}, 510, PlacerPosition::Front}};
 
-//Sensors:
-int DistanceSensorPin = A1;
+static Config initialConfig{510,
+                            510,
+                            (RFidChip *)chips,
+                            4,
+                            true,
+                            PlacerPosition::Front,
+                            PlacerPosition::PickUpLeft};
 
-//Motors:
-Adafruit_MotorShield currentMotorShield = Adafruit_MotorShield();
-Adafruit_DCMotor *DriverMotor = currentMotorShield.getMotor(1);
-/*Adafruit_DCMotor *PlacerMotorBase = currentMotorShield.getMotor(2);
-Adafruit_DCMotor *PlacerMotorArm = currentMotorShield.getMotor(3);
-Adafruit_DCMotor *PlacerMotorClaw = currentMotorShield.getMotor(4);*/
+static Actor<PlacerPosition> *placer = new Placer{bluetooth};
+static Component<byte *> *rfidDetector = new RfidDetector{partDetector};
+static Actor<int> *chassis = new Chassis{driverMotor, DISTANCE_SENSOR};
+static Component<Config> *configReciever = new ConfigReciever{initialConfig};
+Actor<Config> *sorticMachine = new SorticMachine{placer, rfidDetector, chassis, initialConfig};
 
-//RFID Detectors:
-MFRC522 PartDetector(6,5);
-
-//Bluetooth:
-SoftwareSerial Bluetooth(2, 3); // TX | RX
-
-//Components:
-Placer *currentPlacer;
-DetectorSeverin *currentDetector;
-MoverSeverin *currentMover;
-SorticMachineSeverin *thisSorticMachine;
-
-
-void setup() {
+void setup()
+{
   Serial.begin(9600);
   currentMotorShield.begin();
   SPI.begin();
-  //currentPlacer = new PlacerSeverin(PlacerMotorBase, PlacerMotorArm, PlacerMotorClaw);
-
-  currentPlacer = new PlacerPerformance(&Bluetooth);
-  currentDetector = new DetectorSeverin(&PartDetector);
-  currentMover = new MoverSeverin(DriverMotor, DistanceSensorPin, 510, 400, 300, 200);
-
-  thisSorticMachine = new SorticMachineSeverin(currentPlacer, currentDetector, currentMover, &currentMotorShield);
-  delay(2000);
+  bluetooth.begin(57600);
+  partDetector.PCD_Init();
 }
 
-void loop() {
-  thisSorticMachine->loop();
+void loop()
+{
+  configReciever->on();
+  configReciever->execute();
+  sorticMachine->setAction(configReciever->getData());
+  sorticMachine->execute();
+  configReciever->getData().powerOn ? sorticMachine->on() : sorticMachine->off();
 }

@@ -1,23 +1,24 @@
-#include "SorticFramework.h"
+/*#include "SorticFramework.h"
 
 //Constructor
 
-SorticMachine::SorticMachine(Placer *tempPlacer, Detector *tempDetector, Mover *tempMover) {
+SorticMachine::SorticMachine(Placer *tempPlacer, Detector *tempDetector, Mover *tempMover)
+{
   currentPlacer = tempPlacer;
   currentDetector = tempDetector;
   currentMover = tempMover;
-  currentMachineLogicState = MachineLogicState::idle;
+  state.job = MachineJob::idle;
 }
 
-
-Placer::Placer() {
-
+Placer::Placer()
+{
 }
 
-Detector::Detector() {
-
+Detector::Detector()
+{
 }
 
-Mover::Mover() {
-
+Mover::Mover()
+{
 }
+*/
