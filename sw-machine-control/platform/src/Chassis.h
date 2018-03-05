@@ -1,6 +1,6 @@
 
 #include <Adafruit_MotorShield.h>
-#include <filters/MedianFilter.h>
+#include <snippets/MedianFilter.h>
 #include <Actor.h>
 
 #ifndef Chassis_h

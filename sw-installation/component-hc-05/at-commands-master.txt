@@ -1,0 +1,58 @@
+0. Set HC-05 to Config-Mode
+----------------------------
+
+1. Flash arduino with at-programmer code
+2. Connect all wires (incl. EN connected to 3.3V or HIGH Pin 9)
+3. Disconnect HC-05 Power wire
+4. Start/Reset Arduino
+5. Connect HC-05 Power wire again
+6. HC-05 blinking slowly (2sec)
+
+Set back to normal mode:
+1. Disconnect EN (3.3V)
+2. Disconnect HC-05 Power wire
+3. Reset Arduino
+4. Connect HC-05 Power wire again
+5. HC-05 blinking fast (<1sec)
+
+1. Reset / Clear and set Master
+-------------------------------
+
+AT+RMAAD 	clears any previously paired devices.
+>OK
+AT+ROLE=1 	puts the HC-05 in Master Mode
+>OK
+AT+NAME={DeviceName} 	e.g. Master1
+>OK
+AT+NAME
+>{DeviceName}
+AT+RESET 	reset the HC-05. This is sometimes needed after changing roles.
+>OK
+
+2. Serach for Device
+--------------------
+
+AT+CMODE=0 	allows the HC-05 to connect to any device
+>OK
+AT+INQM=0,5,9 	set inquiry to search for up to 5 devices for 9 seconds
+>OK
+AT+INIT 	initiates the SPP profile. If SPP is already active you will get an error(17) which you can ignore.
+>OK
+AT+INQ 		searches for other Bluetooth devices.
+>+INQ:98D3:31:FB2812,1F00,7FFF
+AT+RNAME?98D3,31,FB2812		Query for the name
++RNAME:Slave1
+
+
+3. Pairing
+----------
+
+AT+PAIR=98D3,31,FB2812,9 	To pair we use the AT+PAIR=<addr>,<timeout> command.
+>OK
+AT+BIND=98D3,31,FB2812		Bind (remeber pair)
+>OK
+AT+CMODE=1 			Set the HC-05 to only connect with paired devices
+>OK
+AT+LINK=98D3,31,FB2812		Link (start talking to the device)
+>OK
+>Feather is ready!

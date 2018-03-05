@@ -1,0 +1,8 @@
+Slave Configuration
+-------------------
+
+AT+NAME=Slave1
+AT+ROLE=0
+AT+UART=57600,0,0
+AT+PSWD=1234
+
