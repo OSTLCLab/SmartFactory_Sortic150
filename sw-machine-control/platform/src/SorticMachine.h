@@ -5,8 +5,10 @@
 
 #include <Arduino.h>
 #include <Actor.h>
+#include <snippets/MedianFilter.h>
 #include <SPI.h>
 #include <Wire.h>
+
 #include <Adafruit_MotorShield.h>
 
 #ifndef SorticMachine_h
@@ -33,6 +35,7 @@ private:
   Component<byte *> *rfidDetector;
   int getIndexOfRFidChip();
   void printStatus();
+  void printComponentStatus(String name, State state);
   bool chassIsAtStartPosition();
   bool placerIsAtStartPosition();
   bool allOff();

@@ -285,16 +285,14 @@ bool moving() {
   int tolerance = 5;
   if ((newServoPos0-oldServoPos0)<tolerance && (newServoPos1-oldServoPos1<tolerance) && (newServoPos2-oldServoPos2)<tolerance) {
     return false;
-    //Serial1.println("Arm is not moving(1)");
   }
   else {
     return true;
-    //Serial1.println("Arm is moving(0)");
   }
 }
 
 void pickup() {
-  
+
 }
 
 void drop() {

@@ -8,6 +8,7 @@
 #include <Component.h>
 #include <Actor.h>
 #include <Config.h>
+#include <Debug.h>
 
 Adafruit_MotorShield currentMotorShield{};
 Adafruit_DCMotor *driverMotor = currentMotorShield.getMotor(MOTOR_NR);
@@ -45,10 +46,13 @@ void setup()
   SPI.begin();
   bluetooth.begin(57600);
   partDetector.PCD_Init();
+  debugLn("Setup Ready");
 }
 
 void loop()
 {
+  //@Roman: Muss das hier sein, könnte das nicht ins Setup (Nur einmal ausführen)
+  // Name conifgRevicever passt mir nicht... ist doch eingelintlich unser Machine API
   configReciever->on();
   configReciever->execute();
   sorticMachine->setAction(configReciever->getData());

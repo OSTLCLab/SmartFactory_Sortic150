@@ -7,6 +7,7 @@
 
 #define RFID_LENGTH 8
 
+// Ich würde das nicht RFidChip sondern "SortJob" nennen (RfID ist nru grad im moment die Technologie). 
 struct RFidChip
 {
   byte *id;
