@@ -3,11 +3,11 @@
 
 PlacerPosition Placer::loop()
 {
-  if (targetValue == sensorData)
+  if (targetValue == componentData)
   {
     bluetooth.println("setMotors(0)");
     state = Finish;
-    return sensorData;
+    return componentData;
   }
 
   bluetooth.println("setMotors(1)");
@@ -30,7 +30,7 @@ PlacerPosition Placer::loop()
     if (response.startsWith("arrivedPosition("))
     {
       int parsedValue = (int)(response.charAt(16) - '0');
-      sensorData = (PlacerPosition)parsedValue;
+      componentData = (PlacerPosition)parsedValue;
       debugLn("Placerposition[" + String(parsedValue) + "]");
     }
     else
@@ -39,5 +39,5 @@ PlacerPosition Placer::loop()
     }
   }
 
-  return sensorData;
+  return componentData;
 }

@@ -1,10 +1,10 @@
 #include <Chassis.h>
 #include <RfidDetector.h>
 #include <Placer.h>
-#include <ConfigReciever.h>
+#include <MachineAPI.h>
 
 #include <Arduino.h>
-#include <Actor.h>
+#include <Component.h>
 #include <snippets/MedianFilter.h>
 #include <SPI.h>
 #include <Wire.h>
@@ -14,25 +14,28 @@
 #ifndef SorticMachine_h
 #define SorticMachine_h
 
-class SorticMachine : public Actor<Config>
+class SorticMachine : public Component<Config>
 {
 public:
-  SorticMachine(Actor<PlacerPosition> *placer,
+  SorticMachine(Component<PlacerPosition> *placer,
                 Component<byte *> *rfidDetector,
-                Actor<int> *chassis, Config initialConfig) : placer{placer},
-                                                             chassis{chassis},
-                                                             rfidDetector{rfidDetector}
+                Component<int> *chassis,
+                Component<Config> *machineAPI) : placer{placer},
+                                                 chassis{chassis},
+                                                 rfidDetector{rfidDetector},
+                                                 machineAPI{machineAPI}
   {
-    this->sensorData = initialConfig;
+    this->componentData = machineAPI->getData();
   }
 
 protected:
   Config loop();
 
 private:
-  Actor<PlacerPosition> *placer;
-  Actor<int> *chassis;
+  Component<PlacerPosition> *placer;
+  Component<int> *chassis;
   Component<byte *> *rfidDetector;
+  Component<Config> *machineAPI;
   int getIndexOfRFidChip();
   void printStatus();
   void printComponentStatus(String name, State state);

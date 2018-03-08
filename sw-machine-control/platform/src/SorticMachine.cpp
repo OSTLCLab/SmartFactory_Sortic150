@@ -1,5 +1,5 @@
-#include <Actor.h>
-#include <ConfigReciever.h>
+#include <Component.h>
+#include <MachineAPI.h>
 #include <SorticMachine.h>
 #include <Placer.h>
 
@@ -8,11 +8,9 @@
 
 Config SorticMachine::loop()
 {
-  // @Roman: Wollen wir heir nicht grad die statuswerte zurückerhlaten? Das Loop gibt ja den Status zurück, und denke dass dies
-  // für meine Studenten einfacher zu verstehen ist, wenn hier grad der aktuelle Zustand zurückkommt
-  chassis->execute();
-  placer->execute();
-  rfidDetector->execute();
+  chassis->executeOneStep();
+  placer->executeOneStep();
+  rfidDetector->executeOneStep();
 
   printStatus();
 
@@ -27,27 +25,27 @@ Config SorticMachine::loop()
 
     if (chipDetected())
     {
-      placer->setAction(sensorData.rfidSourcePosition);
+      placer->setAction(componentData.rfidSourcePosition);
       placer->on();
     }
   }
 
   if (placerHasChip())
   {
-    chassis->setAction(sensorData.rfids[getIndexOfRFidChip()].destination);
+    chassis->setAction(componentData.rfids[getIndexOfRFidChip()].destination);
     chassis->on();
   }
 
   if (chassisReachedDestination())
   {
-    placer->setAction(sensorData.rfids[getIndexOfRFidChip()].placerPosition);
+    placer->setAction(componentData.rfids[getIndexOfRFidChip()].placerPosition);
     placer->on();
   }
 
   if ((allFinished() || allOff()) && !placerIsAtStartPosition() && !chassIsAtStartPosition())
   {
-    placer->setAction(sensorData.placerSleepPosition);
-    chassis->setAction(sensorData.chassisStart);
+    placer->setAction(componentData.placerSleepPosition);
+    chassis->setAction(componentData.chassisStart);
     chassis->on();
     placer->on();
   }
@@ -61,7 +59,7 @@ Config SorticMachine::loop()
 
  if ((allFinished() || allOff()) && !placerIsAtStartPosition())
   {
-    placer->setAction(sensorData.placerSleepPosition);
+    placer->setAction(componentData.placerSleepPosition);
     placer->on();
   }
   if (allFinished() && placerIsAtStartPosition() && chassIsAtStartPosition())
@@ -71,7 +69,7 @@ Config SorticMachine::loop()
     rfidDetector->off();
   }*/
 
-  return sensorData;
+  return componentData;
 }
 
 void SorticMachine::printComponentStatus(String name, State state)
@@ -111,12 +109,12 @@ void SorticMachine::printStatus()
 
 bool SorticMachine::chassIsAtStartPosition()
 {
-  return abs(sensorData.chassisStart - chassis->getData()) <= CHASSIS_TOLERANCE;
+  return abs(componentData.chassisStart - chassis->getData()) <= CHASSIS_TOLERANCE;
 }
 
 bool SorticMachine::placerIsAtStartPosition()
 {
-  return sensorData.placerSleepPosition == placer->getData();
+  return componentData.placerSleepPosition == placer->getData();
 }
 
 bool SorticMachine::chipDetected()
@@ -153,9 +151,9 @@ bool SorticMachine::allFinished()
 
 int SorticMachine::getIndexOfRFidChip()
 {
-  for (int index = 0; index < sensorData.rfidCount; index++)
+  for (int index = 0; index < componentData.rfidCount; index++)
   {
-    RFidChip id = sensorData.rfids[index];
+    RFidChip id = componentData.rfids[index];
 
     if (!memcmp(id.id, rfidDetector->getData(), RFID_LENGTH * sizeof(byte)))
     {

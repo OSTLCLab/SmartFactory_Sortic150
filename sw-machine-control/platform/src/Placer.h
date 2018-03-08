@@ -1,7 +1,7 @@
 #ifndef Placer_h
 #define Placer_h
 
-#include <Actor.h>
+#include <Component.h>
 #include <SoftwareSerial.h>
 
 enum PlacerPosition
@@ -13,7 +13,7 @@ enum PlacerPosition
   DropRight = 9
 };
 
-class Placer : public Actor<PlacerPosition>
+class Placer : public Component<PlacerPosition>
 {
 public:
   Placer(SoftwareSerial &bluetooth) : bluetooth{bluetooth} {}
@@ -22,7 +22,6 @@ protected:
   PlacerPosition loop();
 
 private:
-  // todo.. weshalb soll der MOTOR_NR hier und nicht beim greifarm selbst reguliert werden?
   SoftwareSerial &bluetooth;
 };
 

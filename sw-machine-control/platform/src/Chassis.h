@@ -1,18 +1,18 @@
 
 #include <Adafruit_MotorShield.h>
 #include <snippets/MedianFilter.h>
-#include <Actor.h>
+#include <Component.h>
 
 #ifndef Chassis_h
 #define Chassis_h
 
-class Chassis : public Actor<int>
+class Chassis : public Component<int>
 {
 public:
   Chassis(Adafruit_DCMotor *motor, uint8_t DISTANCE_SENSOR) : DISTANCE_SENSOR{DISTANCE_SENSOR},
                                                               motor{motor}
   {
-    sensorData = 0;
+    componentData = 0;
   }
 
 private:

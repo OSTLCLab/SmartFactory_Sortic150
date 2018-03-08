@@ -1,13 +1,14 @@
-#ifndef ConfigReciever_h
-#define ConfigReciever_h
+#ifndef MachineAPI_h
+#define MachineAPI_h
 
 #include <Component.h>
+#include <Arduino.h>
 #include <ArduinoJson.h>
 #include <Placer.h>
 
 #define RFID_LENGTH 8
 
-// Ich würde das nicht RFidChip sondern "SortJob" nennen (RfID ist nru grad im moment die Technologie). 
+// Ich würde das nicht RFidChip sondern "SortJob" nennen (RfID ist nru grad im moment die Technologie).
 struct RFidChip
 {
   byte *id;
@@ -55,12 +56,30 @@ struct Config
              powerOn{} {}
 };
 
-class ConfigReciever : public Component<Config>
+static const RFidChip chips[8] = {
+    {(byte[]){4, 135, 115, 120, 162, 231, 73, 128}, 400, PlacerPosition::PickUpLeft},
+    {(byte[]){4, 42, 117, 211, 162, 231, 73, 128}, 300, PlacerPosition::PickUpLeft},
+    {(byte[]){4, 161, 115, 94, 162, 231, 73, 128}, 200, PlacerPosition::PickUpLeft},
+    {(byte[]){0, 0, 0, 0, 0, 0, 0, 0}, 510, PlacerPosition::Front},
+    {(byte[]){0, 0, 0, 0, 0, 0, 0, 0}, 510, PlacerPosition::Front},
+    {(byte[]){0, 0, 0, 0, 0, 0, 0, 0}, 510, PlacerPosition::Front},
+    {(byte[]){0, 0, 0, 0, 0, 0, 0, 0}, 510, PlacerPosition::Front},
+    {(byte[]){0, 0, 0, 0, 0, 0, 0, 0}, 510, PlacerPosition::Front}};
+
+static Config initialConfig{510,
+                            510,
+                            (RFidChip *)chips,
+                            4,
+                            true,
+                            PlacerPosition::Front,
+                            PlacerPosition::PickUpLeft};
+
+class MachineAPI : public Component<Config>
 {
 public:
-  ConfigReciever(Config init)
+  MachineAPI()
   {
-    this->sensorData = init;
+    this->componentData = initialConfig;
   }
 
 protected:
