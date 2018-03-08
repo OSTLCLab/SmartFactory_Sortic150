@@ -8,18 +8,17 @@
 
 #define RFID_LENGTH 8
 
-// Ich würde das nicht RFidChip sondern "SortJob" nennen (RfID ist nru grad im moment die Technologie).
-struct RFidChip
+struct SortJob
 {
   byte *id;
   int destination;
   PlacerPosition placerPosition;
 
-  RFidChip(byte *chips,
-           int destination,
-           PlacerPosition placerPosition) : id{chips},
-                                            destination{destination},
-                                            placerPosition{placerPosition}
+  SortJob(byte *chips,
+          int destination,
+          PlacerPosition placerPosition) : id{chips},
+                                           destination{destination},
+                                           placerPosition{placerPosition}
   {
   }
 };
@@ -28,7 +27,7 @@ struct Config
 {
   int chassisStart;
   int unknownPosition;
-  RFidChip *rfids;
+  SortJob *rfids;
   int rfidCount;
   bool powerOn;
   PlacerPosition placerSleepPosition;
@@ -36,7 +35,7 @@ struct Config
   Config(
       int chassisStart,
       int unknownPosition,
-      RFidChip *chips,
+      SortJob *chips,
       int rfidCount,
       bool powerOn,
       PlacerPosition placerSleepPosition,
@@ -56,7 +55,7 @@ struct Config
              powerOn{} {}
 };
 
-static const RFidChip chips[8] = {
+static const SortJob chips[8] = {
     {(byte[]){4, 135, 115, 120, 162, 231, 73, 128}, 400, PlacerPosition::PickUpLeft},
     {(byte[]){4, 42, 117, 211, 162, 231, 73, 128}, 300, PlacerPosition::PickUpLeft},
     {(byte[]){4, 161, 115, 94, 162, 231, 73, 128}, 200, PlacerPosition::PickUpLeft},
@@ -68,7 +67,7 @@ static const RFidChip chips[8] = {
 
 static Config initialConfig{510,
                             510,
-                            (RFidChip *)chips,
+                            (SortJob *)chips,
                             4,
                             true,
                             PlacerPosition::Front,

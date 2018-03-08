@@ -153,7 +153,7 @@ int SorticMachine::getIndexOfRFidChip()
 {
   for (int index = 0; index < componentData.rfidCount; index++)
   {
-    RFidChip id = componentData.rfids[index];
+    SortJob id = componentData.rfids[index];
 
     if (!memcmp(id.id, rfidDetector->getData(), RFID_LENGTH * sizeof(byte)))
     {

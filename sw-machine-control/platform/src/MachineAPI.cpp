@@ -67,7 +67,7 @@ Config MachineAPI::loop()
 
     int dest = root["dest"];
     int placer = root["placer"];
-    RFidChip newChip{rfid, dest, (PlacerPosition)placer};
+    SortJob newChip{rfid, dest, (PlacerPosition)placer};
     int index = getIndexOfRFidChip(rfid);
     if (index == -1)
     {
