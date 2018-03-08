@@ -1,12 +1,12 @@
 #include <Component.h>
 #include <MachineAPI.h>
-#include <SorticMachine.h>
+#include <MachineLogic.h>
 #include <Placer.h>
 
 #include <Debug.h>
 #include <SPI.h>
 
-Config SorticMachine::loop()
+Config MachineLogic::loop()
 {
   chassis->executeOneStep();
   placer->executeOneStep();
@@ -16,17 +16,16 @@ Config SorticMachine::loop()
 
   if (chassIsAtStartPosition() && placerIsAtStartPosition())
   {
-    chassis->off();
-
-    if (allOff())
-    {
-      rfidDetector->on();
-    }
-
     if (chipDetected())
     {
       placer->setAction(componentData.rfidSourcePosition);
       placer->on();
+    }
+    else
+    {
+      chassis->off();
+      placer->off();
+      rfidDetector->on();
     }
   }
 
@@ -72,7 +71,7 @@ Config SorticMachine::loop()
   return componentData;
 }
 
-void SorticMachine::printComponentStatus(String name, State state)
+void MachineLogic::printComponentStatus(String name, State state)
 {
   switch (state)
   {
@@ -91,7 +90,7 @@ void SorticMachine::printComponentStatus(String name, State state)
   }
 }
 
-void SorticMachine::printStatus()
+void MachineLogic::printStatus()
 {
   printComponentStatus("Chassis", chassis->getState());
   printComponentStatus("Placer", placer->getState());
@@ -107,49 +106,49 @@ void SorticMachine::printStatus()
   debugLn();
 }
 
-bool SorticMachine::chassIsAtStartPosition()
+bool MachineLogic::chassIsAtStartPosition()
 {
   return abs(componentData.chassisStart - chassis->getData()) <= CHASSIS_TOLERANCE;
 }
 
-bool SorticMachine::placerIsAtStartPosition()
+bool MachineLogic::placerIsAtStartPosition()
 {
   return componentData.placerSleepPosition == placer->getData();
 }
 
-bool SorticMachine::chipDetected()
+bool MachineLogic::chipDetected()
 {
   return getIndexOfRFidChip() != -1;
 }
 
-bool SorticMachine::allOff()
+bool MachineLogic::allOff()
 {
   return chassis->getState() == State::Off &&
          placer->getState() == State::Off &&
          rfidDetector->getState() == State::Off;
 }
 
-bool SorticMachine::placerHasChip()
+bool MachineLogic::placerHasChip()
 {
   return placer->getState() == State::Finish &&
          chipDetected() && chassIsAtStartPosition() &&
          !placerIsAtStartPosition();
 }
 
-bool SorticMachine::chassisReachedDestination()
+bool MachineLogic::chassisReachedDestination()
 {
   return chassis->getState() == State::Finish &&
          chipDetected() && !chassIsAtStartPosition();
 }
 
-bool SorticMachine::allFinished()
+bool MachineLogic::allFinished()
 {
   return chassis->getState() == State::Finish &&
          placer->getState() == State::Finish &&
          rfidDetector->getState() == State::Finish;
 }
 
-int SorticMachine::getIndexOfRFidChip()
+int MachineLogic::getIndexOfRFidChip()
 {
   for (int index = 0; index < componentData.rfidCount; index++)
   {

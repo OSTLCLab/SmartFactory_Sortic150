@@ -1,7 +1,7 @@
 #include <Arduino.h>
 #include <SPI.h>
 
-#include <SorticMachine.h>
+#include <MachineLogic.h>
 #include <Chassis.h>
 #include <Placer.h>
 #include <MachineAPI.h>
@@ -18,7 +18,7 @@ static Component<PlacerPosition> *placer = new Placer{bluetooth};
 static Component<byte *> *rfidDetector = new RfidDetector{partDetector};
 static Component<int> *chassis = new Chassis{driverMotor, DISTANCE_SENSOR};
 static Component<Config> *machineAPI = new MachineAPI{};
-static Component<Config> *sorticMachine = new SorticMachine{placer, rfidDetector, chassis, machineAPI};
+static Component<Config> *machineLogic = new MachineLogic{placer, rfidDetector, chassis, machineAPI};
 
 void setup()
 {
@@ -34,8 +34,10 @@ void setup()
 void loop()
 {
   machineAPI->executeOneStep();
-  machineAPI->getData().powerOn ? sorticMachine->on() : sorticMachine->off();
+  machineAPI->getData().powerOn ? machineLogic->on() : machineLogic->off();
 
-  sorticMachine->setAction(machineAPI->getData());
-  sorticMachine->executeOneStep();
+  machineLogic->setAction(machineAPI->getData());
+  machineLogic->executeOneStep();
+
+  delay(1000);
 }

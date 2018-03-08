@@ -11,19 +11,19 @@
 
 #include <Adafruit_MotorShield.h>
 
-#ifndef SorticMachine_h
-#define SorticMachine_h
+#ifndef MachineLogic_h
+#define MachineLogic_h
 
-class SorticMachine : public Component<Config>
+class MachineLogic : public Component<Config>
 {
 public:
-  SorticMachine(Component<PlacerPosition> *placer,
-                Component<byte *> *rfidDetector,
-                Component<int> *chassis,
-                Component<Config> *machineAPI) : placer{placer},
-                                                 chassis{chassis},
-                                                 rfidDetector{rfidDetector},
-                                                 machineAPI{machineAPI}
+  MachineLogic(Component<PlacerPosition> *placer,
+               Component<byte *> *rfidDetector,
+               Component<int> *chassis,
+               Component<Config> *machineAPI) : placer{placer},
+                                                chassis{chassis},
+                                                rfidDetector{rfidDetector},
+                                                machineAPI{machineAPI}
   {
     this->componentData = machineAPI->getData();
   }
