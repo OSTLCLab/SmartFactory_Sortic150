@@ -13,7 +13,8 @@ byte *RfidDetector::loop()
   MFRC522::StatusCode status{mfrc522.MIFARE_Read(0, componentData, &blockSize)};
   debugLn("Actual RFIDScanner status[" + String(status) + "] Status Ok[" + String(MFRC522::STATUS_OK) + "]");
 
-  state = status == MFRC522::STATUS_OK ? State::Finish : State::Invalid;
+  //If status is not ok, set componentstate invalid
+  state = status == MFRC522::STATUS_OK ? Finish : Invalid;
 
   return componentData;
 }

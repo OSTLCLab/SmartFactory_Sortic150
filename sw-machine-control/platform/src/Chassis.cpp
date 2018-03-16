@@ -35,7 +35,7 @@ int Chassis::loop()
     debugLn("Position[" + String(this->targetValue) + "] arrived");
     motor->run(RELEASE);
     motor->setSpeed(0);
-    state = State::Finish;
+    state = Finish;
   }
 
   return currentPosition;

@@ -23,8 +23,8 @@ Config MachineLogic::loop()
     }
     else
     {
-      chassis->off();
-      placer->off();
+      chassis->wait();
+      placer->wait();
       rfidDetector->on();
     }
   }
@@ -63,9 +63,9 @@ Config MachineLogic::loop()
   }
   if (allFinished() && placerIsAtStartPosition() && chassIsAtStartPosition())
   {
-    chassis->off();
-    placer->off();
-    rfidDetector->off();
+    chassis->wait();
+    placer->wait();
+    rfidDetector->wait();
   }*/
 
   return componentData;
@@ -75,16 +75,16 @@ void MachineLogic::printComponentStatus(String name, State state)
 {
   switch (state)
   {
-  case State::On:
+  case Running:
     debugLn(name + " is on.");
     break;
-  case State::Invalid:
+  case Invalid:
     debugLn(name + " is invalid.");
     break;
-  case State::Off:
+  case Waiting:
     debugLn(name + " is off.");
     break;
-  case State::Finish:
+  case Finish:
     debugLn(name + " is finish.");
     break;
   }
@@ -123,29 +123,29 @@ bool MachineLogic::chipDetected()
 
 bool MachineLogic::allOff()
 {
-  return chassis->getState() == State::Off &&
-         placer->getState() == State::Off &&
-         rfidDetector->getState() == State::Off;
+  return chassis->getState() == Waiting &&
+         placer->getState() == Waiting &&
+         rfidDetector->getState() == Waiting;
 }
 
 bool MachineLogic::placerHasChip()
 {
-  return placer->getState() == State::Finish &&
+  return placer->getState() == Finish &&
          chipDetected() && chassIsAtStartPosition() &&
          !placerIsAtStartPosition();
 }
 
 bool MachineLogic::chassisReachedDestination()
 {
-  return chassis->getState() == State::Finish &&
+  return chassis->getState() == Finish &&
          chipDetected() && !chassIsAtStartPosition();
 }
 
 bool MachineLogic::allFinished()
 {
-  return chassis->getState() == State::Finish &&
-         placer->getState() == State::Finish &&
-         rfidDetector->getState() == State::Finish;
+  return chassis->getState() == Finish &&
+         placer->getState() == Finish &&
+         rfidDetector->getState() == Finish;
 }
 
 int MachineLogic::getIndexOfRFidChip()

@@ -12,4 +12,13 @@
 #define MAX_MOTORSPEED 200
 #define DEBUG //enable || disable debug msg
 
+#define POWER_ON "powerOn"
+#define CHASSIS_START "chassisStart"
+#define RFID_SOURCE_POSITION "rfidSourcePosition"
+#define PLACER_SLEEP_POSITION "placerSleepPosition"
+#define UNKNOWN_POSITION "unknownPosition"
+#define ID "id"
+#define DEST "dest"
+#define PLACER "placer"
+
 #endif

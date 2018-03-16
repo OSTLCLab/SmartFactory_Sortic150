@@ -38,13 +38,11 @@ struct Config
       SortJob *chips,
       int rfidCount,
       bool powerOn,
-      PlacerPosition placerSleepPosition,
       PlacerPosition rfidSourcePosition) : chassisStart{chassisStart},
                                            unknownPosition{unknownPosition},
                                            rfids{chips},
                                            rfidCount{rfidCount},
                                            powerOn{powerOn},
-                                           placerSleepPosition{placerSleepPosition},
                                            rfidSourcePosition{rfidSourcePosition}
   {
   }
@@ -56,22 +54,21 @@ struct Config
 };
 
 static const SortJob chips[8] = {
-    {(byte[]){4, 135, 115, 120, 162, 231, 73, 128}, 400, PlacerPosition::PickUpLeft},
-    {(byte[]){4, 42, 117, 211, 162, 231, 73, 128}, 300, PlacerPosition::PickUpLeft},
-    {(byte[]){4, 161, 115, 94, 162, 231, 73, 128}, 200, PlacerPosition::PickUpLeft},
-    {(byte[]){0, 0, 0, 0, 0, 0, 0, 0}, 510, PlacerPosition::Front},
-    {(byte[]){0, 0, 0, 0, 0, 0, 0, 0}, 510, PlacerPosition::Front},
-    {(byte[]){0, 0, 0, 0, 0, 0, 0, 0}, 510, PlacerPosition::Front},
-    {(byte[]){0, 0, 0, 0, 0, 0, 0, 0}, 510, PlacerPosition::Front},
-    {(byte[]){0, 0, 0, 0, 0, 0, 0, 0}, 510, PlacerPosition::Front}};
+    {(byte[]){4, 135, 115, 120, 162, 231, 73, 128}, 400, PickUpLeft},
+    {(byte[]){4, 42, 117, 211, 162, 231, 73, 128}, 300, PickUpLeft},
+    {(byte[]){4, 161, 115, 94, 162, 231, 73, 128}, 200, PickUpLeft},
+    {(byte[]){0, 0, 0, 0, 0, 0, 0, 0}, 510, PickUpLeft},
+    {(byte[]){0, 0, 0, 0, 0, 0, 0, 0}, 510, PickUpLeft},
+    {(byte[]){0, 0, 0, 0, 0, 0, 0, 0}, 510, PickUpLeft},
+    {(byte[]){0, 0, 0, 0, 0, 0, 0, 0}, 510, PickUpLeft},
+    {(byte[]){0, 0, 0, 0, 0, 0, 0, 0}, 510, PickUpLeft}};
 
 static Config initialConfig{510,
                             510,
                             (SortJob *)chips,
                             4,
                             true,
-                            PlacerPosition::Front,
-                            PlacerPosition::PickUpLeft};
+                            PickUpLeft};
 
 class MachineAPI : public Component<Config>
 {

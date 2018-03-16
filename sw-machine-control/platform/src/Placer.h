@@ -6,11 +6,10 @@
 
 enum PlacerPosition
 {
-  DropLeft = 1,
-  PickUpLeft = 4,
-  Front = 5,
-  PickUpRight = 6,
-  DropRight = 9
+  PickUpLeft = 1,
+  PickUpRight = 2,
+  DropLeft = 3,
+  DropRight = 4
 };
 
 class Placer : public Component<PlacerPosition>

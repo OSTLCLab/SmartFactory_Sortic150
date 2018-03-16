@@ -7,7 +7,7 @@ Config MachineAPI::loop()
 {
   if (!Serial.available())
   {
-    state = State::Finish;
+    state = Finish;
     return componentData;
   }
   StaticJsonBuffer<200> buffer;
@@ -22,51 +22,51 @@ Config MachineAPI::loop()
     debugLn("Parsing JSON fail. Bad format.");
     debugLn(readedString);
     buffer.clear();
-    state = State::Invalid;
+    state = Invalid;
     return componentData;
   }
 
-  if (root.containsKey("powerOn"))
+  if (root.containsKey(POWER_ON))
   {
-    componentData.powerOn = root["powerOn"];
+    componentData.powerOn = root[POWER_ON];
     debugLn("Power [" + String(componentData.powerOn) + "]");
   }
 
-  if (root.containsKey("chassisStart"))
+  if (root.containsKey(CHASSIS_START))
   {
-    componentData.chassisStart = root["chassisStart"];
+    componentData.chassisStart = root[CHASSIS_START];
     debugLn("chassisStart [" + String(componentData.chassisStart) + "]");
   }
 
-  if (root.containsKey("rfidSourcePosition"))
+  if (root.containsKey(RFID_SOURCE_POSITION))
   {
-    int rfidSourcePosition = root["rfidSourcePosition"];
+    int rfidSourcePosition = root[RFID_SOURCE_POSITION];
     componentData.rfidSourcePosition = (PlacerPosition)rfidSourcePosition;
     debugLn("rfidSourcePosition [" + String(componentData.rfidSourcePosition) + "]");
   }
 
-  if (root.containsKey("placerSleepPosition"))
+  if (root.containsKey(PLACER_SLEEP_POSITION))
   {
-    int placerSleepPosition = root["placerSleepPosition"];
+    int placerSleepPosition = root[PLACER_SLEEP_POSITION];
     componentData.placerSleepPosition = (PlacerPosition)placerSleepPosition;
 
     debugLn("placerSleepPosition [" + String(componentData.placerSleepPosition) + "]");
   }
 
-  if (root.containsKey("unknownPosition"))
+  if (root.containsKey(UNKNOWN_POSITION))
   {
-    componentData.unknownPosition = root["unknownPosition"];
+    componentData.unknownPosition = root[UNKNOWN_POSITION];
     debugLn("unknownPosition [" + String(componentData.unknownPosition) + "]");
   }
 
-  if (root.containsKey("id"))
+  if (root.containsKey(ID))
   {
-    JsonArray &arr = root["id"];
+    JsonArray &arr = root[ID];
     byte rfid[RFID_LENGTH];
     arr.copyTo(rfid);
 
-    int dest = root["dest"];
-    int placer = root["placer"];
+    int dest = root[DEST];
+    int placer = root[PLACER];
     SortJob newChip{rfid, dest, (PlacerPosition)placer};
     int index = getIndexOfRFidChip(rfid);
     if (index == -1)
@@ -92,7 +92,7 @@ Config MachineAPI::loop()
       }
     };
   }
-  state = State::Finish;
+  state = Finish;
 
   return componentData;
 }

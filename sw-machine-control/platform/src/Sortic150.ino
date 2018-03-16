@@ -28,13 +28,13 @@ void setup()
   bluetooth.begin(57600);
   partDetector.PCD_Init();
   machineAPI->on();
-  debugLn("Setup Ready");
+  debugLn("Setup Finish");
 }
 
 void loop()
 {
   machineAPI->executeOneStep();
-  machineAPI->getData().powerOn ? machineLogic->on() : machineLogic->off();
+  machineAPI->getData().powerOn ? machineLogic->on() : machineLogic->wait();
 
   machineLogic->setAction(machineAPI->getData());
   machineLogic->executeOneStep();
