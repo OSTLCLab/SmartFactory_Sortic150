@@ -10,8 +10,8 @@
 #define CHASIS_POS_MAX 565
 #define CHASSIS_TOLERANCE 2
 #define MAX_MOTORSPEED 200
-#define DEBUG //enable || disable debug msg
 
+#define RFID_LENGTH 8
 #define POWER_ON "powerOn"
 #define CHASSIS_START "chassisStart"
 #define RFID_SOURCE_POSITION "rfidSourcePosition"

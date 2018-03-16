@@ -29,23 +29,130 @@ public:
   }
 
 protected:
-  Config loop();
+  Config loop()
+  {
+    chassis->executeOneStep();
+    placer->executeOneStep();
+    rfidDetector->executeOneStep();
+
+    if (chassIsAtStartPosition() && placerIsAtStartPosition())
+    {
+      if (chipDetected())
+      {
+        placer->setAction(componentData.rfidSourcePosition);
+        placer->on();
+      }
+      else
+      {
+        chassis->wait();
+        placer->wait();
+        rfidDetector->on();
+      }
+    }
+
+    if (placerHasChip())
+    {
+      chassis->setAction(componentData.rfids[getIndexOfRFidChip()].destination);
+      chassis->on();
+    }
+
+    if (chassisReachedDestination())
+    {
+      placer->setAction(componentData.rfids[getIndexOfRFidChip()].placerPosition);
+      placer->on();
+    }
+
+    if ((allFinished() || allOff()) && !placerIsAtStartPosition() && !chassIsAtStartPosition())
+    {
+      placer->setAction(componentData.placerSleepPosition);
+      chassis->setAction(componentData.chassisStart);
+      chassis->on();
+      placer->on();
+    }
+
+    if (placerIsAtStartPosition() && !chassIsAtStartPosition())
+    {
+      chassis->on();
+    }
+
+    /*
+
+ if ((allFinished() || allOff()) && !placerIsAtStartPosition())
+  {
+    placer->setAction(componentData.placerSleepPosition);
+    placer->on();
+  }
+  if (allFinished() && placerIsAtStartPosition() && chassIsAtStartPosition())
+  {
+    chassis->wait();
+    placer->wait();
+    rfidDetector->wait();
+  }*/
+
+    return componentData;
+  }
 
 private:
   Component<PlacerPosition> *placer;
   Component<int> *chassis;
   Component<byte *> *rfidDetector;
   Component<Config> *machineAPI;
-  int getIndexOfRFidChip();
-  void printStatus();
-  void printComponentStatus(String name, State state);
-  bool chassIsAtStartPosition();
-  bool placerIsAtStartPosition();
-  bool allOff();
-  bool chipDetected();
-  bool placerHasChip();
-  bool chassisReachedDestination();
-  bool allFinished();
+
+  bool chassIsAtStartPosition()
+  {
+    return abs(componentData.chassisStart - chassis->getData()) <= CHASSIS_TOLERANCE;
+  }
+
+  bool placerIsAtStartPosition()
+  {
+    return componentData.placerSleepPosition == placer->getData();
+  }
+
+  bool chipDetected()
+  {
+    return getIndexOfRFidChip() != -1;
+  }
+
+  bool allOff()
+  {
+    return chassis->getState() == Waiting &&
+           placer->getState() == Waiting &&
+           rfidDetector->getState() == Waiting;
+  }
+
+  bool placerHasChip()
+  {
+    return placer->getState() == Finish &&
+           chipDetected() && chassIsAtStartPosition() &&
+           !placerIsAtStartPosition();
+  }
+
+  bool chassisReachedDestination()
+  {
+    return chassis->getState() == Finish &&
+           chipDetected() && !chassIsAtStartPosition();
+  }
+
+  bool allFinished()
+  {
+    return chassis->getState() == Finish &&
+           placer->getState() == Finish &&
+           rfidDetector->getState() == Finish;
+  }
+
+  int getIndexOfRFidChip()
+  {
+    for (int index = 0; index < componentData.rfidCount; index++)
+    {
+      SortJob id = componentData.rfids[index];
+
+      if (!memcmp(id.id, rfidDetector->getData(), RFID_LENGTH * sizeof(byte)))
+      {
+        return index;
+      }
+    }
+    return -1;
+  }
 };
 
 #endif

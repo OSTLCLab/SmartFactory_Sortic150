@@ -7,7 +7,6 @@
 #include <MachineAPI.h>
 #include <Component.h>
 #include <Config.h>
-#include <Debug.h>
 
 Adafruit_MotorShield currentMotorShield{};
 Adafruit_DCMotor *driverMotor = currentMotorShield.getMotor(MOTOR_NR);
@@ -28,7 +27,6 @@ void setup()
   bluetooth.begin(57600);
   partDetector.PCD_Init();
   machineAPI->on();
-  debugLn("Setup Finish");
 }
 
 void loop()
