@@ -74,10 +74,10 @@ void loop() {
 
 // Handle API commands
 void handleApiCommands(String command) {
-  if (command = "pickup();") {
+  if (command == "pickup();") {
     moduleJob = JOB_PICKUP;
   }
-  if (command = "drop();") {
+  if (command == "drop();") {
     moduleJob = JOB_DROP;
   }
 }
