@@ -2,11 +2,11 @@
 #include <SPI.h>
 #include <SharpIR.h>
 
-#include <MachineLogic.h>
 #include <Chassis.h>
 #include <Placer.h>
-#include <MachineAPI.h>
+#include <MachineLogic.h>
 #include <Component.h>
+#include <RfidDetector.h>
 #include <Config.h>
 #include <Debug.h>
 

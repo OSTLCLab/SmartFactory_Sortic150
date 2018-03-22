@@ -1,7 +1,6 @@
 
-#include <Adafruit_MotorShield.h>
 #include <SharpIR.h>
-
+#include <Adafruit_MotorShield.h>
 #include <Component.h>
 #include <Config.h>
 #include <Debug.h>

@@ -5,7 +5,6 @@
 
 #include <Arduino.h>
 #include <Component.h>
-#include <snippets/MedianFilter.h>
 #include <SPI.h>
 #include <Wire.h>
 #include <Debug.h>
