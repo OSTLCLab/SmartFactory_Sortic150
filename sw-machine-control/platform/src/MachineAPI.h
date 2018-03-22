@@ -35,11 +35,12 @@ static const SortJob chips[8] = {
     {(byte[]){0, 0, 0, 0, 0, 0, 0, 0}, 510, PickUpLeft},
     {(byte[]){0, 0, 0, 0, 0, 0, 0, 0}, 510, PickUpLeft}};
 
-static Config initialConfig{510,
-                            510,
+static Config initialConfig{CHASSIS_POS_START,
+                            CHASSIS_POS_START,
                             (SortJob *)chips,
                             4,
                             true,
+                            PickUpLeft,
                             PickUpLeft};
 
 class MachineAPI : public Component<Config>

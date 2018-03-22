@@ -8,6 +8,7 @@
 #include <snippets/MedianFilter.h>
 #include <SPI.h>
 #include <Wire.h>
+#include <Debug.h>
 
 #include <Adafruit_MotorShield.h>
 
@@ -31,6 +32,7 @@ public:
 protected:
   Config loop()
   {
+    printStatus();
     chassis->executeOneStep();
     placer->executeOneStep();
     rfidDetector->executeOneStep();
@@ -152,6 +154,40 @@ private:
       }
     }
     return -1;
+  }
+  void printStatus()
+  {
+    printComponentStatus("Chassis", chassis->getState());
+    printComponentStatus("Placer", placer->getState());
+    printComponentStatus("RfidDetector", rfidDetector->getState());
+    if (chassIsAtStartPosition())
+    {
+      debugLn("chassIsAtStartPosition");
+    }
+    if (placerIsAtStartPosition())
+    {
+      debugLn("placerIsAtStartPosition");
+    }
+    debugLn();
+  }
+
+  void printComponentStatus(String name, State state)
+  {
+    switch (state)
+    {
+    case Running:
+      debugLn(name + " is on.");
+      break;
+    case State::Invalid:
+      debugLn(name + " is invalid.");
+      break;
+    case Waiting:
+      debugLn(name + " is off.");
+      break;
+    case Finish:
+      debugLn(name + " is finish.");
+      break;
+    }
   }
 };
 

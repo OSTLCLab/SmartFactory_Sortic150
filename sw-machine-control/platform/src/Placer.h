@@ -50,8 +50,6 @@ protected:
       break;
     }
 
-    state = Finish;
-
     return componentData;
   }
 
