@@ -25,15 +25,25 @@ protected:
   int loop()
   {
     int currentPosition = sensor->getDistance();
-    if (currentPosition > CHASIS_POS_MAX || currentPosition < CHASIS_POS_MIN)
+    if (currentPosition > CHASIS_POS_MAX && targetValue > CHASIS_POS_MAX)
     {
       motor->run(RELEASE);
       motor->setSpeed(0);
       state = Invalid;
-      debugLn("Max or Min pos exceeded!" + String(currentPosition));
+      debugLn("Max exceeded cannot go this way!" + String(currentPosition));
 
       return currentPosition;
     }
+    if (currentPosition < CHASIS_POS_MIN && targetValue < CHASIS_POS_MIN)
+    {
+      motor->run(RELEASE);
+      motor->setSpeed(0);
+      state = Invalid;
+      debugLn("Min exceeded cannot go this way!" + String(currentPosition));
+
+      return currentPosition;
+    }
+
     //Maximum sensor value ~= 565, use max sensor value if larger
     if (this->targetValue > CHASIS_POS_MAX)
     {

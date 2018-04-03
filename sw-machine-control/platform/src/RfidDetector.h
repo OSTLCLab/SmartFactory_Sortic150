@@ -7,7 +7,9 @@
 class RfidDetector : public Component<byte *>
 {
 public:
-  RfidDetector(MFRC522 *mfrc522) : mfrc522{mfrc522} {}
+  RfidDetector(MFRC522 *mfrc522) : mfrc522{mfrc522}
+  {
+  }
 
 protected:
   byte *loop()
@@ -16,12 +18,15 @@ protected:
     {
       return componentData;
     }
-
-    byte blockSize = 18;
-    MFRC522::StatusCode status{mfrc522->MIFARE_Read(0, componentData, &blockSize)};
+    debugLn("PICC_IsNewCardPresent");
+    byte buffer[18];
+    byte size = sizeof(buffer);
+    MFRC522::StatusCode status = mfrc522->MIFARE_Read(0, buffer, &size);
 
     //If status is not ok, set componentstate invalid
-    state = status == MFRC522::STATUS_OK ? Finish : Invalid;
+    state = status == MFRC522::STATUS_OK ? State::Finish : State::Invalid;
+    debugLn(String(state) + " " + String(status) + " " + String(size));
+    componentData = buffer;
 
     return componentData;
   }

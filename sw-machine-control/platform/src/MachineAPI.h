@@ -26,22 +26,22 @@ struct Config
 };
 
 static const SortJob chips[8] = {
-    {(byte[]){4, 135, 115, 120, 162, 231, 73, 128}, 400, PickUpLeft},
-    {(byte[]){4, 42, 117, 211, 162, 231, 73, 128}, 300, PickUpLeft},
-    {(byte[]){4, 161, 115, 94, 162, 231, 73, 128}, 200, PickUpLeft},
-    {(byte[]){0, 0, 0, 0, 0, 0, 0, 0}, 510, PickUpLeft},
-    {(byte[]){0, 0, 0, 0, 0, 0, 0, 0}, 510, PickUpLeft},
-    {(byte[]){0, 0, 0, 0, 0, 0, 0, 0}, 510, PickUpLeft},
-    {(byte[]){0, 0, 0, 0, 0, 0, 0, 0}, 510, PickUpLeft},
-    {(byte[]){0, 0, 0, 0, 0, 0, 0, 0}, 510, PickUpLeft}};
+    {(byte[]){4, 135, 115, 120, 162, 231, 73, 128}, 40, DropLeft},
+    {(byte[]){4, 42, 117, 211, 162, 231, 73, 128}, 40, DropLeft},
+    {(byte[]){4, 161, 115, 94, 162, 231, 73, 128}, 20, DropRight},
+    {(byte[]){0, 0, 0, 0, 0, 0, 0, 0}, 40, DropLeft},
+    {(byte[]){0, 0, 0, 0, 0, 0, 0, 0}, 40, DropLeft},
+    {(byte[]){0, 0, 0, 0, 0, 0, 0, 0}, 40, DropLeft},
+    {(byte[]){0, 0, 0, 0, 0, 0, 0, 0}, 40, DropLeft},
+    {(byte[]){0, 0, 0, 0, 0, 0, 0, 0}, 40, DropLeft}};
 
 static Config initialConfig{CHASSIS_POS_START,
                             CHASSIS_POS_START,
                             (SortJob *)chips,
                             4,
                             true,
-                            PickUpLeft,
-                            PickUpLeft};
+                            StartPosition,
+                            PickUpRight};
 
 class MachineAPI : public Component<Config>
 {

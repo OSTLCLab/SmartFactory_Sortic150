@@ -53,42 +53,39 @@ protected:
 
     if (placerHasChip())
     {
-      chassis->setAction(componentData.rfids[getIndexOfRFidChip()].destination);
+      chassis->setAction(componentData.rfids[chipIndex].destination);
       chassis->on();
     }
 
     if (chassisReachedDestination())
     {
-      placer->setAction(componentData.rfids[getIndexOfRFidChip()].placerPosition);
+      placer->setAction(componentData.rfids[chipIndex].placerPosition);
       placer->on();
     }
 
     if ((allFinished() || allOff()) && !placerIsAtStartPosition() && !chassIsAtStartPosition())
     {
       placer->setAction(componentData.placerSleepPosition);
-      chassis->setAction(componentData.chassisStart);
-      chassis->on();
       placer->on();
     }
 
     if (placerIsAtStartPosition() && !chassIsAtStartPosition())
     {
+      chassis->setAction(componentData.chassisStart);
       chassis->on();
     }
 
-    /*
-
- if ((allFinished() || allOff()) && !placerIsAtStartPosition())
-  {
-    placer->setAction(componentData.placerSleepPosition);
-    placer->on();
-  }
-  if (allFinished() && placerIsAtStartPosition() && chassIsAtStartPosition())
-  {
-    chassis->wait();
-    placer->wait();
-    rfidDetector->wait();
-  }*/
+    if ((allFinished() || allOff()) && !placerIsAtStartPosition())
+    {
+      placer->setAction(componentData.placerSleepPosition);
+      placer->on();
+    }
+    if (allFinished() && placerIsAtStartPosition() && chassIsAtStartPosition())
+    {
+      chassis->wait();
+      placer->wait();
+      rfidDetector->wait();
+    }
 
     return componentData;
   }
@@ -98,6 +95,7 @@ private:
   Component<int> *chassis;
   Component<byte *> *rfidDetector;
   Component<Config> *machineAPI;
+  int chipIndex{-1};
 
   bool chassIsAtStartPosition()
   {
@@ -111,7 +109,12 @@ private:
 
   bool chipDetected()
   {
-    return getIndexOfRFidChip() != -1;
+    if (chipIndex != -1)
+    {
+      return true;
+    }
+    chipIndex = getIndexOfRFidChip();
+    return chipIndex != -1;
   }
 
   bool allOff()
@@ -124,14 +127,16 @@ private:
   bool placerHasChip()
   {
     return placer->getState() == Finish &&
-           chipDetected() && chassIsAtStartPosition() &&
+           chipDetected() &&
+           chassIsAtStartPosition() &&
            !placerIsAtStartPosition();
   }
 
   bool chassisReachedDestination()
   {
     return chassis->getState() == Finish &&
-           chipDetected() && !chassIsAtStartPosition();
+           chipDetected() &&
+           !chassIsAtStartPosition();
   }
 
   bool allFinished()
@@ -145,10 +150,19 @@ private:
   {
     for (int index = 0; index < componentData.rfidCount; index++)
     {
-      SortJob id = componentData.rfids[index];
-
-      if (!memcmp(id.id, rfidDetector->getData(), RFID_LENGTH * sizeof(byte)))
+      SortJob sortJob = componentData.rfids[index];
+      bool areEqual = true;
+      for (int index2 = 0; index2 < 8; index2++)
       {
+        if (!areEqual || rfidDetector->getData()[index2] != sortJob.id[index2])
+        {
+          areEqual = false;
+        }
+      }
+
+      if (areEqual)
+      {
+        debugLn(index);
         return index;
       }
     }
@@ -163,9 +177,17 @@ private:
     {
       debugLn("chassIsAtStartPosition");
     }
+    if (placerHasChip())
+    {
+      debugLn("placerHasChip");
+    }
     if (placerIsAtStartPosition())
     {
       debugLn("placerIsAtStartPosition");
+    }
+    if (chipDetected())
+    {
+      debugLn("chipDetected");
     }
     debugLn();
   }
@@ -175,13 +197,13 @@ private:
     switch (state)
     {
     case Running:
-      debugLn(name + " is on.");
+      debugLn(name + " is running.");
       break;
-    case State::Invalid:
+    case Invalid:
       debugLn(name + " is invalid.");
       break;
     case Waiting:
-      debugLn(name + " is off.");
+      debugLn(name + " is waiting.");
       break;
     case Finish:
       debugLn(name + " is finish.");
