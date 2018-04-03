@@ -18,7 +18,7 @@ class MachineLogic : public Component<Config>
 {
 public:
   MachineLogic(Component<PlacerPosition> *placer,
-               Component<byte *> *rfidDetector,
+               Component<int> *rfidDetector,
                Component<int> *chassis,
                Component<Config> *machineAPI) : placer{placer},
                                                 chassis{chassis},
@@ -53,13 +53,13 @@ protected:
 
     if (placerHasChip())
     {
-      chassis->setAction(componentData.rfids[chipIndex].destination);
+      chassis->setAction(componentData.rfids[rfidDetector->getData()].destination);
       chassis->on();
     }
 
     if (chassisReachedDestination())
     {
-      placer->setAction(componentData.rfids[chipIndex].placerPosition);
+      placer->setAction(componentData.rfids[rfidDetector->getData()].placerPosition);
       placer->on();
     }
 
@@ -93,9 +93,8 @@ protected:
 private:
   Component<PlacerPosition> *placer;
   Component<int> *chassis;
-  Component<byte *> *rfidDetector;
+  Component<int> *rfidDetector;
   Component<Config> *machineAPI;
-  int chipIndex{-1};
 
   bool chassIsAtStartPosition()
   {
@@ -109,12 +108,7 @@ private:
 
   bool chipDetected()
   {
-    if (chipIndex != -1)
-    {
-      return true;
-    }
-    chipIndex = getIndexOfRFidChip();
-    return chipIndex != -1;
+    return rfidDetector->getData() != -1;
   }
 
   bool allOff()
@@ -146,28 +140,6 @@ private:
            rfidDetector->getState() == Finish;
   }
 
-  int getIndexOfRFidChip()
-  {
-    for (int index = 0; index < componentData.rfidCount; index++)
-    {
-      SortJob sortJob = componentData.rfids[index];
-      bool areEqual = true;
-      for (int index2 = 0; index2 < 8; index2++)
-      {
-        if (!areEqual || rfidDetector->getData()[index2] != sortJob.id[index2])
-        {
-          areEqual = false;
-        }
-      }
-
-      if (areEqual)
-      {
-        debugLn(index);
-        return index;
-      }
-    }
-    return -1;
-  }
   void printStatus()
   {
     printComponentStatus("Chassis", chassis->getState());
@@ -187,7 +159,7 @@ private:
     }
     if (chipDetected())
     {
-      debugLn("chipDetected");
+      debugLn("chipDetected" + String(rfidDetector->getData()));
     }
     debugLn();
   }

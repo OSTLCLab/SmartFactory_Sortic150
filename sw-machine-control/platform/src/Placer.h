@@ -7,6 +7,7 @@
 
 enum PlacerPosition
 {
+  NoPosition = 0,
   PickUpLeft = 1,
   PickUpRight = 2,
   DropLeft = 3,
