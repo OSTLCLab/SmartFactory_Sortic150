@@ -69,6 +69,9 @@ protected:
     case StartPosition:
       bluetooth.println("initPosition(1)");
       break;
+    case NoPosition:
+      //do nothing.
+      break;
     }
 
     return componentData;

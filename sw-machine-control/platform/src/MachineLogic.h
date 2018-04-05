@@ -70,7 +70,7 @@ protected:
     if (!allOff() && chassisReachedDestination() && !grippControllerDeposeChip())
     {
       debugLn("State 6: Put gripp at the sortjob position.");
-      grippController->setAction(componentData.rfids[rfidDetector->getData()].GrippPosition);
+      grippController->setAction(componentData.rfids[rfidDetector->getData()].grippPosition);
       grippController->on();
     }
 
@@ -98,22 +98,21 @@ private:
 
   bool chassIsAtStartPosition()
   {
-    return abs(componentData.chassisStart - chassis->getData()) <= CHASSIS_TOLERANCE;
+    return chassis->getState() != Running && abs(componentData.chassisStart - chassis->getData()) <= CHASSIS_TOLERANCE;
   }
 
   bool grippControllerDeposeChip()
   {
-    return chipDetected() && componentData.rfids[rfidDetector->getData()].GrippPosition == grippController->getData();
+    return chipDetected() && componentData.rfids[rfidDetector->getData()].grippPosition == grippController->getData();
   }
 
   bool grippControllerIsAtStartPosition()
   {
     return componentData.grippSleepPosition == grippController->getData();
   }
-
   bool chipDetected()
   {
-    return rfidDetector->getState() != Waiting && rfidDetector->getData() != -1;
+    return rfidDetector->getState() == Finish && rfidDetector->getData() != -1;
   }
 
   bool allOff()

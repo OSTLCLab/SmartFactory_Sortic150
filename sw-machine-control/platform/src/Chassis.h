@@ -24,7 +24,7 @@ private:
 protected:
   int loop()
   {
-    int currentPosition = sensor->getDistance();
+    int currentPosition = sensor->getDistance(false);
     if (currentPosition > CHASIS_POS_MAX && targetValue > CHASIS_POS_MAX)
     {
       motor->run(RELEASE);
@@ -44,11 +44,6 @@ protected:
       return currentPosition;
     }
 
-    //Maximum sensor value ~= 565, use max sensor value if larger
-    if (this->targetValue > CHASIS_POS_MAX)
-    {
-      this->setAction(CHASIS_POS_MAX);
-    }
     int distanceToTarget = abs(currentPosition - this->targetValue);
 
     motor->run(currentPosition > this->targetValue ? BACKWARD : FORWARD);

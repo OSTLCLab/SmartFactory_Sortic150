@@ -11,7 +11,7 @@ struct SortJob
 {
   byte *id;
   int destination;
-  GrippPosition GrippPosition;
+  GrippPosition grippPosition;
 };
 
 struct Config

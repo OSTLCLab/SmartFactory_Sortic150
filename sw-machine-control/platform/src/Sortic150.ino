@@ -39,5 +39,4 @@ void loop()
 
   machineLogic->setAction(machineAPI->getData());
   machineLogic->executeOneStep();
-  delay(3000);
 }
