@@ -1,6 +1,6 @@
 #include <Chassis.h>
 #include <RfidDetector.h>
-#include <GrippController.h>
+#include <HandlingUnit.h>
 #include <MachineAPI.h>
 
 #include <Arduino.h>
@@ -17,98 +17,93 @@
 class MachineLogic : public Component<Config>
 {
 public:
-  MachineLogic(Component<GrippPosition> *grippController,
+  MachineLogic(Component<HandlingUnitPosition> *handlingUnit,
                Component<int> *rfidDetector,
-               Component<int> *chassis,
-               Component<Config> *machineAPI) : grippController{grippController},
-                                                chassis{chassis},
-                                                rfidDetector{rfidDetector},
-                                                machineAPI{machineAPI}
+               Component<int> *chassis) : handlingUnit{handlingUnit},
+                                          chassis{chassis},
+                                          rfidDetector{rfidDetector}
   {
-    this->componentData = machineAPI->getData();
   }
 
 protected:
   Config loop()
   {
-    if ((allFinished() || allOff()) && !grippControllerIsAtStartPosition() && !chassIsAtStartPosition() && !chassisReachedDestination())
+    if ((allFinished() || allOff()) && !handlingUnitIsAtStartPosition() && !chassIsAtStartPosition() && !chassisReachedDestination())
     {
-      debugLn("State 1: Put Gripp in its sleepposition.");
-      grippController->setAction(componentData.grippSleepPosition);
-      grippController->on();
+      debugLn("State 1: Put HandlingUnit in its initposition.");
+      handlingUnit->setAction(targetValue.handlingUnitInitPosition);
+      handlingUnit->on();
     }
 
-    if (grippControllerIsAtStartPosition() && !chassIsAtStartPosition())
+    if (handlingUnitIsAtStartPosition() && !chassIsAtStartPosition())
     {
-      debugLn("State 2: Put Chassis in its startposition.");
-      chassis->setAction(componentData.chassisStart);
+      debugLn("State 2: Put Chassis in its initposition.");
+      chassis->setAction(targetValue.chassisStart);
       chassis->on();
     }
 
-    if (chassIsAtStartPosition() && grippControllerIsAtStartPosition() && !chipDetected())
+    if (chassIsAtStartPosition() && handlingUnitIsAtStartPosition() && !chipDetected())
     {
       debugLn("State 3: Check for new sortjobs.");
       chassis->wait();
-      grippController->wait();
+      handlingUnit->wait();
       rfidDetector->on();
     }
 
-    if (chassIsAtStartPosition() && grippControllerIsAtStartPosition() && chipDetected())
+    if (chassIsAtStartPosition() && handlingUnitIsAtStartPosition() && chipDetected())
     {
       debugLn("State 4: Get the new sortjob.");
-      grippController->setAction(componentData.rfidSourcePosition);
-      grippController->on();
+      handlingUnit->setAction(targetValue.rfidSourcePosition);
+      handlingUnit->on();
     }
 
-    if (grippControllerHasChip())
+    if (handlingUnitHasChip())
     {
       debugLn("State 5: Put chassis at the sortjob position.");
-      chassis->setAction(componentData.rfids[rfidDetector->getData()].destination);
+      chassis->setAction(targetValue.rfids[rfidDetector->getData()].destination);
       chassis->on();
     }
 
-    if (!allOff() && chassisReachedDestination() && !grippControllerDeposeChip())
+    if (!allOff() && chassisReachedDestination() && !handlingUnitDeposeChip())
     {
-      debugLn("State 6: Put gripp at the sortjob position.");
-      grippController->setAction(componentData.rfids[rfidDetector->getData()].grippPosition);
-      grippController->on();
+      debugLn("State 6: Put handlingUnit at the sortjob position.");
+      handlingUnit->setAction(targetValue.rfids[rfidDetector->getData()].handlingUnitPosition);
+      handlingUnit->on();
     }
 
-    if (chassisReachedDestination() && grippControllerDeposeChip())
+    if (!targetValue.powerOn || (chassisReachedDestination() && handlingUnitDeposeChip()))
     {
       debugLn("State 7: Go to State 1.");
-      grippController->wait();
+      handlingUnit->wait();
       chassis->wait();
       rfidDetector->wait();
     }
 
-    printStatus();
     chassis->executeOneStep();
-    grippController->executeOneStep();
+    handlingUnit->executeOneStep();
     rfidDetector->executeOneStep();
 
-    return componentData;
+    return targetValue;
   }
 
 private:
-  Component<GrippPosition> *grippController;
+  Component<HandlingUnitPosition> *handlingUnit;
   Component<int> *chassis;
   Component<int> *rfidDetector;
-  Component<Config> *machineAPI;
 
   bool chassIsAtStartPosition()
   {
-    return chassis->getState() != Running && abs(componentData.chassisStart - chassis->getData()) <= CHASSIS_TOLERANCE;
+    return chassis->getState() != Running && abs(targetValue.chassisStart - chassis->getData()) <= CHASSIS_TOLERANCE;
   }
 
-  bool grippControllerDeposeChip()
+  bool handlingUnitDeposeChip()
   {
-    return chipDetected() && componentData.rfids[rfidDetector->getData()].grippPosition == grippController->getData();
+    return chipDetected() && targetValue.rfids[rfidDetector->getData()].handlingUnitPosition == handlingUnit->getData();
   }
 
-  bool grippControllerIsAtStartPosition()
+  bool handlingUnitIsAtStartPosition()
   {
-    return componentData.grippSleepPosition == grippController->getData();
+    return targetValue.handlingUnitInitPosition == handlingUnit->getData();
   }
   bool chipDetected()
   {
@@ -118,48 +113,48 @@ private:
   bool allOff()
   {
     return chassis->getState() == Waiting &&
-           grippController->getState() == Waiting &&
+           handlingUnit->getState() == Waiting &&
            rfidDetector->getState() == Waiting;
   }
 
-  bool grippControllerHasChip()
+  bool handlingUnitHasChip()
   {
-    return grippController->getState() == Finish &&
+    return handlingUnit->getState() == Finish &&
            chipDetected() &&
            chassIsAtStartPosition() &&
-           !grippControllerIsAtStartPosition();
+           !handlingUnitIsAtStartPosition();
   }
 
   bool chassisReachedDestination()
   {
     return chassis->getState() == Finish &&
            chipDetected() &&
-           (abs(componentData.rfids[rfidDetector->getData()].destination - chassis->getData()) <= CHASSIS_TOLERANCE);
+           (abs(targetValue.rfids[rfidDetector->getData()].destination - chassis->getData()) <= CHASSIS_TOLERANCE);
   }
 
   bool allFinished()
   {
     return chassis->getState() == Finish &&
-           grippController->getState() == Finish &&
+           handlingUnit->getState() == Finish &&
            rfidDetector->getState() == Finish;
   }
 
   void printStatus()
   {
     printComponentStatus("Chassis", chassis->getState());
-    printComponentStatus("grippController", grippController->getState());
+    printComponentStatus("handlingUnit", handlingUnit->getState());
     printComponentStatus("RfidDetector", rfidDetector->getState());
     if (chassIsAtStartPosition())
     {
       debugLn("chassIsAtStartPosition");
     }
-    if (grippControllerHasChip())
+    if (handlingUnitHasChip())
     {
-      debugLn("grippControllerHasChip");
+      debugLn("handlingUnitHasChip");
     }
-    if (grippControllerIsAtStartPosition())
+    if (handlingUnitIsAtStartPosition())
     {
-      debugLn("grippControllerIsAtStartPosition");
+      debugLn("handlingUnitIsAtStartPosition");
     }
     if (chipDetected())
     {

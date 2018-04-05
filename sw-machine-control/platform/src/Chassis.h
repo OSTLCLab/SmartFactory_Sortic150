@@ -4,6 +4,7 @@
 #include <Component.h>
 #include <Config.h>
 #include <Debug.h>
+#include <RunningMedian.h>
 
 #ifndef Chassis_h
 #define Chassis_h
@@ -20,11 +21,24 @@ public:
 private:
   SharpIR *sensor;
   Adafruit_DCMotor *motor;
+  int currentPosition{0};
+  RunningMedian medianFilter{5};
 
 protected:
   int loop()
   {
-    int currentPosition = sensor->getDistance(false);
+    medianFilter.add(sensor->getDistance());
+
+    if (medianFilter.getCount() == 5)
+    {
+      currentPosition = medianFilter.getAverage();
+      medianFilter.clear();
+    }
+    else
+    {
+      return currentPosition;
+    }
+
     if (currentPosition > CHASIS_POS_MAX && targetValue > CHASIS_POS_MAX)
     {
       motor->run(RELEASE);

@@ -11,7 +11,7 @@
 #define CHASSIS_TOLERANCE 0
 #define MAX_MOTORSPEED 230
 #define MIN_MOTORSPEED 75
-#define CHASSIS_POS_START 22
+#define CHASSIS_POS_START 23
 #define CHASIS_POS_MIN 19
 #define MILLIS_OF_LAST_SENDING 5000
 
@@ -19,11 +19,11 @@
 #define POWER_ON "powerOn"
 #define CHASSIS_START "chassisStart"
 #define RFID_SOURCE_POSITION "rfidSourcePosition"
-#define GRIPP_SLEEP_POSITION "grippSleepPosition"
+#define HANDLING_UNIT_SLEEP_POSITION "handlingUnitInitPosition"
 #define UNKNOWN_POSITION "unknownPosition"
 #define ID "id"
 #define DEST "dest"
-#define GRIPP "gripp"
+#define HANDLING_UNIT "handlingUnit"
 
 //#define DEBUG
 

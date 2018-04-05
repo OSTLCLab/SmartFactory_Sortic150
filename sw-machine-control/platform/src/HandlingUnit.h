@@ -1,12 +1,12 @@
-#ifndef Gripp_h
-#define Gripp_h
+#ifndef HandlingUnit_h
+#define HandlingUnit_h
 
 #include <Component.h>
 #include <Debug.h>
 #include <Arduino.h>
 #include <SoftwareSerial.h>
 
-enum GrippPosition
+enum HandlingUnitPosition
 {
   NoPosition = 0,
   PickUpLeft = 1,
@@ -16,17 +16,17 @@ enum GrippPosition
   StartPosition = 5
 };
 
-class GrippController : public Component<GrippPosition>
+class HandlingUnit : public Component<HandlingUnitPosition>
 {
 public:
-  GrippController(SoftwareSerial &bluetooth, unsigned long waitingTime) : bluetooth{bluetooth},
-                                                                          waitingTime{waitingTime},
-                                                                          millisOfLastSending{0}
+  HandlingUnit(SoftwareSerial &bluetooth, unsigned long waitingTime) : bluetooth{bluetooth},
+                                                                       waitingTime{waitingTime},
+                                                                       millisOfLastSending{0}
   {
   }
 
 protected:
-  GrippPosition loop()
+  HandlingUnitPosition loop()
   {
     //transceive some data
     if (bluetooth.available())
@@ -42,12 +42,12 @@ protected:
       }
       return componentData;
     }
-    debugLn("Send some data! " + String(targetValue));
     unsigned long actualMillis = millis();
     if (millisOfLastSending + waitingTime > actualMillis)
     {
       return componentData;
     }
+    debugLn("Send some data! " + String(targetValue));
 
     millisOfLastSending = millis();
 

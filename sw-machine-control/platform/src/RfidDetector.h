@@ -47,7 +47,7 @@ private:
       }
     }
 
-    return -1;
+    return RFID_LENGTH - 1;
   }
 };
 

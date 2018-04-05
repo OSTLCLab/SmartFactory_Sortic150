@@ -4,39 +4,37 @@
 #include <Component.h>
 #include <Arduino.h>
 #include <ArduinoJson.h>
-#include <GrippController.h>
+#include <HandlingUnit.h>
 #include <Config.h>
 
 struct SortJob
 {
   byte *id;
   int destination;
-  GrippPosition grippPosition;
+  HandlingUnitPosition handlingUnitPosition;
 };
 
 struct Config
 {
   int chassisStart;
-  int unknownPosition;
   SortJob *rfids;
   int rfidCount;
   bool powerOn;
-  GrippPosition grippSleepPosition;
-  GrippPosition rfidSourcePosition;
+  HandlingUnitPosition handlingUnitInitPosition;
+  HandlingUnitPosition rfidSourcePosition;
 };
 
-static const SortJob chips[8] = {
+static const SortJob chips[RFID_LENGTH] = {
     {(byte[]){4, 135, 115, 120, 162, 231, 73, 128}, 40, DropLeft},
     {(byte[]){4, 42, 117, 211, 162, 231, 73, 128}, 40, DropLeft},
-    {(byte[]){4, 161, 115, 94, 162, 231, 73, 128}, 20, DropRight},
+    {(byte[]){4, 161, 115, 94, 162, 231, 73, 128}, 20, DropLeft},
     {(byte[]){0, 0, 0, 0, 0, 0, 0, 0}, 40, DropLeft},
     {(byte[]){0, 0, 0, 0, 0, 0, 0, 0}, 40, DropLeft},
     {(byte[]){0, 0, 0, 0, 0, 0, 0, 0}, 40, DropLeft},
     {(byte[]){0, 0, 0, 0, 0, 0, 0, 0}, 40, DropLeft},
-    {(byte[]){0, 0, 0, 0, 0, 0, 0, 0}, 40, DropLeft}};
+    {(byte[]){0, 0, 0, 0, 0, 0, 0, 0}, 35, DropRight}}; //unknown possition
 
 static Config initialConfig{CHASSIS_POS_START,
-                            CHASSIS_POS_START,
                             (SortJob *)chips,
                             4,
                             true,
@@ -56,7 +54,6 @@ protected:
   {
     if (!Serial.available())
     {
-      state = Finish;
       return componentData;
     }
     StaticJsonBuffer<200> buffer;
@@ -67,8 +64,10 @@ protected:
     {
       buffer.clear();
       state = Invalid;
+      Serial.println("success(0)");
       return componentData;
     }
+    Serial.println("success(1)");
 
     if (root.containsKey(POWER_ON))
     {
@@ -83,18 +82,13 @@ protected:
     if (root.containsKey(RFID_SOURCE_POSITION))
     {
       int rfidSourcePosition = root[RFID_SOURCE_POSITION];
-      componentData.rfidSourcePosition = (GrippPosition)rfidSourcePosition;
+      componentData.rfidSourcePosition = (HandlingUnitPosition)rfidSourcePosition;
     }
 
-    if (root.containsKey(GRIPP_SLEEP_POSITION))
+    if (root.containsKey(HANDLING_UNIT_SLEEP_POSITION))
     {
-      int grippSleepPosition = root[GRIPP_SLEEP_POSITION];
-      componentData.grippSleepPosition = (GrippPosition)grippSleepPosition;
-    }
-
-    if (root.containsKey(UNKNOWN_POSITION))
-    {
-      componentData.unknownPosition = root[UNKNOWN_POSITION];
+      int handlingUnitInitPosition = root[HANDLING_UNIT_SLEEP_POSITION];
+      componentData.handlingUnitInitPosition = (HandlingUnitPosition)handlingUnitInitPosition;
     }
 
     if (root.containsKey(ID))
@@ -104,8 +98,8 @@ protected:
       arr.copyTo(rfid);
 
       int dest = root[DEST];
-      int placer = root[GRIPP];
-      SortJob newChip{rfid, dest, (GrippPosition)placer};
+      int placer = root[HANDLING_UNIT];
+      SortJob newChip{rfid, dest, (HandlingUnitPosition)placer};
       int index = getIndexOfRFidChip(rfid);
       if (index == -1)
       {
@@ -114,8 +108,6 @@ protected:
       }
       componentData.rfids[index] = newChip;
     }
-    state = Finish;
-
     return componentData;
   }
 
