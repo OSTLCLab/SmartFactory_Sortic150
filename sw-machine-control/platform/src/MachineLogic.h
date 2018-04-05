@@ -31,54 +31,52 @@ public:
 protected:
   Config loop()
   {
-    if (chassIsAtStartPosition() && grippControllerIsAtStartPosition())
-    {
-      if (chipDetected())
-      {
-        debugLn("1");
-        grippController->setAction(componentData.rfidSourcePosition);
-        grippController->on();
-      }
-      else
-      {
-        debugLn("2");
-        chassis->wait();
-        grippController->wait();
-        rfidDetector->on();
-      }
-    }
-
-    if (grippControllerHasChip())
-    {
-      debugLn("3");
-      chassis->setAction(componentData.rfids[rfidDetector->getData()].destination);
-      chassis->on();
-    }
-
-    if (!allOff() && chassisReachedDestination() && !grippControllerDeposeChip())
-    {
-      debugLn("4");
-      grippController->setAction(componentData.rfids[rfidDetector->getData()].GrippPosition);
-      grippController->on();
-    }
-
     if ((allFinished() || allOff()) && !grippControllerIsAtStartPosition() && !chassIsAtStartPosition() && !chassisReachedDestination())
     {
-      debugLn("5");
+      debugLn("State 1: Put Gripp in its sleepposition.");
       grippController->setAction(componentData.grippSleepPosition);
       grippController->on();
     }
 
     if (grippControllerIsAtStartPosition() && !chassIsAtStartPosition())
     {
-      debugLn("6");
+      debugLn("State 2: Put Chassis in its startposition.");
       chassis->setAction(componentData.chassisStart);
       chassis->on();
     }
 
+    if (chassIsAtStartPosition() && grippControllerIsAtStartPosition() && !chipDetected())
+    {
+      debugLn("State 3: Check for new sortjobs.");
+      chassis->wait();
+      grippController->wait();
+      rfidDetector->on();
+    }
+
+    if (chassIsAtStartPosition() && grippControllerIsAtStartPosition() && chipDetected())
+    {
+      debugLn("State 4: Get the new sortjob.");
+      grippController->setAction(componentData.rfidSourcePosition);
+      grippController->on();
+    }
+
+    if (grippControllerHasChip())
+    {
+      debugLn("State 5: Put chassis at the sortjob position.");
+      chassis->setAction(componentData.rfids[rfidDetector->getData()].destination);
+      chassis->on();
+    }
+
+    if (!allOff() && chassisReachedDestination() && !grippControllerDeposeChip())
+    {
+      debugLn("State 6: Put gripp at the sortjob position.");
+      grippController->setAction(componentData.rfids[rfidDetector->getData()].GrippPosition);
+      grippController->on();
+    }
+
     if (chassisReachedDestination() && grippControllerDeposeChip())
     {
-      debugLn("7");
+      debugLn("State 7: Go to State 1.");
       grippController->wait();
       chassis->wait();
       rfidDetector->wait();
