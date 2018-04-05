@@ -1,11 +1,12 @@
-#ifndef Placer_h
-#define Placer_h
+#ifndef Gripp_h
+#define Gripp_h
 
 #include <Component.h>
 #include <Debug.h>
+#include <Arduino.h>
 #include <SoftwareSerial.h>
 
-enum PlacerPosition
+enum GrippPosition
 {
   NoPosition = 0,
   PickUpLeft = 1,
@@ -15,17 +16,17 @@ enum PlacerPosition
   StartPosition = 5
 };
 
-class Placer : public Component<PlacerPosition>
+class GrippController : public Component<GrippPosition>
 {
 public:
-  Placer(SoftwareSerial &bluetooth, unsigned long waitingTime) : bluetooth{bluetooth},
-                                                                 waitingTime{waitingTime},
-                                                                 millisOfLastSending{0}
+  GrippController(SoftwareSerial &bluetooth, unsigned long waitingTime) : bluetooth{bluetooth},
+                                                                          waitingTime{waitingTime},
+                                                                          millisOfLastSending{0}
   {
   }
 
 protected:
-  PlacerPosition loop()
+  GrippPosition loop()
   {
     //transceive some data
     if (bluetooth.available())

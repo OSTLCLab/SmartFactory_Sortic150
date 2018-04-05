@@ -52,7 +52,7 @@ protected:
     int distanceToTarget = abs(currentPosition - this->targetValue);
 
     motor->run(currentPosition > this->targetValue ? BACKWARD : FORWARD);
-    motor->setSpeed(distanceToTarget > 10 ? (MAX_MOTORSPEED) : (distanceToTarget + MIN_MOTORSPEED));
+    motor->setSpeed(distanceToTarget > 5 ? (MAX_MOTORSPEED) : (distanceToTarget + MIN_MOTORSPEED));
 
     //Stop at target
     if (distanceToTarget <= CHASSIS_TOLERANCE)

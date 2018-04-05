@@ -8,10 +8,10 @@
 #define RFIDDETECTOR_RST_PIN 6
 #define MOTOR_NR 4
 #define CHASIS_POS_MAX 40
-#define CHASSIS_TOLERANCE 0
-#define MAX_MOTORSPEED 250
-#define MIN_MOTORSPEED 150
-#define CHASSIS_POS_START 23
+#define CHASSIS_TOLERANCE 1
+#define MAX_MOTORSPEED 200
+#define MIN_MOTORSPEED 70
+#define CHASSIS_POS_START 25
 #define CHASIS_POS_MIN 20
 #define MILLIS_OF_LAST_SENDING 5000
 
@@ -19,12 +19,12 @@
 #define POWER_ON "powerOn"
 #define CHASSIS_START "chassisStart"
 #define RFID_SOURCE_POSITION "rfidSourcePosition"
-#define PLACER_SLEEP_POSITION "placerSleepPosition"
+#define GRIPP_SLEEP_POSITION "grippSleepPosition"
 #define UNKNOWN_POSITION "unknownPosition"
 #define ID "id"
 #define DEST "dest"
-#define PLACER "placer"
+#define GRIPP "gripp"
 
-#define DEBUG
+//#define DEBUG
 
 #endif

@@ -4,14 +4,14 @@
 #include <Component.h>
 #include <Arduino.h>
 #include <ArduinoJson.h>
-#include <Placer.h>
+#include <GrippController.h>
 #include <Config.h>
 
 struct SortJob
 {
   byte *id;
   int destination;
-  PlacerPosition placerPosition;
+  GrippPosition GrippPosition;
 };
 
 struct Config
@@ -21,8 +21,8 @@ struct Config
   SortJob *rfids;
   int rfidCount;
   bool powerOn;
-  PlacerPosition placerSleepPosition;
-  PlacerPosition rfidSourcePosition;
+  GrippPosition grippSleepPosition;
+  GrippPosition rfidSourcePosition;
 };
 
 static const SortJob chips[8] = {
@@ -83,13 +83,13 @@ protected:
     if (root.containsKey(RFID_SOURCE_POSITION))
     {
       int rfidSourcePosition = root[RFID_SOURCE_POSITION];
-      componentData.rfidSourcePosition = (PlacerPosition)rfidSourcePosition;
+      componentData.rfidSourcePosition = (GrippPosition)rfidSourcePosition;
     }
 
-    if (root.containsKey(PLACER_SLEEP_POSITION))
+    if (root.containsKey(GRIPP_SLEEP_POSITION))
     {
-      int placerSleepPosition = root[PLACER_SLEEP_POSITION];
-      componentData.placerSleepPosition = (PlacerPosition)placerSleepPosition;
+      int grippSleepPosition = root[GRIPP_SLEEP_POSITION];
+      componentData.grippSleepPosition = (GrippPosition)grippSleepPosition;
     }
 
     if (root.containsKey(UNKNOWN_POSITION))
@@ -104,8 +104,8 @@ protected:
       arr.copyTo(rfid);
 
       int dest = root[DEST];
-      int placer = root[PLACER];
-      SortJob newChip{rfid, dest, (PlacerPosition)placer};
+      int placer = root[GRIPP];
+      SortJob newChip{rfid, dest, (GrippPosition)placer};
       int index = getIndexOfRFidChip(rfid);
       if (index == -1)
       {

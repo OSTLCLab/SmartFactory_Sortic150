@@ -3,7 +3,7 @@
 #include <SharpIR.h>
 
 #include <Chassis.h>
-#include <Placer.h>
+#include <GrippController.h>
 #include <MachineLogic.h>
 #include <Component.h>
 #include <RfidDetector.h>
@@ -16,11 +16,11 @@ static Adafruit_DCMotor *driverMotor = currentMotorShield.getMotor(MOTOR_NR);
 static MFRC522 partDetector{RFIDDETECTOR_SDA, RFIDDETECTOR_RST_PIN};
 static SoftwareSerial bluetooth{BLUETOOTH_TX, BLUETOOTH_RX};
 static SharpIR sensor{GP2Y0A02YK0F, DISTANCE_SENSOR};
-static Component<PlacerPosition> *placer = new Placer{bluetooth, MILLIS_OF_LAST_SENDING};
+static Component<GrippPosition> *grippController = new GrippController{bluetooth, MILLIS_OF_LAST_SENDING};
 static Component<int> *chassis = new Chassis{driverMotor, &sensor};
 static Component<Config> *machineAPI = new MachineAPI{};
 static Component<int> *rfidDetector = new RfidDetector{&partDetector, machineAPI};
-static Component<Config> *machineLogic = new MachineLogic{placer, rfidDetector, chassis, machineAPI};
+static Component<Config> *machineLogic = new MachineLogic{grippController, rfidDetector, chassis, machineAPI};
 
 void setup()
 {
@@ -39,4 +39,5 @@ void loop()
 
   machineLogic->setAction(machineAPI->getData());
   machineLogic->executeOneStep();
+  delay(3000);
 }

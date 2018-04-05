@@ -1,6 +1,6 @@
 #include <Chassis.h>
 #include <RfidDetector.h>
-#include <Placer.h>
+#include <GrippController.h>
 #include <MachineAPI.h>
 
 #include <Arduino.h>
@@ -17,10 +17,10 @@
 class MachineLogic : public Component<Config>
 {
 public:
-  MachineLogic(Component<PlacerPosition> *placer,
+  MachineLogic(Component<GrippPosition> *grippController,
                Component<int> *rfidDetector,
                Component<int> *chassis,
-               Component<Config> *machineAPI) : placer{placer},
+               Component<Config> *machineAPI) : grippController{grippController},
                                                 chassis{chassis},
                                                 rfidDetector{rfidDetector},
                                                 machineAPI{machineAPI}
@@ -31,67 +31,69 @@ public:
 protected:
   Config loop()
   {
-    printStatus();
-    chassis->executeOneStep();
-    placer->executeOneStep();
-    rfidDetector->executeOneStep();
-
-    if (chassIsAtStartPosition() && placerIsAtStartPosition())
+    if (chassIsAtStartPosition() && grippControllerIsAtStartPosition())
     {
       if (chipDetected())
       {
-        placer->setAction(componentData.rfidSourcePosition);
-        placer->on();
+        debugLn("1");
+        grippController->setAction(componentData.rfidSourcePosition);
+        grippController->on();
       }
       else
       {
+        debugLn("2");
         chassis->wait();
-        placer->wait();
+        grippController->wait();
         rfidDetector->on();
       }
     }
 
-    if (placerHasChip())
+    if (grippControllerHasChip())
     {
+      debugLn("3");
       chassis->setAction(componentData.rfids[rfidDetector->getData()].destination);
       chassis->on();
     }
 
-    if (chassisReachedDestination())
+    if (!allOff() && chassisReachedDestination() && !grippControllerDeposeChip())
     {
-      placer->setAction(componentData.rfids[rfidDetector->getData()].placerPosition);
-      placer->on();
+      debugLn("4");
+      grippController->setAction(componentData.rfids[rfidDetector->getData()].GrippPosition);
+      grippController->on();
     }
 
-    if ((allFinished() || allOff()) && !placerIsAtStartPosition() && !chassIsAtStartPosition())
+    if ((allFinished() || allOff()) && !grippControllerIsAtStartPosition() && !chassIsAtStartPosition() && !chassisReachedDestination())
     {
-      placer->setAction(componentData.placerSleepPosition);
-      placer->on();
+      debugLn("5");
+      grippController->setAction(componentData.grippSleepPosition);
+      grippController->on();
     }
 
-    if (placerIsAtStartPosition() && !chassIsAtStartPosition())
+    if (grippControllerIsAtStartPosition() && !chassIsAtStartPosition())
     {
+      debugLn("6");
       chassis->setAction(componentData.chassisStart);
       chassis->on();
     }
 
-    if ((allFinished() || allOff()) && !placerIsAtStartPosition())
+    if (chassisReachedDestination() && grippControllerDeposeChip())
     {
-      placer->setAction(componentData.placerSleepPosition);
-      placer->on();
-    }
-    if (allFinished() && placerIsAtStartPosition() && chassIsAtStartPosition())
-    {
+      debugLn("7");
+      grippController->wait();
       chassis->wait();
-      placer->wait();
       rfidDetector->wait();
     }
+
+    printStatus();
+    chassis->executeOneStep();
+    grippController->executeOneStep();
+    rfidDetector->executeOneStep();
 
     return componentData;
   }
 
 private:
-  Component<PlacerPosition> *placer;
+  Component<GrippPosition> *grippController;
   Component<int> *chassis;
   Component<int> *rfidDetector;
   Component<Config> *machineAPI;
@@ -101,61 +103,66 @@ private:
     return abs(componentData.chassisStart - chassis->getData()) <= CHASSIS_TOLERANCE;
   }
 
-  bool placerIsAtStartPosition()
+  bool grippControllerDeposeChip()
   {
-    return componentData.placerSleepPosition == placer->getData();
+    return chipDetected() && componentData.rfids[rfidDetector->getData()].GrippPosition == grippController->getData();
+  }
+
+  bool grippControllerIsAtStartPosition()
+  {
+    return componentData.grippSleepPosition == grippController->getData();
   }
 
   bool chipDetected()
   {
-    return rfidDetector->getData() != -1;
+    return rfidDetector->getState() != Waiting && rfidDetector->getData() != -1;
   }
 
   bool allOff()
   {
     return chassis->getState() == Waiting &&
-           placer->getState() == Waiting &&
+           grippController->getState() == Waiting &&
            rfidDetector->getState() == Waiting;
   }
 
-  bool placerHasChip()
+  bool grippControllerHasChip()
   {
-    return placer->getState() == Finish &&
+    return grippController->getState() == Finish &&
            chipDetected() &&
            chassIsAtStartPosition() &&
-           !placerIsAtStartPosition();
+           !grippControllerIsAtStartPosition();
   }
 
   bool chassisReachedDestination()
   {
     return chassis->getState() == Finish &&
            chipDetected() &&
-           !chassIsAtStartPosition();
+           (abs(componentData.rfids[rfidDetector->getData()].destination - chassis->getData()) <= CHASSIS_TOLERANCE);
   }
 
   bool allFinished()
   {
     return chassis->getState() == Finish &&
-           placer->getState() == Finish &&
+           grippController->getState() == Finish &&
            rfidDetector->getState() == Finish;
   }
 
   void printStatus()
   {
     printComponentStatus("Chassis", chassis->getState());
-    printComponentStatus("Placer", placer->getState());
+    printComponentStatus("grippController", grippController->getState());
     printComponentStatus("RfidDetector", rfidDetector->getState());
     if (chassIsAtStartPosition())
     {
       debugLn("chassIsAtStartPosition");
     }
-    if (placerHasChip())
+    if (grippControllerHasChip())
     {
-      debugLn("placerHasChip");
+      debugLn("grippControllerHasChip");
     }
-    if (placerIsAtStartPosition())
+    if (grippControllerIsAtStartPosition())
     {
-      debugLn("placerIsAtStartPosition");
+      debugLn("grippControllerIsAtStartPosition");
     }
     if (chipDetected())
     {
