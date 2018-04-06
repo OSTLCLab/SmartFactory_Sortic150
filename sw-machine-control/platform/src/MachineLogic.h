@@ -32,14 +32,12 @@ protected:
     {
       debugLn("State 1: Put HandlingUnit in its initposition.");
       handlingUnit->setAction(targetValue.handlingUnitInitPosition);
-      handlingUnit->on();
     }
 
     if (handlingUnitIsAtStartPosition() && !chassIsAtStartPosition())
     {
       debugLn("State 2: Put Chassis in its initposition.");
       chassis->setAction(targetValue.chassisStart);
-      chassis->on();
     }
 
     if (chassIsAtStartPosition() && handlingUnitIsAtStartPosition() && !chipDetected())
@@ -54,21 +52,18 @@ protected:
     {
       debugLn("State 4: Get the new sortjob.");
       handlingUnit->setAction(targetValue.rfidSourcePosition);
-      handlingUnit->on();
     }
 
     if (handlingUnitHasChip())
     {
       debugLn("State 5: Put chassis at the sortjob position.");
       chassis->setAction(targetValue.rfids[rfidDetector->getData()].destination);
-      chassis->on();
     }
 
     if (!allOff() && chassisReachedDestination() && !handlingUnitDeposeChip())
     {
       debugLn("State 6: Put handlingUnit at the sortjob position.");
       handlingUnit->setAction(targetValue.rfids[rfidDetector->getData()].handlingUnitPosition);
-      handlingUnit->on();
     }
 
     if (!targetValue.powerOn || (chassisReachedDestination() && handlingUnitDeposeChip()))
