@@ -15,7 +15,7 @@
 #define CHASIS_POS_MIN 19
 #define MILLIS_OF_LAST_SENDING 5000
 
-#define RFID_LENGTH 8
+#define RFID_LENGTH 7
 #define POWER_ON "powerOn"
 #define CHASSIS_START "chassisStart"
 #define RFID_SOURCE_POSITION "rfidSourcePosition"

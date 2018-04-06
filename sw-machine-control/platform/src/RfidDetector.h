@@ -2,53 +2,44 @@
 #define RfidDetector_h
 
 #include <Component.h>
+#include <Chassis.h>
 #include <MFRC522.h>
 #include <MachineAPI.h>
 
-class RfidDetector : public Component<int>
+class RfidDetector : public Component<SortJob>
 {
 public:
-  RfidDetector(MFRC522 *mfrc522, Component<Config> *machineApi) : mfrc522{mfrc522}, machineApi{machineApi}
+  RfidDetector(MFRC522 *rfidReader) : rfidReader{rfidReader}
   {
-    componentData = -1;
+    componentData = DEFAULT_SORTJOB;
   }
 
 protected:
-  int loop()
+  SortJob loop()
   {
-    if (!mfrc522->PICC_IsNewCardPresent())
+    if (!rfidReader->PICC_IsNewCardPresent())
     {
-      return -1;
+      return DEFAULT_SORTJOB;
     }
-    debugLn("PICC_IsNewCardPresent");
-    byte buffer[18];
-    byte size = sizeof(buffer);
-    MFRC522::StatusCode status = mfrc522->MIFARE_Read(0, buffer, &size);
 
-    //If status is not ok, set componentstate invalid
-    state = status == MFRC522::STATUS_OK ? State::Finish : State::Invalid;
-    debugLn(String(state) + " " + String(status) + " " + String(size));
+    if (!rfidReader->PICC_ReadCardSerial())
+    {
+      debugLn("ReadCardSerial was not successful");
+      return DEFAULT_SORTJOB;
+    }
 
-    return getIndexOfRFidChip(buffer);
+    state = rfidReader->uid.size != 0 ? State::Finish : State::Invalid;
+
+    debugLn(String(state));
+
+    SortJob newChip{rfidReader->uid.uidByte, -1, NoPosition};
+
+    return newChip;
   }
 
 private:
-  MFRC522 *mfrc522;
+  MFRC522 *rfidReader;
   Component<Config> *machineApi;
-
-  int getIndexOfRFidChip(byte *id)
-  {
-    for (int index = 0; index < RFID_LENGTH; index++)
-    {
-      if (!memcmp(id, machineApi->getData().rfids[index].id, RFID_LENGTH * sizeof(byte)))
-      {
-        debugLn();
-        return index;
-      }
-    }
-
-    return RFID_LENGTH - 1;
-  }
 };
 
 #endif

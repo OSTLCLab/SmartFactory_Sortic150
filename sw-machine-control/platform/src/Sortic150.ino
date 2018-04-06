@@ -2,14 +2,15 @@
 #include <SPI.h>
 #include <SharpIR.h>
 
+#include <MFRC522.h>
 #include <Chassis.h>
 #include <HandlingUnit.h>
 #include <MachineLogic.h>
 #include <Component.h>
 #include <RfidDetector.h>
+#include <MachineAPI.h>
 #include <Config.h>
 #include <Debug.h>
-#include <MFRC522.h>
 
 static Adafruit_MotorShield currentMotorShield{};
 static Adafruit_DCMotor *driverMotor = currentMotorShield.getMotor(MOTOR_NR);
@@ -19,9 +20,9 @@ static SharpIR sensor{GP2Y0A02YK0F, DISTANCE_SENSOR};
 
 static Component<HandlingUnitPosition> *handlingUnit = new HandlingUnit{bluetooth, MILLIS_OF_LAST_SENDING};
 static Component<int> *chassis = new Chassis{driverMotor, &sensor};
-static Component<Config> *machineAPI = new MachineAPI{}; //soll config.
-static Component<int> *rfidDetector = new RfidDetector{&partDetector, machineAPI};
-static Component<Config> *machineLogic = new MachineLogic{handlingUnit, rfidDetector, chassis}; //ist config.
+static Component<Config> *machineAPI = new MachineAPI{};
+static Component<SortJob> *rfidDetector = new RfidDetector{&partDetector};
+static Component<Config> *machineLogic = new MachineLogic{handlingUnit, rfidDetector, chassis};
 
 void setup()
 {

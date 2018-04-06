@@ -1,15 +1,11 @@
+#include <ArduinoJson.h>
 #include <Chassis.h>
 #include <RfidDetector.h>
 #include <HandlingUnit.h>
 #include <MachineAPI.h>
 
-#include <Arduino.h>
 #include <Component.h>
-#include <SPI.h>
-#include <Wire.h>
 #include <Debug.h>
-
-#include <Adafruit_MotorShield.h>
 
 #ifndef MachineLogic_h
 #define MachineLogic_h
@@ -18,10 +14,10 @@ class MachineLogic : public Component<Config>
 {
 public:
   MachineLogic(Component<HandlingUnitPosition> *handlingUnit,
-               Component<int> *rfidDetector,
+               Component<SortJob> *rfidDetector,
                Component<int> *chassis) : handlingUnit{handlingUnit},
-                                          chassis{chassis},
-                                          rfidDetector{rfidDetector}
+                                          rfidDetector{rfidDetector},
+                                          chassis{chassis}
   {
   }
 
@@ -31,7 +27,7 @@ protected:
     if ((allFinished() || allOff()) && !handlingUnitIsAtStartPosition() && !chassIsAtStartPosition() && !chassisReachedDestination())
     {
       debugLn("State 1: Put HandlingUnit in its initposition.");
-      handlingUnit->setAction(targetValue.handlingUnitInitPosition);
+      handlingUnit->setAction(targetValue.handlingUnitStartPosition);
     }
 
     if (handlingUnitIsAtStartPosition() && !chassIsAtStartPosition())
@@ -47,32 +43,49 @@ protected:
       handlingUnit->wait();
       rfidDetector->on();
     }
+    unsigned long actualMillis = millis();
 
-    if (chassIsAtStartPosition() && handlingUnitIsAtStartPosition() && chipDetected())
+    if (chassIsAtStartPosition() && handlingUnitIsAtStartPosition() &&
+        chipDetected() && !recognizeChip() && millisOfLastSending + MILLIS_OF_LAST_SENDING <= actualMillis)
     {
-      debugLn("State 4: Get the new sortjob.");
-      handlingUnit->setAction(targetValue.rfidSourcePosition);
+      debugLn("State 4: didnt recognize job.");
+      millisOfLastSending = millis();
+      StaticJsonBuffer<200> buffer;
+      JsonObject &root = buffer.createObject();
+      root[DEST] = "?";
+      root[HANDLING_UNIT] = "?";
+      JsonArray &arr = root.createNestedArray(ID);
+      arr.copyFrom(rfidDetector->getData().id, RFID_LENGTH);
+      root.printTo(Serial);
+    }
+
+    if (chassIsAtStartPosition() && handlingUnitIsAtStartPosition() && recognizeChip())
+    {
+      debugLn("State 5: Get the new sortjob.");
+      handlingUnit->setAction(targetValue.sortJobSourcePosition);
     }
 
     if (handlingUnitHasChip())
     {
-      debugLn("State 5: Put chassis at the sortjob position.");
-      chassis->setAction(targetValue.rfids[rfidDetector->getData()].destination);
+      debugLn("State 6: Put chassis at the sortjob position.");
+      chassis->setAction(targetValue.sortJob.destination);
     }
 
     if (!allOff() && chassisReachedDestination() && !handlingUnitDeposeChip())
     {
-      debugLn("State 6: Put handlingUnit at the sortjob position.");
-      handlingUnit->setAction(targetValue.rfids[rfidDetector->getData()].handlingUnitPosition);
+      debugLn("State 7: Put handlingUnit at the sortjob position.");
+      handlingUnit->setAction(targetValue.sortJob.handlingUnitPosition);
     }
 
     if (!targetValue.powerOn || (chassisReachedDestination() && handlingUnitDeposeChip()))
     {
-      debugLn("State 7: Go to State 1.");
+      debugLn("State 8: Go to State 1.");
+      targetValue.sortJob = DEFAULT_SORTJOB;
       handlingUnit->wait();
       chassis->wait();
       rfidDetector->wait();
     }
+    printStatus();
 
     chassis->executeOneStep();
     handlingUnit->executeOneStep();
@@ -83,8 +96,9 @@ protected:
 
 private:
   Component<HandlingUnitPosition> *handlingUnit;
+  Component<SortJob> *rfidDetector;
   Component<int> *chassis;
-  Component<int> *rfidDetector;
+  unsigned long millisOfLastSending{0};
 
   bool chassIsAtStartPosition()
   {
@@ -93,16 +107,30 @@ private:
 
   bool handlingUnitDeposeChip()
   {
-    return chipDetected() && targetValue.rfids[rfidDetector->getData()].handlingUnitPosition == handlingUnit->getData();
+    return recognizeChip() && targetValue.sortJob.handlingUnitPosition == handlingUnit->getData();
   }
 
   bool handlingUnitIsAtStartPosition()
   {
-    return targetValue.handlingUnitInitPosition == handlingUnit->getData();
+    return targetValue.handlingUnitStartPosition == handlingUnit->getData();
   }
+
   bool chipDetected()
   {
-    return rfidDetector->getState() == Finish && rfidDetector->getData() != -1;
+    return rfidDetector->getState() == Finish;
+  }
+
+  bool recognizeChip()
+  {
+    return chipDetected() && targetValue.sortJob.destination != -1 &&
+           targetValue.sortJob.handlingUnitPosition != NoPosition &&
+           (sortJobsAreEqual(targetValue.sortJob, rfidDetector->getData()) ||
+            sortJobsAreEqual(targetValue.sortJob, DEFAULT_SORTJOB));
+  }
+
+  bool sortJobsAreEqual(SortJob sortJob1, SortJob sortjob2)
+  {
+    return !memcmp(sortJob1.id, sortjob2.id, RFID_LENGTH * sizeof(byte));
   }
 
   bool allOff()
@@ -115,7 +143,7 @@ private:
   bool handlingUnitHasChip()
   {
     return handlingUnit->getState() == Finish &&
-           chipDetected() &&
+           recognizeChip() &&
            chassIsAtStartPosition() &&
            !handlingUnitIsAtStartPosition();
   }
@@ -123,8 +151,8 @@ private:
   bool chassisReachedDestination()
   {
     return chassis->getState() == Finish &&
-           chipDetected() &&
-           (abs(targetValue.rfids[rfidDetector->getData()].destination - chassis->getData()) <= CHASSIS_TOLERANCE);
+           recognizeChip() &&
+           (abs(targetValue.sortJob.destination - chassis->getData()) <= CHASSIS_TOLERANCE);
   }
 
   bool allFinished()
@@ -139,22 +167,6 @@ private:
     printComponentStatus("Chassis", chassis->getState());
     printComponentStatus("handlingUnit", handlingUnit->getState());
     printComponentStatus("RfidDetector", rfidDetector->getState());
-    if (chassIsAtStartPosition())
-    {
-      debugLn("chassIsAtStartPosition");
-    }
-    if (handlingUnitHasChip())
-    {
-      debugLn("handlingUnitHasChip");
-    }
-    if (handlingUnitIsAtStartPosition())
-    {
-      debugLn("handlingUnitIsAtStartPosition");
-    }
-    if (chipDetected())
-    {
-      debugLn("chipDetected" + String(rfidDetector->getData()));
-    }
     debugLn();
   }
 
