@@ -4,74 +4,32 @@
 #include <Component.h>
 #include <Arduino.h>
 #include <ArduinoJson.h>
-#include <Placer.h>
-
-#define RFID_LENGTH 8
+#include <HandlingUnit.h>
+#include <Config.h>
 
 struct SortJob
 {
   byte *id;
   int destination;
-  PlacerPosition placerPosition;
-
-  SortJob(byte *chips,
-          int destination,
-          PlacerPosition placerPosition) : id{chips},
-                                           destination{destination},
-                                           placerPosition{placerPosition}
-  {
-  }
+  HandlingUnitPosition handlingUnitPosition;
 };
 
 struct Config
 {
   int chassisStart;
-  int unknownPosition;
-  SortJob *rfids;
-  int rfidCount;
+  SortJob sortJob;
   bool powerOn;
-  PlacerPosition placerSleepPosition;
-  PlacerPosition rfidSourcePosition;
-  Config(
-      int chassisStart,
-      int unknownPosition,
-      SortJob *chips,
-      int rfidCount,
-      bool powerOn,
-      PlacerPosition placerSleepPosition,
-      PlacerPosition rfidSourcePosition) : chassisStart{chassisStart},
-                                           unknownPosition{unknownPosition},
-                                           rfids{chips},
-                                           rfidCount{rfidCount},
-                                           powerOn{powerOn},
-                                           placerSleepPosition{placerSleepPosition},
-                                           rfidSourcePosition{rfidSourcePosition}
-  {
-  }
-  Config() : chassisStart{},
-             unknownPosition{},
-             rfids{},
-             rfidCount{},
-             powerOn{} {}
+  HandlingUnitPosition handlingUnitStartPosition;
+  HandlingUnitPosition sortJobSourcePosition;
 };
 
-static const SortJob chips[8] = {
-    {(byte[]){4, 135, 115, 120, 162, 231, 73, 128}, 400, PlacerPosition::PickUpLeft},
-    {(byte[]){4, 42, 117, 211, 162, 231, 73, 128}, 300, PlacerPosition::PickUpLeft},
-    {(byte[]){4, 161, 115, 94, 162, 231, 73, 128}, 200, PlacerPosition::PickUpLeft},
-    {(byte[]){0, 0, 0, 0, 0, 0, 0, 0}, 510, PlacerPosition::Front},
-    {(byte[]){0, 0, 0, 0, 0, 0, 0, 0}, 510, PlacerPosition::Front},
-    {(byte[]){0, 0, 0, 0, 0, 0, 0, 0}, 510, PlacerPosition::Front},
-    {(byte[]){0, 0, 0, 0, 0, 0, 0, 0}, 510, PlacerPosition::Front},
-    {(byte[]){0, 0, 0, 0, 0, 0, 0, 0}, 510, PlacerPosition::Front}};
+static SortJob DEFAULT_SORTJOB{(byte[]){0, 0, 0, 0, 0, 0, 0}, -1, NoPosition};
 
-static Config initialConfig{510,
-                            510,
-                            (SortJob *)chips,
-                            4,
+static Config initialConfig{CHASSIS_POS_START,
+                            {(byte[]){0, 0, 0, 0, 0, 0, 0}, -1, NoPosition},
                             true,
-                            PlacerPosition::Front,
-                            PlacerPosition::PickUpLeft};
+                            StartPosition,
+                            PickUpRight};
 
 class MachineAPI : public Component<Config>
 {
@@ -82,10 +40,62 @@ public:
   }
 
 protected:
-  Config loop();
+  Config loop()
+  {
+    if (!Serial.available())
+    {
+      return componentData;
+    }
+    StaticJsonBuffer<200> buffer;
+    String readedString = Serial.readString();
+    JsonObject &root = buffer.parseObject(readedString);
 
-private:
-  int getIndexOfRFidChip(byte *id);
+    if (!root.success())
+    {
+      buffer.clear();
+      state = Invalid;
+      Serial.println("success(0)");
+      return componentData;
+    }
+
+    Serial.println("success(1)");
+
+    if (root.containsKey(POWER_ON))
+    {
+      componentData.powerOn = root[POWER_ON];
+    }
+
+    if (root.containsKey(CHASSIS_START))
+    {
+      componentData.chassisStart = root[CHASSIS_START];
+    }
+
+    if (root.containsKey(RFID_SOURCE_POSITION))
+    {
+      int sortJobSourcePosition = root[RFID_SOURCE_POSITION];
+      componentData.sortJobSourcePosition = (HandlingUnitPosition)sortJobSourcePosition;
+    }
+
+    if (root.containsKey(HANDLING_UNIT_SLEEP_POSITION))
+    {
+      int handlingUnitStartPosition = root[HANDLING_UNIT_SLEEP_POSITION];
+      componentData.sortJobSourcePosition = (HandlingUnitPosition)handlingUnitStartPosition;
+    }
+
+    if (root.containsKey(ID))
+    {
+      JsonArray &arr = root[ID];
+      byte rfid[RFID_LENGTH];
+      arr.copyTo(rfid);
+
+      int dest = root[DEST];
+      int placer = root[HANDLING_UNIT];
+      SortJob newChip{rfid, dest, (HandlingUnitPosition)placer};
+      componentData.sortJob = newChip;
+      root.printTo(Serial);
+    }
+    return componentData;
+  }
 };
 
 #endif

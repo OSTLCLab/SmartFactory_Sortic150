@@ -1,24 +1,28 @@
 #include <Arduino.h>
 #include <SPI.h>
+#include <SharpIR.h>
 
-#include <SorticMachine.h>
+#include <MFRC522.h>
 #include <Chassis.h>
-#include <Placer.h>
-#include <MachineAPI.h>
+#include <HandlingUnit.h>
+#include <MachineLogic.h>
 #include <Component.h>
+#include <RfidDetector.h>
+#include <MachineAPI.h>
 #include <Config.h>
 #include <Debug.h>
 
-Adafruit_MotorShield currentMotorShield{};
-Adafruit_DCMotor *driverMotor = currentMotorShield.getMotor(MOTOR_NR);
-MFRC522 partDetector{RFIDDETECTOR_SELECT, RFIDDETECTOR_POWEROFF};
-SoftwareSerial bluetooth{BLUETOOTH_TX, BLUETOOTH_RX};
+static Adafruit_MotorShield currentMotorShield{};
+static Adafruit_DCMotor *driverMotor = currentMotorShield.getMotor(MOTOR_NR);
+static MFRC522 partDetector{RFIDDETECTOR_SDA, RFIDDETECTOR_RST_PIN};
+static SoftwareSerial bluetooth{BLUETOOTH_TX, BLUETOOTH_RX};
+static SharpIR sensor{GP2Y0A02YK0F, DISTANCE_SENSOR};
 
-static Component<PlacerPosition> *placer = new Placer{bluetooth};
-static Component<byte *> *rfidDetector = new RfidDetector{partDetector};
-static Component<int> *chassis = new Chassis{driverMotor, DISTANCE_SENSOR};
+static Component<HandlingUnitPosition> *handlingUnit = new HandlingUnit{bluetooth, MILLIS_OF_LAST_SENDING};
+static Component<int> *chassis = new Chassis{driverMotor, &sensor};
 static Component<Config> *machineAPI = new MachineAPI{};
-static Component<Config> *sorticMachine = new SorticMachine{placer, rfidDetector, chassis, machineAPI};
+static Component<SortJob> *rfidDetector = new RfidDetector{&partDetector};
+static Component<Config> *machineLogic = new MachineLogic{handlingUnit, rfidDetector, chassis};
 
 void setup()
 {
@@ -27,15 +31,14 @@ void setup()
   SPI.begin();
   bluetooth.begin(57600);
   partDetector.PCD_Init();
+
   machineAPI->on();
-  debugLn("Setup Ready");
+  machineLogic->on();
 }
 
 void loop()
 {
   machineAPI->executeOneStep();
-  machineAPI->getData().powerOn ? sorticMachine->on() : sorticMachine->off();
-
-  sorticMachine->setAction(machineAPI->getData());
-  sorticMachine->executeOneStep();
+  machineLogic->setAction(machineAPI->getData());
+  machineLogic->executeOneStep();
 }

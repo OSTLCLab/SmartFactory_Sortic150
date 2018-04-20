@@ -1,4 +1,5 @@
 #include <Arduino.h>
+#include <SPI.h>
 /***************************************************
   Version 1.5.1
   by Simon Hersche
@@ -12,19 +13,18 @@
 #include <Wire.h>
 #include <Adafruit_PWMServoDriver.h>
 
-
 Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver(0x40);
 
 const float SERVOFREQ = 50; //Servo Frequenzy 50 or 60Hz
 
 //PINS
 #define MosfetPin 10 //eneable Servo
-#define PiezoPin 11 //eneable Piezo
-#define BoostPin 13 //eneable Booster
+#define PiezoPin 11  //eneable Piezo
+#define BoostPin 13  //eneable Booster
 
-#define SERVOPORT0 0 //Turn Servo
-#define SERVOPORT1 1 //Lift Servo
-#define SERVOPORT2 2 //Grab Servo
+#define SERVOPORT0 0    //Turn Servo
+#define SERVOPORT1 1    //Lift Servo
+#define SERVOPORT2 2    //Grab Servo
 #define FeedbackPin0 A3 //Feedback Turn Servo
 #define FeedbackPin1 A2 //Feedback Lift Servo
 #define FeedbackPin2 A1 //Feedback Grab Servo
@@ -33,12 +33,12 @@ const float SERVOFREQ = 50; //Servo Frequenzy 50 or 60Hz
 #define SERVOMIN0 0   //(BACK)Turn Servo
 #define SERVOMAX0 180 //(FRONT)
 #define SERVOMIN1 0   //(DOWN)Lift Servo
-#define SERVOMAX1 140  //(UP)
+#define SERVOMAX1 140 //(UP)
 #define SERVOMIN2 0   //(CLOSED)Grab Servo
 #define SERVOMAX2 180 //(OPEN)
 
 const int Back = 0;
-const int Middle = 85;  //maybe adjust?
+const int Middle = 85; //maybe adjust?
 const int Front = 180;
 const int Down = 0;
 const int Backup = 40;
@@ -50,7 +50,7 @@ const int Open = 180;
 #define SERVOMINPULSE0 165 //(BACK)Turn Servo
 #define SERVOMAXPULSE0 472 //(FRONT)
 #define SERVOMINPULSE1 265 //(DOWN)Lift Servo
-#define SERVOMAXPULSE1 510//(UP)
+#define SERVOMAXPULSE1 510 //(UP)
 #define SERVOMINPULSE2 150 //(CLOSED)Grab Servo
 #define SERVOMAXPULSE2 395 //(OPEN)
 
@@ -68,9 +68,9 @@ int SPEEDSERVO1 = 5; //LIFT
 int SPEEDSERVO2 = 5; //GRAB
 
 //timers
-volatile unsigned long  timer_0;   //drive() Timer Axis 0
-volatile unsigned long  timer_1;   //drive() Timer Axis 1
-volatile unsigned long  timer_2;   //drive() Timer Axis 2
+volatile unsigned long timer_0; //drive() Timer Axis 0
+volatile unsigned long timer_1; //drive() Timer Axis 1
+volatile unsigned long timer_2; //drive() Timer Axis 2
 
 //old Positions
 int oldServoPos0;
@@ -78,9 +78,9 @@ int oldServoPos1;
 int oldServoPos2;
 
 //new Positions
-int  newServoPos0;
-int  newServoPos1;
-int  newServoPos2;
+int newServoPos0;
+int newServoPos1;
+int newServoPos2;
 
 //variables
 bool newmovement = true;
@@ -93,44 +93,53 @@ int i_input_string = 0;
 int last_input_string = i_input_string;
 String Input_String[5];
 
-int getposdegree(int axis) {     //gets potentiometer position in degrees
+int getposdegree(int axis)
+{ //gets potentiometer position in degrees
 
   int pos;
-  if (axis == 0) {
+  if (axis == 0)
+  {
     pos = map(analogRead(FeedbackPin0), SERVOMINSIGNAL0, SERVOMAXSIGNAL0, SERVOMIN0, SERVOMAX0);
   }
-  if (axis == 1) {
+  if (axis == 1)
+  {
     pos = map(analogRead(FeedbackPin1), SERVOMINSIGNAL1, SERVOMAXSIGNAL1, SERVOMIN1, SERVOMAX1);
   }
-  if (axis == 2) {
+  if (axis == 2)
+  {
     pos = map(analogRead(FeedbackPin2), SERVOMINSIGNAL2, SERVOMAXSIGNAL2, SERVOMIN2, SERVOMAX2);
   }
   return pos;
-
 }
 
-int getposabsolute(int axis) {   //gets potentiometer position in "volts"
+int getposabsolute(int axis)
+{ //gets potentiometer position in "volts"
 
   int pos;
-  if (axis == 0) {
+  if (axis == 0)
+  {
     pos = analogRead(FeedbackPin0);
   }
-  if (axis == 1) {
+  if (axis == 1)
+  {
     pos = analogRead(FeedbackPin1);
   }
-  if (axis == 2) {
+  if (axis == 2)
+  {
     pos = analogRead(FeedbackPin2);
   }
   return pos;
 }
 
-int go(int pos0, int pos1, int pos2) {    //drives with full speed
+int go(int pos0, int pos1, int pos2)
+{ //drives with full speed
   pwm.setPWM(SERVOPORT0, 0, map(pos0, SERVOMIN0, SERVOMAX0, SERVOMINPULSE0, SERVOMAXPULSE0));
   pwm.setPWM(SERVOPORT1, 0, map(pos1, SERVOMIN1, SERVOMAX1, SERVOMINPULSE1, SERVOMAXPULSE1));
   pwm.setPWM(SERVOPORT2, 0, map(pos2, SERVOMIN2, SERVOMAX2, SERVOMINPULSE2, SERVOMAXPULSE2));
 }
 
-void feedback_calibration() {
+void feedback_calibration()
+{
 
   go(SERVOMAX0, SERVOMAX1, SERVOMAX2);
   delay(1500);
@@ -151,7 +160,8 @@ void feedback_calibration() {
   Position = 5;
 }
 
-int drive(int pos0, int pos1, int pos2) {   //drives with predefined speed
+int drive(int pos0, int pos1, int pos2)
+{ //drives with predefined speed
 
   newServoPos0 = pos0;
   newServoPos1 = pos1;
@@ -165,13 +175,19 @@ int drive(int pos0, int pos1, int pos2) {   //drives with predefined speed
   //Serial.print("End pos0: "); Serial.println(newServoPos0);
 
   int movetime;
-  int delaytime_0 = map(SPEEDSERVO0, 10, 1, 1, 20);  //"delaytimes" from 1-20ms per step
+  int delaytime_0 = map(SPEEDSERVO0, 10, 1, 1, 20); //"delaytimes" from 1-20ms per step
   int delaytime_1 = map(SPEEDSERVO1, 10, 1, 1, 20);
   int delaytime_2 = map(SPEEDSERVO2, 10, 1, 1, 20);
 
   int moveangle0 = oldServoPos0 - newServoPos0;
   int moveangle1 = oldServoPos1 - newServoPos1;
   int moveangle2 = oldServoPos2 - newServoPos2;
+
+  if (moveangle0 == 0 || moveangle1 == 0 || moveangle2 == 0)
+  {
+    Serial1.println("Error");
+    return 0;
+  }
 
   movetime = max(abs(moveangle0) * delaytime_0, abs(moveangle1) * delaytime_1);
   movetime = max(movetime, abs(moveangle2) * delaytime_2);
@@ -187,15 +203,18 @@ int drive(int pos0, int pos1, int pos2) {   //drives with predefined speed
     Serial.print("steptime_1 "); Serial.println(steptime_1);
     Serial.print("steptime_2 "); Serial.println(steptime_2);
   */
-  if (newServoPos0 >= SERVOMIN0 && newServoPos0 <= SERVOMAX0) {              //check if target value is in range
-    if (oldServoPos0 < newServoPos0 && millis() - timer_0 >= steptime_0) {
+  if (newServoPos0 >= SERVOMIN0 && newServoPos0 <= SERVOMAX0)
+  { //check if target value is in range
+    if (oldServoPos0 < newServoPos0 && millis() - timer_0 >= steptime_0)
+    {
       angle0 += stepangle;
       pwm.setPWM(SERVOPORT0, 0, map(angle0, SERVOMIN0, SERVOMAX0, SERVOMINPULSE0, SERVOMAXPULSE0));
       //Serial.print("SERVO0+"); Serial.println(angle0);
       oldServoPos0 = angle0;
       timer_0 = millis();
     }
-    if (oldServoPos0 > newServoPos0 && millis() - timer_0 >= steptime_0) {
+    if (oldServoPos0 > newServoPos0 && millis() - timer_0 >= steptime_0)
+    {
       angle0 -= stepangle;
       pwm.setPWM(SERVOPORT0, 0, map(angle0, SERVOMIN0, SERVOMAX0, SERVOMINPULSE0, SERVOMAXPULSE0));
       //Serial.print("SERVO0-"); Serial.println(angle0);
@@ -204,15 +223,18 @@ int drive(int pos0, int pos1, int pos2) {   //drives with predefined speed
     }
   }
 
-  if (newServoPos1 >= SERVOMIN1 && newServoPos1 <= SERVOMAX1) {
-    if (oldServoPos1 < newServoPos1 && millis() - timer_1 >= steptime_1) {
+  if (newServoPos1 >= SERVOMIN1 && newServoPos1 <= SERVOMAX1)
+  {
+    if (oldServoPos1 < newServoPos1 && millis() - timer_1 >= steptime_1)
+    {
       angle1 += stepangle;
       pwm.setPWM(SERVOPORT1, 0, map(angle1, SERVOMIN1, SERVOMAX1, SERVOMINPULSE1, SERVOMAXPULSE1));
       //Serial.print("SERVO1+"); Serial.println(angle1);
       oldServoPos1 = angle1;
       timer_1 = millis();
     }
-    if (oldServoPos1 > newServoPos1 && millis() - timer_1 >= steptime_1) {
+    if (oldServoPos1 > newServoPos1 && millis() - timer_1 >= steptime_1)
+    {
       angle1 -= stepangle;
       pwm.setPWM(SERVOPORT1, 0, map(angle1, SERVOMIN1, SERVOMAX1, SERVOMINPULSE1, SERVOMAXPULSE1));
       //Serial.print("SERVO1-"); Serial.println(angle1);
@@ -221,15 +243,18 @@ int drive(int pos0, int pos1, int pos2) {   //drives with predefined speed
     }
   }
 
-  if (newServoPos2 >= SERVOMIN2 && newServoPos2 <= SERVOMAX2) {
-    if (oldServoPos2 < newServoPos2 && millis() - timer_2 >= steptime_2) {
+  if (newServoPos2 >= SERVOMIN2 && newServoPos2 <= SERVOMAX2)
+  {
+    if (oldServoPos2 < newServoPos2 && millis() - timer_2 >= steptime_2)
+    {
       angle2 += stepangle;
       pwm.setPWM(SERVOPORT2, 0, map(angle2, SERVOMIN2, SERVOMAX2, SERVOMINPULSE2, SERVOMAXPULSE2));
       //Serial.print("Servo2+"); Serial.println(angle2);
       oldServoPos2 = angle2;
       timer_2 = millis();
     }
-    if (oldServoPos2 > newServoPos2 && millis() - timer_2 >= steptime_2) {
+    if (oldServoPos2 > newServoPos2 && millis() - timer_2 >= steptime_2)
+    {
       angle2 -= stepangle;
       pwm.setPWM(SERVOPORT2, 0, map(angle2, SERVOMIN2, SERVOMAX2, SERVOMINPULSE2, SERVOMAXPULSE2));
       //Serial.print("Servo2-"); Serial.println(angle2);
@@ -239,137 +264,190 @@ int drive(int pos0, int pos1, int pos2) {   //drives with predefined speed
   }
 }
 
-void position_handling() {
-  switch (Position) {
-     case 0:  //no movement
-       break;
-     case 1:
-       drive(Front, Backup, Open);
-       break;
-     case 2:
-       drive(Front, Down, Open);
-       break;
-     case 3:
-       drive(Front, Down, Close);
-       break;
-     case 4:
-       drive(Front, Backup, Close);
-       break;
-     case 5:
-       drive(Middle, Up, Close);
-       break;
-     case 6:
-       drive(Back, Backup, Close);
-       break;
-     case 7:
-       drive(Back, Down, Close);
-       break;
-     case 8:
-       drive(Back, Down, Open);
-       break;
-     case 9:
-       drive(Back, Backup, Open);
-       break;
-   }
+void position_handling()
+{
+  Serial1.println("actualPos:" + String(Position));
+  switch (Position)
+  {
+  case 0: //no movement
+    break;
+  case 1:
+    drive(Front, Backup, Open);
+    break;
+  case 2:
+    drive(Front, Down, Open);
+    break;
+  case 3:
+    drive(Front, Down, Close);
+    break;
+  case 4:
+    drive(Front, Backup, Close);
+    break;
+  case 5:
+    drive(Middle, Up, Close);
+    break;
+  case 6:
+    drive(Back, Backup, Close);
+    break;
+  case 7:
+    drive(Back, Down, Close);
+    break;
+  case 8:
+    drive(Back, Down, Open);
+    break;
+  case 9:
+    drive(Back, Backup, Open);
+    break;
+  }
 }
 
-void battery_management() {
+void battery_management()
+{
   //ToDo Defin Pin from Battery as Config
-  float vbat = analogRead(9) * 2 * 3.3 / 1024;   //get Battery-Voltage
-  if (vbat < 3.4) {
+  float vbat = analogRead(9) * 2 * 3.3 / 1024; //get Battery-Voltage
+  if (vbat < 3.4)
+  {
     tone(PiezoPin, 500, 200);
   }
 }
 
-bool moving() {
+bool moving()
+{
   int tolerance = 5;
-  if ((newServoPos0-oldServoPos0)<tolerance && (newServoPos1-oldServoPos1<tolerance) && (newServoPos2-oldServoPos2)<tolerance) {
+  if ((newServoPos0 - oldServoPos0) < tolerance && (newServoPos1 - oldServoPos1 < tolerance) && (newServoPos2 - oldServoPos2) < tolerance)
+  {
     return false;
   }
-  else {
+  else
+  {
     return true;
   }
 }
 
-void pickup() {
+int direction = 0;
 
-}
+void serial1_Control()
+{
 
-void drop() {
-
-}
-
-void serial1_Control() {
-
-    if (Input_String[0] == "gotoPosition" && flag_input_complete == true) {  //go to Position
-      int newPos = Input_String[1].toInt();
-      Position = newPos;
-      jobDone = false;
+  if (Input_String[0] == "pickup" && flag_input_complete)
+  {
+    if (Input_String[1] == "0")
+    {
+      direction = 1;
+      Position = 1;
     }
+    else
+    {
+      direction = -1;
+      Position = 9;
+    }
+    Input_String[0] == "setMotors";
+    Input_String[1] == "1";
+    jobDone = false;
+  }
+  if (Input_String[0] == "drop" && flag_input_complete)
+  {
+    Serial1.println("drop called" + String(Input_String[1]));
+    if (Input_String[1] == "0")
+    {
+      direction = -1;
+      Position = 4;
+    }
+    else
+    {
+      direction = 1;
+      Position = 6;
+    }
+    Input_String[0] == "setMotors";
+    Input_String[1] == "1";
+    jobDone = false;
+  }
 
-    if (Input_String[0] == "getPosition" && flag_input_complete == true) {  //get Position
-      Serial1.print("Position(");
-      Serial1.print(Position);
+  if (Input_String[0] == "gotoPosition" && flag_input_complete == true)
+  { //go to Position
+    int newPos = Input_String[1].toInt();
+    Position = newPos;
+    jobDone = false;
+  }
+
+  if (Input_String[0] == "getPosition" && flag_input_complete == true)
+  { //get Position
+    Serial1.print("Position(");
+    Serial1.print(Position);
+    Serial1.println(")");
+  }
+
+  if (Input_String[0] == "getBatteryState" && flag_input_complete == true)
+  { //BatteryState
+    float vbat = analogRead(9) * 2 * 3.3 / 1024;
+    Serial1.print("Batteryvoltage(");
+    Serial1.print(vbat);
+    Serial1.println(")");
+  }
+
+  if (Input_String[0] == "setMotors" && flag_input_complete == true)
+  { //turn Motors off/on
+    if (Input_String[1] == "1")
+    {
+      digitalWrite(MosfetPin, LOW); //turn Mosfet on
+      Serial1.println("Motorstate(1)");
+    }
+    if (Input_String[1] == "0")
+    {
+      digitalWrite(MosfetPin, HIGH); //turn Mosfet off
+      Serial1.println("Motorstate(0)");
+    }
+  }
+
+  if (Input_String[0] == "setSpeed" && flag_input_complete == true)
+  { //set Speed
+    int newspeed = Input_String[1].toInt();
+    if (newspeed <= 10)
+    {
+      SPEEDSERVO0 = newspeed;
+      SPEEDSERVO1 = newspeed;
+      SPEEDSERVO2 = newspeed;
+      Serial1.print("newSpeed(");
+      Serial1.print(newspeed);
       Serial1.println(")");
     }
+  }
 
-    if (Input_String[0] == "getBatteryState" && flag_input_complete == true) {   //BatteryState
-      float vbat = analogRead(9) * 2 * 3.3 / 1024;
-      Serial1.print("Batteryvoltage(" );
-      Serial1.print(vbat);
-      Serial1.println(")");
-    }
-
-    if (Input_String[0] == "setMotors" && flag_input_complete == true) {    //turn Motors off/on
-      if (Input_String[1] == "1") {
-        digitalWrite(MosfetPin, LOW);  //turn Mosfet on
-        Serial1.println("Motorstate(1)");
-      }
-      if (Input_String[1] == "0") {
-        digitalWrite(MosfetPin, HIGH); //turn Mosfet off
-        Serial1.println("Motorstate(0)");
-      }
-    }
-
-    if (Input_String[0] == "setSpeed" && flag_input_complete == true) {       //set Speed
-      int newspeed = Input_String[1].toInt();
-      if (newspeed <= 10) {
-        SPEEDSERVO0 = newspeed;
-        SPEEDSERVO1 = newspeed;
-        SPEEDSERVO2 = newspeed;
-        Serial1.print("newSpeed(");
-        Serial1.print(newspeed);
-        Serial1.println(")");
-      }
-    }
-
-  if (Input_String[0] == "getAngles" && flag_input_complete == true) {       //get Angles of Servos
+  if (Input_String[0] == "getAngles" && flag_input_complete == true)
+  { //get Angles of Servos
 
     //shows the Position at the moment
     int pos0 = getposdegree(0);
     int pos1 = getposdegree(1);
     int pos2 = getposdegree(2);
     Serial1.print("Angles(");
-    Serial1.print(pos0); Serial1.print(",");
-    Serial1.print(pos1); Serial1.print(",");
-    Serial1.print(pos2); Serial1.print(",");
+    Serial1.print(pos0);
+    Serial1.print(",");
+    Serial1.print(pos1);
+    Serial1.print(",");
+    Serial1.print(pos2);
+    Serial1.print(",");
     Serial1.println(")");
   }
 
-  if (Input_String[0] == "getState" && flag_input_complete == true) {       //get State
+  if (Input_String[0] == "getState" && flag_input_complete == true)
+  { //get State
     Serial1.print("State(");
     Serial1.print(moving());
     Serial1.println(")");
   }
 
-  if (Input_String[0] == "FeedbackCalibration" && flag_input_complete == true) {  //go to Position
-    feedback_calibration();   //calibration is necessary because of voltage-drop of the battery
+  if (Input_String[0] == "FeedbackCalibration" && flag_input_complete == true)
+  {                         //go to Position
+    feedback_calibration(); //calibration is necessary because of voltage-drop of the battery
   }
 
-  if (flag_input_complete) {
+  if (flag_input_complete)
+  {
 
     bool debug = false;
-    if (debug) { //only for debugging
+    if (debug)
+    { //only for debugging
       //Serial1.print("Input_String[0]: ");
       Serial1.println(Input_String[0]);
       //Serial1.print("Input_String[1]: ");
@@ -392,26 +470,31 @@ void serial1_Control() {
   }
 }
 
-void serial1Event() {
-  if (Serial1.available() > 0 && flag_input_complete != true) {
+void serial1Event()
+{
+  if (Serial1.available() > 0 && flag_input_complete != true)
+  {
     char inChar = (char)Serial1.read();
-    if (inChar == '(' || inChar == ')' || inChar == '\n' || inChar == ',') {
+    if (inChar == '(' || inChar == ')' || inChar == '\n' || inChar == ',')
+    {
       last_input_string = i_input_string;
       i_input_string = 4;
     }
     Input_String[i_input_string] += inChar;
-    if (i_input_string == 4) {
+    if (i_input_string == 4)
+    {
       i_input_string = last_input_string + 1;
     }
-    if (inChar == '\n') {
+    if (inChar == '\n')
+    {
       flag_input_complete = true;
     }
   }
   serial1_Control();
 }
 
-
-void setup() {
+void setup()
+{
 
   pinMode(BoostPin, OUTPUT);
   pinMode(MosfetPin, OUTPUT);
@@ -423,24 +506,33 @@ void setup() {
 
   delay(1000);
 
-  Serial1.begin(57600);  //set Bluetooth-baudrate correctly!
+  Serial1.begin(57600); //set Bluetooth-baudrate correctly!
   Serial1.println("Feather is ready!");
 
   pwm.begin();
   pwm.setPWMFreq(SERVOFREQ);
 
-  feedback_calibration();   //calibration is necessary because of voltage-differences of the battery
+  feedback_calibration(); //calibration is necessary because of voltage-differences of the battery
   yield();
 }
-
-void loop() {
+void loop()
+{
   serial1Event();
   //position_handling();
   battery_management();
-  if (moving() == false && jobDone == false) {
-    Serial1.print("arrivedPosition(");
-    Serial1.print(Position);
-    Serial1.println(")");
-    jobDone = true;
+  if (!(moving() || jobDone))
+  {
+    // In case of place action move back to pos 5 after placing
+    if (Position < 1 || Position > 9)
+    {
+      jobDone = true;
+      Input_String[0] == "setMotors";
+      Input_String[1] == "0";
+    }
+    else
+    {
+      Position += direction;
+    }
   }
+  delay(1000);
 }

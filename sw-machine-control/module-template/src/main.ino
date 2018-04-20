@@ -90,6 +90,7 @@ void listenBLE() {
     // no data
     return;
   }
+  Serial.println(ble.buffer);
   handleApiCommands(ble.buffer);
 }
 
