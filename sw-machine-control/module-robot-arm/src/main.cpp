@@ -518,7 +518,7 @@ void setup()
 void loop()
 {
   serial1Event();
-  position_handling();
+  //position_handling();
   battery_management();
   if (!(moving() || jobDone))
   {

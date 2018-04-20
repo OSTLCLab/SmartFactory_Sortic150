@@ -74,10 +74,10 @@ void loop() {
 
 // Handle API commands
 void handleApiCommands(String command) {
-  if (command = "pickup();") {
+  if (command == "pickup();") {
     moduleJob = JOB_PICKUP;
   }
-  if (command = "drop();") {
+  if (command == "drop();") {
     moduleJob = JOB_DROP;
   }
 }
@@ -90,6 +90,7 @@ void listenBLE() {
     // no data
     return;
   }
+  Serial.println(ble.buffer);
   handleApiCommands(ble.buffer);
 }
 
@@ -136,6 +137,7 @@ void initBLE() {
   Serial.println("Requesting Bluefruit info:");
   /* Print Bluefruit information */
   ble.info();
+  ble.println("AT+GAPDEVNAME=Ferdinand");
 
   Serial.println(F("Please use Adafruit Bluefruit LE app to connect in UART mode"));
   Serial.println(F("Then Enter characters to send to Bluefruit"));
