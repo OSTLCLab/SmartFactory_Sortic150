@@ -137,6 +137,7 @@ void initBLE() {
   Serial.println("Requesting Bluefruit info:");
   /* Print Bluefruit information */
   ble.info();
+  ble.println("AT+GAPDEVNAME=Ferdinand");
 
   Serial.println(F("Please use Adafruit Bluefruit LE app to connect in UART mode"));
   Serial.println(F("Then Enter characters to send to Bluefruit"));
