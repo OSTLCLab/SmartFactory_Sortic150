@@ -435,7 +435,7 @@ void setup() {
 
 void loop() {
   serial1Event();
-  position_handling();
+  //position_handling();
   battery_management();
   if (moving() == false && jobDone == false) {
     Serial1.print("arrivedPosition(");
