@@ -23,13 +23,13 @@ struct Config
   HandlingUnitPosition sortJobSourcePosition;
 };
 
-static SortJob DEFAULT_SORTJOB{(byte[]){0, 0, 0, 0, 0, 0, 0}, -1, NoPosition};
+static const SortJob DEFAULT_SORTJOB{(byte *)((byte[]){0, 0, 0, 0, 0, 0, 0}), -1, NoPosition};
 
-static Config initialConfig{CHASSIS_POS_START,
-                            {(byte[]){0, 0, 0, 0, 0, 0, 0}, -1, NoPosition},
-                            true,
-                            StartPosition,
-                            PickUpRight};
+static const Config initialConfig{CHASSIS_POS_START,
+                                  {(byte *)((byte[]){0, 0, 0, 0, 0, 0, 0}), -1, NoPosition},
+                                  true,
+                                  StartPosition,
+                                  PickUpRight};
 
 class MachineAPI : public Component<Config>
 {
@@ -46,7 +46,7 @@ protected:
     {
       return componentData;
     }
-    StaticJsonBuffer<200> buffer;
+    StaticJsonBuffer<250> buffer;
     String readedString = Serial.readString();
     JsonObject &root = buffer.parseObject(readedString);
 
@@ -84,14 +84,14 @@ protected:
 
     if (root.containsKey(ID))
     {
+      componentData.sortJob = SortJob{(byte *)((byte[]){0, 0, 0, 0, 0, 0, 0}), -1, NoPosition};
+      componentData.sortJob.handlingUnitPosition = (HandlingUnitPosition)(int)root[HANDLING_UNIT];
+      componentData.sortJob.destination = root[DEST];
       JsonArray &arr = root[ID];
-      byte rfid[RFID_LENGTH];
-      arr.copyTo(rfid);
-
-      int dest = root[DEST];
-      int placer = root[HANDLING_UNIT];
-      SortJob newChip{rfid, dest, (HandlingUnitPosition)placer};
-      componentData.sortJob = newChip;
+      for (int index = 0; index < RFID_LENGTH; index++)
+      {
+        componentData.sortJob.id[index] = (byte)arr[index];
+      }
       root.printTo(Serial);
     }
     return componentData;

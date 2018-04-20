@@ -3,7 +3,6 @@
 
 #include <Component.h>
 #include <Debug.h>
-#include <Arduino.h>
 #include <SoftwareSerial.h>
 
 enum HandlingUnitPosition
@@ -31,13 +30,15 @@ protected:
     //transceive some data
     if (bluetooth.available())
     {
+      debugLn("Recieve some data!");
       String response = bluetooth.readStringUntil('\n');
-      debugLn("Recieve some data! " + response);
+      debugLn(response);
 
       if (response.startsWith("success("))
       {
         bool parsedValue = (bool)(response.charAt(8) - '0');
         state = parsedValue ? Finish : Invalid;
+
         componentData = targetValue;
       }
       return componentData;
@@ -47,7 +48,7 @@ protected:
     {
       return componentData;
     }
-    debugLn("Send some data! " + String(targetValue));
+    debugLn("Send data!");
 
     millisOfLastSending = millis();
 

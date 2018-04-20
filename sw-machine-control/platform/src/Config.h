@@ -6,13 +6,16 @@
 #define BLUETOOTH_RX 2
 #define RFIDDETECTOR_SDA 7
 #define RFIDDETECTOR_RST_PIN 6
+#define CHASSIS_DIGITAL_TRIG_PIN 4
+#define CHASSIS_DIGITAL_ECHO_PIN 5
 #define MOTOR_NR 4
-#define CHASIS_POS_MAX 40
+#define CHASIS_POS_MAX 45
+#define CHASIS_POS_MIN 15
 #define CHASSIS_TOLERANCE 0
-#define MAX_MOTORSPEED 230
-#define MIN_MOTORSPEED 75
-#define CHASSIS_POS_START 23
-#define CHASIS_POS_MIN 19
+#define MAX_MOTORSPEED 200
+#define MOTOR_PUNISH_SPEED 10
+#define MIN_MOTORSPEED 90
+#define CHASSIS_POS_START 27
 #define MILLIS_OF_LAST_SENDING 5000
 
 #define RFID_LENGTH 7
@@ -25,6 +28,6 @@
 #define DEST "dest"
 #define HANDLING_UNIT "handlingUnit"
 
-//#define DEBUG
+// #define DEBUG
 
 #endif

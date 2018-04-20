@@ -1,8 +1,8 @@
-#include <ArduinoJson.h>
-#include <Chassis.h>
 #include <RfidDetector.h>
 #include <HandlingUnit.h>
 #include <MachineAPI.h>
+#include <ChassisDigital.h>
+#include <Arduino.h>
 
 #include <Component.h>
 #include <Debug.h>
@@ -19,6 +19,8 @@ public:
                                           rfidDetector{rfidDetector},
                                           chassis{chassis}
   {
+    targetValue = initialConfig;
+    componentData = initialConfig;
   }
 
 protected:
@@ -29,13 +31,11 @@ protected:
       debugLn("State 1: Put HandlingUnit in its initposition.");
       handlingUnit->setAction(targetValue.handlingUnitStartPosition);
     }
-
     if (handlingUnitIsAtStartPosition() && !chassIsAtStartPosition())
     {
       debugLn("State 2: Put Chassis in its initposition.");
       chassis->setAction(targetValue.chassisStart);
     }
-
     if (chassIsAtStartPosition() && handlingUnitIsAtStartPosition() && !chipDetected())
     {
       debugLn("State 3: Check for new sortjobs.");
@@ -43,40 +43,45 @@ protected:
       handlingUnit->wait();
       rfidDetector->on();
     }
-    unsigned long actualMillis = millis();
-
     if (chassIsAtStartPosition() && handlingUnitIsAtStartPosition() &&
-        chipDetected() && !recognizeChip() && millisOfLastSending + MILLIS_OF_LAST_SENDING <= actualMillis)
+        chipDetected() && !recognizeChip() && millisOfLastSending + MILLIS_OF_LAST_SENDING <= millis())
     {
       debugLn("State 4: didnt recognize job.");
       millisOfLastSending = millis();
-      StaticJsonBuffer<200> buffer;
-      JsonObject &root = buffer.createObject();
-      root[DEST] = "?";
-      root[HANDLING_UNIT] = "?";
-      JsonArray &arr = root.createNestedArray(ID);
-      arr.copyFrom(rfidDetector->getData().id, RFID_LENGTH);
-      root.printTo(Serial);
-    }
 
+      Serial.print("{");
+      Serial.print("\"" + String(DEST) + "\":\"?\",");
+      Serial.print("\"" + String(HANDLING_UNIT) + "\":\"?\",");
+      Serial.print("\"" + String(ID) + "\":[");
+      for (int index = 0; index < RFID_LENGTH; index++)
+      {
+        Serial.print(String(rfidDetector->getData().id[index]));
+        if (index + 1 != RFID_LENGTH)
+        {
+          Serial.print(",");
+        }
+        else
+        {
+          Serial.print("]");
+        }
+      }
+      Serial.print("}");
+    }
     if (chassIsAtStartPosition() && handlingUnitIsAtStartPosition() && recognizeChip())
     {
       debugLn("State 5: Get the new sortjob.");
       handlingUnit->setAction(targetValue.sortJobSourcePosition);
     }
-
     if (handlingUnitHasChip())
     {
       debugLn("State 6: Put chassis at the sortjob position.");
       chassis->setAction(targetValue.sortJob.destination);
     }
-
     if (!allOff() && chassisReachedDestination() && !handlingUnitDeposeChip())
     {
       debugLn("State 7: Put handlingUnit at the sortjob position.");
       handlingUnit->setAction(targetValue.sortJob.handlingUnitPosition);
     }
-
     if (!targetValue.powerOn || (chassisReachedDestination() && handlingUnitDeposeChip()))
     {
       debugLn("State 8: Go to State 1.");
@@ -85,7 +90,6 @@ protected:
       chassis->wait();
       rfidDetector->wait();
     }
-    printStatus();
 
     chassis->executeOneStep();
     handlingUnit->executeOneStep();
@@ -128,9 +132,9 @@ private:
             sortJobsAreEqual(targetValue.sortJob, DEFAULT_SORTJOB));
   }
 
-  bool sortJobsAreEqual(SortJob sortJob1, SortJob sortjob2)
+  bool sortJobsAreEqual(SortJob sortJob1, SortJob sortJob2)
   {
-    return !memcmp(sortJob1.id, sortjob2.id, RFID_LENGTH * sizeof(byte));
+    return !memcmp(sortJob1.id, sortJob2.id, RFID_LENGTH * sizeof(byte));
   }
 
   bool allOff()
@@ -165,12 +169,20 @@ private:
   void printStatus()
   {
     printComponentStatus("Chassis", chassis->getState());
-    printComponentStatus("handlingUnit", handlingUnit->getState());
+    printComponentStatus("HandlingUnit", handlingUnit->getState());
     printComponentStatus("RfidDetector", rfidDetector->getState());
+    if (chipDetected())
+    {
+      debugLn("chipDetected");
+    }
+    if (recognizeChip())
+    {
+      debugLn("recognizeChip sortJob");
+    }
     debugLn();
   }
 
-  void printComponentStatus(String name, State state)
+  void printComponentStatus(String name, int state)
   {
     switch (state)
     {
@@ -185,6 +197,9 @@ private:
       break;
     case Finish:
       debugLn(name + " is finish.");
+      break;
+    default:
+      debugLn(name + " undefined state.");
       break;
     }
   }

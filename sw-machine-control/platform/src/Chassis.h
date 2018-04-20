@@ -31,7 +31,7 @@ protected:
 
     if (medianFilter.getCount() == 5)
     {
-      currentPosition = medianFilter.getAverage();
+      currentPosition = medianFilter.getMedian();
       medianFilter.clear();
     }
     else

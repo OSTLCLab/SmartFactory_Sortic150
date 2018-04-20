@@ -2,7 +2,6 @@
 #define RfidDetector_h
 
 #include <Component.h>
-#include <Chassis.h>
 #include <MFRC522.h>
 #include <MachineAPI.h>
 
