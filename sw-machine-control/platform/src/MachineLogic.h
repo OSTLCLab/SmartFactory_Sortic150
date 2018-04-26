@@ -26,6 +26,17 @@ public:
 protected:
   Config loop()
   {
+    if (targetValue.getState && millisOfLastSendingGetState + MILLIS_OF_LAST_SENDING <= millis())
+    {
+      millisOfLastSendingGetState = millis();
+
+      Serial.print("{");
+      Serial.print("\"chassis:\"" + getComponentStatus(chassis->getState()) + "\"");
+      Serial.print("\"rfidDetector:\"" + getComponentStatus(rfidDetector->getState()) + "\"");
+      Serial.print("\"handlingUnit:\"" + getComponentStatus(handlingUnit->getState()) + "\"");
+      Serial.print("}");
+    }
+
     if ((allFinished() || allOff()) && !handlingUnitIsAtStartPosition() && !chassIsAtStartPosition() && !chassisReachedDestination())
     {
       debugLn("State 1: Put HandlingUnit in its initposition.");
@@ -103,6 +114,7 @@ private:
   Component<SortJob> *rfidDetector;
   Component<int> *chassis;
   unsigned long millisOfLastSending{0};
+  unsigned long millisOfLastSendingGetState{0};
 
   bool chassIsAtStartPosition()
   {
@@ -166,42 +178,20 @@ private:
            rfidDetector->getState() == Finish;
   }
 
-  void printStatus()
-  {
-    printComponentStatus("Chassis", chassis->getState());
-    printComponentStatus("HandlingUnit", handlingUnit->getState());
-    printComponentStatus("RfidDetector", rfidDetector->getState());
-    if (chipDetected())
-    {
-      debugLn("chipDetected");
-    }
-    if (recognizeChip())
-    {
-      debugLn("recognizeChip sortJob");
-    }
-    debugLn();
-  }
-
-  void printComponentStatus(String name, int state)
+  String getComponentStatus(int state)
   {
     switch (state)
     {
     case Running:
-      debugLn(name + " is running.");
-      break;
+      return "Running";
     case Invalid:
-      debugLn(name + " is invalid.");
-      break;
+      return "Invalid";
     case Waiting:
-      debugLn(name + " is waiting.");
-      break;
+      return "Waiting";
     case Finish:
-      debugLn(name + " is finish.");
-      break;
-    default:
-      debugLn(name + " undefined state.");
-      break;
+      return "Finish";
     }
+    return "Undefined";
   }
 };
 

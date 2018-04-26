@@ -20,6 +20,7 @@
 
 #define RFID_LENGTH 7
 #define POWER_ON "powerOn"
+#define GET_STATE "getState"
 #define CHASSIS_START "chassisStart"
 #define RFID_SOURCE_POSITION "rfidSourcePosition"
 #define HANDLING_UNIT_SLEEP_POSITION "handlingUnitInitPosition"

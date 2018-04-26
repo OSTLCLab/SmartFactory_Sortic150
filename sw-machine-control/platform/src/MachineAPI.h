@@ -19,6 +19,7 @@ struct Config
   int chassisStart;
   SortJob sortJob;
   bool powerOn;
+  bool getState;
   HandlingUnitPosition handlingUnitStartPosition;
   HandlingUnitPosition sortJobSourcePosition;
 };
@@ -28,6 +29,7 @@ static const SortJob DEFAULT_SORTJOB{(byte *)((byte[]){0, 0, 0, 0, 0, 0, 0}), -1
 static const Config initialConfig{CHASSIS_POS_START,
                                   {(byte *)((byte[]){0, 0, 0, 0, 0, 0, 0}), -1, NoPosition},
                                   true,
+                                  false,
                                   StartPosition,
                                   PickUpRight};
 
@@ -36,7 +38,7 @@ class MachineAPI : public Component<Config>
 public:
   MachineAPI()
   {
-    this->componentData = initialConfig;
+    componentData = initialConfig;
   }
 
 protected:
@@ -63,6 +65,11 @@ protected:
     if (root.containsKey(POWER_ON))
     {
       componentData.powerOn = root[POWER_ON];
+    }
+
+    if (root.containsKey(GET_STATE))
+    {
+      componentData.getState = root[GET_STATE];
     }
 
     if (root.containsKey(CHASSIS_START))
