@@ -10,9 +10,6 @@
 #include <Config.h>
 #include <Debug.h>
 #include <SPI.h>
-
-#include <Ethernet.h>
-
 static Adafruit_MotorShield currentMotorShield{};
 static Adafruit_DCMotor *driverMotor = currentMotorShield.getMotor(MOTOR_NR);
 static MFRC522 partDetector{RFIDDETECTOR_SDA, RFIDDETECTOR_RST_PIN};
