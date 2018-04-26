@@ -56,11 +56,11 @@ protected:
     {
       buffer.clear();
       state = Invalid;
-      Serial.println("{\"success\":false}");
+      Serial.println("{\"method\":\"response\" \"params\":{\"success\":false}}");
       return componentData;
     }
 
-    Serial.println("{\"success\":true}");
+    Serial.println("{\"method\":\"response\" \"params\":{\"success\":true}}");
 
     if (root.containsKey(POWER_ON))
     {

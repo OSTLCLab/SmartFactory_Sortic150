@@ -29,12 +29,11 @@ protected:
     if (targetValue.getState && millisOfLastSendingGetState + MILLIS_OF_LAST_SENDING <= millis())
     {
       millisOfLastSendingGetState = millis();
-
-      Serial.print("{");
+      Serial.print("{\"method\":\"getState\" \"params\":{");
       Serial.print("\"chassis:\"" + getComponentStatus(chassis->getState()) + "\"");
       Serial.print("\"rfidDetector:\"" + getComponentStatus(rfidDetector->getState()) + "\"");
       Serial.print("\"handlingUnit:\"" + getComponentStatus(handlingUnit->getState()) + "\"");
-      Serial.print("}");
+      Serial.print("}}");
     }
 
     if ((allFinished() || allOff()) && !handlingUnitIsAtStartPosition() && !chassIsAtStartPosition() && !chassisReachedDestination())
@@ -59,8 +58,7 @@ protected:
     {
       debugLn("State 4: didnt recognize job.");
       millisOfLastSending = millis();
-
-      Serial.print("{");
+      Serial.print("{\"method\":\"askForSortJob\" \"params\":{");
       Serial.print("\"" + String(DEST) + "\":\"?\",");
       Serial.print("\"" + String(HANDLING_UNIT) + "\":\"?\",");
       Serial.print("\"" + String(ID) + "\":[");
@@ -76,7 +74,7 @@ protected:
           Serial.print("]");
         }
       }
-      Serial.print("}");
+      Serial.print("}}");
     }
     if (chassIsAtStartPosition() && handlingUnitIsAtStartPosition() && recognizeChip())
     {
