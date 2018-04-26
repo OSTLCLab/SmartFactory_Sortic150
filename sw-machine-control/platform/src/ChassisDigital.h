@@ -43,7 +43,7 @@ protected:
     if (checkInvalidPos(currentPosition) && (MAX_MOTORSPEED - punish) > MIN_MOTORSPEED)
     {
       punish += MOTOR_PUNISH_SPEED;
-      Serial.println("ChassisDigital punished! Motor decrease speed -" + String(MOTOR_PUNISH_SPEED));
+      debugLn("ChassisDigital punished! Motor decrease speed -" + String(MOTOR_PUNISH_SPEED));
       return -1;
     }
 
@@ -69,7 +69,7 @@ protected:
     if (chassisArrivedDestination(distanceToTarget))
     {
       debugLn("Position arrived!" + String(currentPosition));
-      Serial.println("ChassisDigital will be rewarded! Motor increases speed +1");
+      debugLn("ChassisDigital will be rewarded! Motor increases speed +1");
       motor->run(RELEASE);
       state = Finish;
       punish++;
