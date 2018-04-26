@@ -56,11 +56,11 @@ protected:
     {
       buffer.clear();
       state = Invalid;
-      Serial.println("{\"method\":\"response\" \"params\":{\"success\":false}}");
+      Serial.println("{\"method\":\"response\", \"params\":{\"success\":false}}");
       return componentData;
     }
 
-    Serial.println("{\"method\":\"response\" \"params\":{\"success\":true}}");
+    Serial.println("{\"method\":\"response\", \"params\":{\"success\":true}}");
 
     if (root.containsKey(POWER_ON))
     {
@@ -99,7 +99,7 @@ protected:
       {
         componentData.sortJob.id[index] = (byte)arr[index];
       }
-      root.printTo(Serial);
+
     }
     return componentData;
   }

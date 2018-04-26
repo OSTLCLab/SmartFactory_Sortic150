@@ -20,7 +20,7 @@ private:
   Adafruit_DCMotor *motor;
   int punish{0};
 
-  bool checkInvalidState(int currentPosition)
+  bool checkInvalidState(int targetValue)
   {
     return targetValue > CHASIS_POS_MAX || targetValue < CHASIS_POS_MIN;
   }
@@ -47,7 +47,7 @@ protected:
       return -1;
     }
 
-    if (checkInvalidState(currentPosition))
+    if (checkInvalidState(targetValue))
     {
       motor->run(RELEASE);
       state = Invalid;
