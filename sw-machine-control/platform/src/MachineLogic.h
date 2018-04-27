@@ -1,3 +1,6 @@
+#ifndef MachineLogic_h
+#define MachineLogic_h
+
 #include <RfidDetector.h>
 #include <HandlingUnit.h>
 #include <MachineAPI.h>
@@ -6,9 +9,6 @@
 
 #include <Component.h>
 #include <Debug.h>
-
-#ifndef MachineLogic_h
-#define MachineLogic_h
 
 class MachineLogic : public Component<Config>
 {
@@ -30,9 +30,9 @@ protected:
     {
       millisOfLastSendingGetState = millis();
       Serial.print("{\"method\":\"getState\", \"params\":{");
-      Serial.print("\"chassis\":\"" + getComponentStatus(chassis->getState()) + "\",");
-      Serial.print("\"rfidDetector\":\"" + getComponentStatus(rfidDetector->getState()) + "\",");
-      Serial.print("\"handlingUnit\":\"" + getComponentStatus(handlingUnit->getState()) + "\"");
+      Serial.print("\"chassis\":"+ String((int)chassis->getState())+",");
+      Serial.print("\"rfidDetector\":"+ String((int)rfidDetector->getState()) + ",");
+      Serial.print("\"handlingUnit\":" + String((int)handlingUnit->getState()));
       Serial.println("}}");
     }
 
@@ -91,6 +91,7 @@ protected:
       debugLn("State 7: Put handlingUnit at the sortjob position.");
       handlingUnit->setAction(targetValue.sortJob.handlingUnitPosition);
     }
+
     if (!targetValue.powerOn || (chassisReachedDestination() && handlingUnitDeposeChip()))
     {
       debugLn("State 8: Go to State 1.");
@@ -100,9 +101,12 @@ protected:
       rfidDetector->wait();
     }
 
-    chassis->executeOneStep();
-    handlingUnit->executeOneStep();
-    rfidDetector->executeOneStep();
+    if(targetValue.powerOn)
+    {
+      chassis->executeOneStep();
+      handlingUnit->executeOneStep();
+      rfidDetector->executeOneStep();
+    }
 
     return targetValue;
   }
@@ -174,22 +178,6 @@ private:
     return chassis->getState() == Finish &&
            handlingUnit->getState() == Finish &&
            rfidDetector->getState() == Finish;
-  }
-
-  String getComponentStatus(int state)
-  {
-    switch (state)
-    {
-    case Running:
-      return "Running";
-    case Invalid:
-      return "Invalid";
-    case Waiting:
-      return "Waiting";
-    case Finish:
-      return "Finish";
-    }
-    return "Undefined";
   }
 };
 

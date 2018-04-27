@@ -15,6 +15,13 @@ public:
   {
   }
 
+void wait()
+  {
+    Component::wait();
+    motor->run(RELEASE);
+    motor->setSpeed(0);
+  }
+
 private:
   NewPing *sensor;
   Adafruit_DCMotor *motor;
