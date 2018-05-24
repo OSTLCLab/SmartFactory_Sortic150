@@ -37,19 +37,19 @@ protected:
     switch (targetValue)
     {
     case PickUpLeft:
-      Serial.print("{\"method\":\"pickup\", \"params\":0}");
+      Serial.println("{\"method\":\"pickup\", \"params\":0}");
       break;
     case PickUpRight:
-      Serial.print("{\"method\":\"pickup\", \"params\":1}");
+      Serial.println("{\"method\":\"pickup\", \"params\":1}");
       break;
     case DropLeft:
-      Serial.print("{\"method\":\"drop\", \"params\":0}");
+      Serial.println("{\"method\":\"drop\", \"params\":0}");
       break;
     case DropRight:
-      Serial.print("{\"method\":\"drop\", \"params\":1}");
+      Serial.println("{\"method\":\"drop\", \"params\":1}");
       break;
     case StartPosition:
-      Serial.print("{\"method\":\"initPosition\", \"params\":1}");
+      Serial.println("{\"method\":\"initPosition\", \"params\":1}");
       break;
     default:
       //do nothing.

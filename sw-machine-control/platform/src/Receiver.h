@@ -32,7 +32,7 @@ static const MachineAPI initialConfig{CHASSIS_POS_START,
                                   false,
                                   StartPosition,
                                   PickUpRight,
-                                  StartPosition};
+                                  NoPosition};
 
 class Receiver : public Component<MachineAPI>
 {
