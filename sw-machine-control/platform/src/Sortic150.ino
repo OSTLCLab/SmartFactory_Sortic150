@@ -4,6 +4,7 @@
 #include <MFRC522.h>
 #include <ChassisDigital.h>
 #include <HandlingUnit.h>
+#include <HandlingUnitSerial.h>
 #include <MachineLogic.h>
 #include <Component.h>
 #include <RfidDetector.h>
@@ -18,10 +19,10 @@ static MFRC522 partDetector{RFIDDETECTOR_SDA, RFIDDETECTOR_RST_PIN};
 static SoftwareSerial bluetooth{BLUETOOTH_TX, BLUETOOTH_RX};
 static NewPing *distanceSensor = new NewPing{CHASSIS_DIGITAL_TRIG_PIN, CHASSIS_DIGITAL_ECHO_PIN, CHASIS_POS_MAX};
 
-static Component<HandlingUnitPosition> *handlingUnit = new HandlingUnit{bluetooth, MILLIS_OF_LAST_SENDING};
 static Component<int> *chassis = new ChassisDigital{driverMotor, distanceSensor};
 static Component<MachineAPI> *receiver = new Receiver{};
 static Component<SortJob> *rfidDetector = new RfidDetector{&partDetector};
+static Component<HandlingUnitPosition> *handlingUnit = new HandlingUnitSerial{MILLIS_OF_LAST_SENDING, receiver};
 static Component<MachineAPI> *machineLogic = new MachineLogic{handlingUnit, rfidDetector, chassis};
 
 void setup()

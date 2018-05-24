@@ -20,8 +20,9 @@ struct MachineAPI
   SortJob sortJob;
   bool powerOn;
   bool getState;
-  HandlingUnitPosition handlingUnitStartPosition;
+  HandlingUnitPosition startPosition;
   HandlingUnitPosition sortJobSourcePosition;
+  HandlingUnitPosition actualPosition;
 };
 
 static const SortJob DEFAULT_SORTJOB{(byte *)((byte[]){0, 0, 0, 0, 0, 0, 0}), -1, NoPosition};
@@ -30,7 +31,8 @@ static const MachineAPI initialConfig{CHASSIS_POS_START,
                                   true,
                                   false,
                                   StartPosition,
-                                  PickUpRight};
+                                  PickUpRight,
+                                  StartPosition};
 
 class Receiver : public Component<MachineAPI>
 {
@@ -84,8 +86,14 @@ protected:
 
     if (root.containsKey(HANDLING_UNIT_SLEEP_POSITION))
     {
-      int handlingUnitStartPosition = root[HANDLING_UNIT_SLEEP_POSITION];
-      componentData.sortJobSourcePosition = (HandlingUnitPosition)handlingUnitStartPosition;
+      int startPosition = root[HANDLING_UNIT_SLEEP_POSITION];
+      componentData.sortJobSourcePosition = (HandlingUnitPosition)startPosition;
+    }
+    
+    if (root.containsKey(HANDLING_UNIT_ACTUAL_POSITION))
+    {
+      int actualPosition = root[HANDLING_UNIT_ACTUAL_POSITION];
+      componentData.actualPosition = (HandlingUnitPosition)actualPosition;
     }
 
     if (root.containsKey(ID))

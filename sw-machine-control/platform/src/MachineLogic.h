@@ -39,7 +39,7 @@ protected:
     if ((allFinished() || allOff()) && !handlingUnitIsAtStartPosition() && !chassIsAtStartPosition() && !chassisReachedDestination())
     {
       debugLn("State 1: Put HandlingUnit in its initposition.");
-      handlingUnit->setAction(targetValue.handlingUnitStartPosition);
+      handlingUnit->setAction(targetValue.startPosition);
     }
     if (handlingUnitIsAtStartPosition() && !chassIsAtStartPosition())
     {
@@ -130,7 +130,7 @@ private:
 
   bool handlingUnitIsAtStartPosition()
   {
-    return targetValue.handlingUnitStartPosition == handlingUnit->getData();
+    return targetValue.startPosition == handlingUnit->getData();
   }
 
   bool chipDetected()

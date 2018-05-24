@@ -24,6 +24,7 @@
 #define CHASSIS_START "chassisStart"
 #define RFID_SOURCE_POSITION "rfidSourcePosition"
 #define HANDLING_UNIT_SLEEP_POSITION "handlingUnitInitPosition"
+#define HANDLING_UNIT_ACTUAL_POSITION "actualPosition"
 #define UNKNOWN_POSITION "unknownPosition"
 #define ID "id"
 #define DEST "dest"
