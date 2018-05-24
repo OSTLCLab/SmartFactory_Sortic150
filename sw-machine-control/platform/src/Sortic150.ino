@@ -7,7 +7,7 @@
 #include <MachineLogic.h>
 #include <Component.h>
 #include <RfidDetector.h>
-#include <MachineAPI.h>
+#include <Receiver.h>
 #include <Config.h>
 #include <Debug.h>
 #include <SPI.h>
@@ -20,9 +20,9 @@ static NewPing *distanceSensor = new NewPing{CHASSIS_DIGITAL_TRIG_PIN, CHASSIS_D
 
 static Component<HandlingUnitPosition> *handlingUnit = new HandlingUnit{bluetooth, MILLIS_OF_LAST_SENDING};
 static Component<int> *chassis = new ChassisDigital{driverMotor, distanceSensor};
-static Component<Config> *machineAPI = new MachineAPI{};
+static Component<MachineAPI> *receiver = new Receiver{};
 static Component<SortJob> *rfidDetector = new RfidDetector{&partDetector};
-static Component<Config> *machineLogic = new MachineLogic{handlingUnit, rfidDetector, chassis};
+static Component<MachineAPI> *machineLogic = new MachineLogic{handlingUnit, rfidDetector, chassis};
 
 void setup()
 {
@@ -32,13 +32,13 @@ void setup()
   bluetooth.begin(57600);
   partDetector.PCD_Init();
 
-  machineAPI->on();
+  receiver->on();
   machineLogic->on();
 }
 
 void loop()
 {
-  machineAPI->executeOneStep();
-  machineLogic->setAction(machineAPI->getData());
+  receiver->executeOneStep();
+  machineLogic->setAction(receiver->getData());
   machineLogic->executeOneStep();
 }

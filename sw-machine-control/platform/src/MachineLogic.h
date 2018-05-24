@@ -3,14 +3,14 @@
 
 #include <RfidDetector.h>
 #include <HandlingUnit.h>
-#include <MachineAPI.h>
+#include <Receiver.h>
 #include <ChassisDigital.h>
 #include <Arduino.h>
 
 #include <Component.h>
 #include <Debug.h>
 
-class MachineLogic : public Component<Config>
+class MachineLogic : public Component<MachineAPI>
 {
 public:
   MachineLogic(Component<HandlingUnitPosition> *handlingUnit,
@@ -24,7 +24,7 @@ public:
   }
 
 protected:
-  Config loop()
+  MachineAPI loop()
   {
     if (targetValue.getState && millisOfLastSendingGetState + MILLIS_OF_LAST_SENDING <= millis())
     {

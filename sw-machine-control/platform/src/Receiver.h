@@ -1,5 +1,5 @@
-#ifndef MachineAPI_h
-#define MachineAPI_h
+#ifndef Receiver_h
+#define Receiver_h
 
 #include <Component.h>
 #include <Arduino.h>
@@ -14,7 +14,7 @@ struct SortJob
   HandlingUnitPosition handlingUnitPosition;
 };
 
-struct Config
+struct MachineAPI
 {
   int chassisStart;
   SortJob sortJob;
@@ -25,24 +25,23 @@ struct Config
 };
 
 static const SortJob DEFAULT_SORTJOB{(byte *)((byte[]){0, 0, 0, 0, 0, 0, 0}), -1, NoPosition};
-
-static const Config initialConfig{CHASSIS_POS_START,
+static const MachineAPI initialConfig{CHASSIS_POS_START,
                                   {(byte *)((byte[]){0, 0, 0, 0, 0, 0, 0}), -1, NoPosition},
                                   true,
                                   false,
                                   StartPosition,
                                   PickUpRight};
 
-class MachineAPI : public Component<Config>
+class Receiver : public Component<MachineAPI>
 {
 public:
-  MachineAPI()
+  Receiver()
   {
     componentData = initialConfig;
   }
 
 protected:
-  Config loop()
+  MachineAPI loop()
   {
     if (!Serial.available())
     {

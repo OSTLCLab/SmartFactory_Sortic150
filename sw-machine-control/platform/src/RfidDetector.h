@@ -3,7 +3,7 @@
 
 #include <Component.h>
 #include <MFRC522.h>
-#include <MachineAPI.h>
+#include <Receiver.h>
 
 class RfidDetector : public Component<SortJob>
 {
@@ -38,7 +38,7 @@ protected:
 
 private:
   MFRC522 *rfidReader;
-  Component<Config> *machineApi;
+  Component<MachineAPI> *Receiver;
 };
 
 #endif
