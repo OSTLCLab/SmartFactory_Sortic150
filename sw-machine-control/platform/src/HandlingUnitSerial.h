@@ -22,6 +22,7 @@ protected:
     if(receiver->getData().actualPosition == targetValue)
     {
       state = Finish;
+      return targetValue;
     }
 
     unsigned long actualMillis = millis();
