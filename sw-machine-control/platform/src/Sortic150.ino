@@ -22,7 +22,8 @@ static NewPing *distanceSensor = new NewPing{CHASSIS_DIGITAL_TRIG_PIN, CHASSIS_D
 static Component<int> *chassis = new ChassisDigital{driverMotor, distanceSensor};
 static Component<MachineAPI> *receiver = new Receiver{};
 static Component<SortJob> *rfidDetector = new RfidDetector{&partDetector};
-static Component<HandlingUnitPosition> *handlingUnit = new HandlingUnitSerial{MILLIS_OF_LAST_SENDING, receiver};
+//static Component<HandlingUnitPosition> *handlingUnit = new HandlingUnitSerial{MILLIS_OF_LAST_SENDING, receiver};
+static Component<HandlingUnitPosition> *handlingUnit = new HandlingUnit{bluetooth, 1000};
 static Component<MachineAPI> *machineLogic = new MachineLogic{handlingUnit, rfidDetector, chassis};
 
 void setup()

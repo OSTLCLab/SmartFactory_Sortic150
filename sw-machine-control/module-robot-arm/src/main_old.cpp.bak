@@ -5,10 +5,10 @@
   by Simon Hersche
 
   Features:
-  -Advanced Communication over Bluetooth (Serial1)
+  -Advanced Communication over tooth (Serial1)
   -more commands implemented
 
-   ****************************************************/
+****************************************************/
 
 #include <Wire.h>
 #include <Adafruit_PWMServoDriver.h>
@@ -73,9 +73,9 @@ volatile unsigned long timer_1; //drive() Timer Axis 1
 volatile unsigned long timer_2; //drive() Timer Axis 2
 
 //old Positions
-int oldServoPos0;
-int oldServoPos1;
-int oldServoPos2;
+int oldServoPos0 = Middle;
+int oldServoPos1 = Up;
+int oldServoPos2 = Open;
 
 //new Positions
 int newServoPos0;
@@ -87,7 +87,7 @@ bool newmovement = true;
 int Position = 99; //position on startup
 bool jobDone = true;
 
-//Serial-Control
+//Serial1-Control
 bool flag_input_complete = false;
 int i_input_string = 0;
 int last_input_string = i_input_string;
@@ -171,8 +171,8 @@ int drive(int pos0, int pos1, int pos2)
   int angle1 = oldServoPos1;
   int angle2 = oldServoPos2;
 
-  //Serial.print("Start pos0: "); Serial.println(oldServoPos0);
-  //Serial.print("End pos0: "); Serial.println(newServoPos0);
+  //Serial1.print("Start pos0: "); Serial1.println(oldServoPos0);
+  //Serial1.print("End pos0: "); Serial1.println(newServoPos0);
 
   int movetime;
   int delaytime_0 = map(SPEEDSERVO0, 10, 1, 1, 20); //"delaytimes" from 1-20ms per step
@@ -183,25 +183,20 @@ int drive(int pos0, int pos1, int pos2)
   int moveangle1 = oldServoPos1 - newServoPos1;
   int moveangle2 = oldServoPos2 - newServoPos2;
 
-  if (moveangle0 == 0 || moveangle1 == 0 || moveangle2 == 0)
-  {
-    Serial1.println("Error");
-    return 0;
-  }
 
   movetime = max(abs(moveangle0) * delaytime_0, abs(moveangle1) * delaytime_1);
   movetime = max(movetime, abs(moveangle2) * delaytime_2);
 
-  int steptime_0 = movetime / abs(moveangle0);
-  int steptime_1 = movetime / abs(moveangle1);
-  int steptime_2 = movetime / abs(moveangle2);
+  int steptime_0 = moveangle0 == 0 ? 0 : movetime / abs(moveangle0);
+  int steptime_1 = moveangle1 == 0 ? 0 : movetime / abs(moveangle1);
+  int steptime_2 = moveangle2 == 0 ? 0 : movetime / abs(moveangle2);
 
   const int stepangle = 1;
   /*
-    Serial.print("movetime "); Serial.println(movetime);
-    Serial.print("steptime_0 "); Serial.println(steptime_0);
-    Serial.print("steptime_1 "); Serial.println(steptime_1);
-    Serial.print("steptime_2 "); Serial.println(steptime_2);
+    Serial1.print("movetime "); Serial1.println(movetime);
+    Serial1.print("steptime_0 "); Serial1.println(steptime_0);
+    Serial1.print("steptime_1 "); Serial1.println(steptime_1);
+    Serial1.print("steptime_2 "); Serial1.println(steptime_2);
   */
   if (newServoPos0 >= SERVOMIN0 && newServoPos0 <= SERVOMAX0)
   { //check if target value is in range
@@ -209,7 +204,7 @@ int drive(int pos0, int pos1, int pos2)
     {
       angle0 += stepangle;
       pwm.setPWM(SERVOPORT0, 0, map(angle0, SERVOMIN0, SERVOMAX0, SERVOMINPULSE0, SERVOMAXPULSE0));
-      //Serial.print("SERVO0+"); Serial.println(angle0);
+      //Serial1.print("SERVO0+"); Serial1.println(angle0);
       oldServoPos0 = angle0;
       timer_0 = millis();
     }
@@ -217,7 +212,7 @@ int drive(int pos0, int pos1, int pos2)
     {
       angle0 -= stepangle;
       pwm.setPWM(SERVOPORT0, 0, map(angle0, SERVOMIN0, SERVOMAX0, SERVOMINPULSE0, SERVOMAXPULSE0));
-      //Serial.print("SERVO0-"); Serial.println(angle0);
+      //Serial1.print("SERVO0-"); Serial1.println(angle0);
       oldServoPos0 = angle0;
       timer_0 = millis();
     }
@@ -229,7 +224,7 @@ int drive(int pos0, int pos1, int pos2)
     {
       angle1 += stepangle;
       pwm.setPWM(SERVOPORT1, 0, map(angle1, SERVOMIN1, SERVOMAX1, SERVOMINPULSE1, SERVOMAXPULSE1));
-      //Serial.print("SERVO1+"); Serial.println(angle1);
+      //Serial1.print("SERVO1+"); Serial1.println(angle1);
       oldServoPos1 = angle1;
       timer_1 = millis();
     }
@@ -237,7 +232,7 @@ int drive(int pos0, int pos1, int pos2)
     {
       angle1 -= stepangle;
       pwm.setPWM(SERVOPORT1, 0, map(angle1, SERVOMIN1, SERVOMAX1, SERVOMINPULSE1, SERVOMAXPULSE1));
-      //Serial.print("SERVO1-"); Serial.println(angle1);
+      //Serial1.print("SERVO1-"); Serial1.println(angle1);
       oldServoPos1 = angle1;
       timer_1 = millis();
     }
@@ -249,7 +244,7 @@ int drive(int pos0, int pos1, int pos2)
     {
       angle2 += stepangle;
       pwm.setPWM(SERVOPORT2, 0, map(angle2, SERVOMIN2, SERVOMAX2, SERVOMINPULSE2, SERVOMAXPULSE2));
-      //Serial.print("Servo2+"); Serial.println(angle2);
+      //Serial1.print("Servo2+"); Serial1.println(angle2);
       oldServoPos2 = angle2;
       timer_2 = millis();
     }
@@ -257,7 +252,7 @@ int drive(int pos0, int pos1, int pos2)
     {
       angle2 -= stepangle;
       pwm.setPWM(SERVOPORT2, 0, map(angle2, SERVOMIN2, SERVOMAX2, SERVOMINPULSE2, SERVOMAXPULSE2));
-      //Serial.print("Servo2-"); Serial.println(angle2);
+      //Serial1.print("Servo2-"); Serial1.println(angle2);
       oldServoPos2 = angle2;
       timer_2 = millis();
     }
@@ -313,7 +308,7 @@ void battery_management()
 
 bool moving()
 {
-  int tolerance = 5;
+  int tolerance = 20;
   if ((newServoPos0 - oldServoPos0) < tolerance && (newServoPos1 - oldServoPos1 < tolerance) && (newServoPos2 - oldServoPos2) < tolerance)
   {
     return false;
@@ -326,7 +321,7 @@ bool moving()
 
 int direction = 0;
 
-void serial1_Control()
+void Serial_Control()
 {
 
   if (Input_String[0] == "pickup" && flag_input_complete)
@@ -470,7 +465,7 @@ void serial1_Control()
   }
 }
 
-void serial1Event()
+void SerialEvent()
 {
   if (Serial1.available() > 0 && flag_input_complete != true)
   {
@@ -490,12 +485,16 @@ void serial1Event()
       flag_input_complete = true;
     }
   }
-  serial1_Control();
+  Serial_Control();
 }
 
 void setup()
 {
-
+  /*Serial1.begin(9600);
+  while (!Serial1) {
+    delay(1);
+  }
+  Serial1.println("Starting up...");*/
   pinMode(BoostPin, OUTPUT);
   pinMode(MosfetPin, OUTPUT);
   pinMode(PiezoPin, OUTPUT);
@@ -507,18 +506,23 @@ void setup()
   delay(1000);
 
   Serial1.begin(57600); //set Bluetooth-baudrate correctly!
+  while(!Serial1) {
+    delay(10);
+  }
   Serial1.println("Feather is ready!");
 
   pwm.begin();
   pwm.setPWMFreq(SERVOFREQ);
 
-  feedback_calibration(); //calibration is necessary because of voltage-differences of the battery
+  Position = 5;
+  jobDone = false;
+  //feedback_calibration(); //calibration is necessary because of voltage-differences of the battery
   yield();
 }
 void loop()
 {
-  serial1Event();
-  //position_handling();
+  SerialEvent();
+  position_handling();
   battery_management();
   if (!(moving() || jobDone))
   {
