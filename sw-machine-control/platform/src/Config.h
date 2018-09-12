@@ -30,6 +30,6 @@
 #define DEST "dest"
 #define HANDLING_UNIT "handlingUnit"
 
-// #define DEBUG
+#define DEBUG
 
 #endif
