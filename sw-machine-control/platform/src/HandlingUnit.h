@@ -22,6 +22,7 @@ public:
                                                                        waitingTime{waitingTime},
                                                                        millisOfLastSending{0}
   {
+      componentData = StartPosition;
   }
 
 protected:
@@ -48,7 +49,7 @@ protected:
     {
       return componentData;
     }
-    debugLn("Send data!");
+    //debugLn("Send data!");
 
     millisOfLastSending = millis();
 
