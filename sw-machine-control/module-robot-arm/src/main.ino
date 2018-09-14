@@ -3,10 +3,6 @@
 #include <Wire.h>
 #include <Adafruit_PWMServoDriver.h>
 
-//#define BLUETOOTH
-#define SERIAL_TX 1
-#define SERIAL_RX 0
-
 //Servo Ports
 #define SERVO_TURN 0    //Turn Servo
 #define SERVO_LIFT 1    //Lift Servo
@@ -37,9 +33,6 @@ enum jobs {
 };
 
 int moduleJob;
-//static SoftwareSerial1 Serial1{Serial1_TX, Serial1_RX};
-HardwareSerial bluetooth = Serial1;
-
 
 int moveServo(int servo, int from, int to, int s) {
   if (to > from) {
@@ -121,7 +114,6 @@ void loop() {
 
 // Handle API commands
 void handleApiCommands(String command) {
-  //sendBT(command);
   if (command.startsWith("pickup(0)")) {
     moduleJob = JOB_PICKUP_BACK;
   }
@@ -134,14 +126,17 @@ void handleApiCommands(String command) {
   if (command.startsWith("drop(1)")) {
     moduleJob = JOB_DROP_FRONT;
   }
+  if (command.startsWith("initPosition(1)")) {
+    moduleJob = JOB_IDLE;
+  }
 }
 
-// Listen to incomminc commands from bluetooth
+// Listen to incomminc commands from BLUETOOTH
 void listenBT() {
   String buffer = "";
   #ifdef BLUETOOTH
-    if (bluetooth.available()) {
-      buffer = bluetooth.readStringUntil('\n');
+    if (Serial1.available()) {
+      buffer = Serial1.readStringUntil('\n');
     }
   #else
     if (Serial.available()) {
@@ -153,10 +148,10 @@ void listenBT() {
   }
 }
 
-// Send message over bluetooth
+// Send message over BLUETOOTH
 void sendBT(String msg) {
   #ifdef BLUETOOTH
-    bluetooth.println(msg);
+    Serial1.println(msg);
   #else
     Serial.println(msg);
   #endif
@@ -165,7 +160,7 @@ void sendBT(String msg) {
 // A small helper
 void error(const __FlashStringHelper*err) {
   #ifdef BLUETOOTH
-    bluetooth.println(err);
+    Serial1.println(err);
   #else
     Serial.println(err);
   #endif
@@ -173,7 +168,7 @@ void error(const __FlashStringHelper*err) {
 
 void initBT() {
   #ifdef BLUETOOTH
-    bluetooth.begin(57600);
+    Serial1.begin(9600);
   #else
     Serial.begin(9600);
     while (!Serial) {
