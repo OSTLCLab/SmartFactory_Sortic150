@@ -30,8 +30,10 @@ int speed = 10;
 
 enum jobs {
   JOB_IDLE,
-  JOB_PICKUP,
-  JOB_DROP
+  JOB_PICKUP_BACK,
+  JOB_DROP_BACK,
+  JOB_PICKUP_FRONT,
+  JOB_DROP_FRONT
 };
 
 int moduleJob;
@@ -79,13 +81,16 @@ void setup() {
   moduleJob = JOB_IDLE;
 }
 
-// Stupid, simple implemetation
+// Stupid, most simple implemetation
 void loop() {
   listenBT();
   if (moduleJob != JOB_IDLE) {
-    if (moduleJob == JOB_DROP) {
-      //Implement Left or Right;
-      posTurn = moveServo(SERVO_TURN, posTurn, TURN_BACK);
+    if (moduleJob == JOB_DROP_BACK || moduleJob == JOB_DROP_FRONT) {
+      if (moduleJob == JOB_DROP_BACK) {
+        posTurn = moveServo(SERVO_TURN, posTurn, TURN_BACK);
+      } else {
+        posTurn = moveServo(SERVO_TURN, posTurn, TURN_FRONT);
+      }
       posLift = moveServo(SERVO_LIFT, posLift, LIFT_DOWN);
       posGrab = moveServo(SERVO_GRAB, posGrab, GRAB_OPEN);
       posLift = moveServo(SERVO_LIFT, posLift, LIFT_UP);
@@ -94,10 +99,13 @@ void loop() {
       moduleJob = JOB_IDLE;
       sendBT("success(1)");
     }
-    if (moduleJob == JOB_PICKUP) {
+    if (moduleJob == JOB_PICKUP_BACK || moduleJob == JOB_PICKUP_FRONT) {
       posGrab = moveServo(SERVO_GRAB, posGrab, GRAB_OPEN);
-      //Implement Left or Right;
-      posTurn = moveServo(SERVO_TURN, posTurn, TURN_BACK);
+      if (moduleJob == JOB_PICKUP_BACK) {
+        posTurn = moveServo(SERVO_TURN, posTurn, TURN_BACK);
+      } else {
+        posTurn = moveServo(SERVO_TURN, posTurn, TURN_FRONT);
+      }
       posLift = moveServo(SERVO_LIFT, posLift, LIFT_DOWN);
       posGrab = moveServo(SERVO_GRAB, posGrab, GRAB_CLOSE);
       posLift = moveServo(SERVO_LIFT, posLift, LIFT_UP);
@@ -114,11 +122,17 @@ void loop() {
 // Handle API commands
 void handleApiCommands(String command) {
   //sendBT(command);
-  if (command.startsWith("pickup(")) {
-    moduleJob = JOB_PICKUP;
+  if (command.startsWith("pickup(0)")) {
+    moduleJob = JOB_PICKUP_BACK;
   }
-  if (command.startsWith("drop(")) {
-    moduleJob = JOB_DROP;
+  if (command.startsWith("pickup(1)")) {
+    moduleJob = JOB_PICKUP_FRONT;
+  }
+  if (command.startsWith("drop(0)")) {
+    moduleJob = JOB_DROP_BACK;
+  }
+  if (command.startsWith("drop(1)")) {
+    moduleJob = JOB_DROP_FRONT;
   }
 }
 
