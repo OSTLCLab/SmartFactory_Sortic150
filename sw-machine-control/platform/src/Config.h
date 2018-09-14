@@ -2,8 +2,8 @@
 #define config_h
 
 #define DISTANCE_SENSOR A1
-#define BLUETOOTH_TX 3
-#define BLUETOOTH_RX 2
+#define BLUETOOTH_TX 2
+#define BLUETOOTH_RX 3
 #define RFIDDETECTOR_SDA 7
 #define RFIDDETECTOR_RST_PIN 6
 #define CHASSIS_DIGITAL_TRIG_PIN 4
@@ -30,6 +30,6 @@
 #define DEST "dest"
 #define HANDLING_UNIT "handlingUnit"
 
-#define DEBUG
+// #define DEBUG
 
 #endif

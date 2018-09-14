@@ -22,7 +22,7 @@ public:
                                                                        waitingTime{waitingTime},
                                                                        millisOfLastSending{0}
   {
-      componentData = StartPosition;
+      componentData = NoPosition;
   }
 
 protected:
@@ -49,11 +49,9 @@ protected:
     {
       return componentData;
     }
-    //debugLn("Send data!");
 
     millisOfLastSending = millis();
 
-    // or send some data
     switch (targetValue)
     {
     case PickUpLeft:

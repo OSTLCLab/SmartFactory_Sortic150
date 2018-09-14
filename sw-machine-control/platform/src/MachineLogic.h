@@ -39,7 +39,7 @@ protected:
     if ((allFinished() || allOff()) && !handlingUnitIsAtStartPosition() && !chassIsAtStartPosition() && !chassisReachedDestination())
     {
       debugLn("State 1: Put HandlingUnit in its initposition.");
-      //handlingUnit->setAction(targetValue.startPosition);
+      handlingUnit->setAction(targetValue.startPosition);
     }
     if (handlingUnitIsAtStartPosition() && !chassIsAtStartPosition())
     {
