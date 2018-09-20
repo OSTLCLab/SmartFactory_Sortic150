@@ -50,7 +50,8 @@ protected:
       Serial.println("{\"method\":\"drop\", \"params\":1}");
       break;
     case StartPosition:
-      Serial.println("{\"method\":\"initPosition\", \"params\":1}");
+      componentData = targetValue;
+      state = Finish;
       break;
     default:
       //do nothing.

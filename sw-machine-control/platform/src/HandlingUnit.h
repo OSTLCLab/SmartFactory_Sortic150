@@ -67,7 +67,8 @@ protected:
       bluetooth.println("drop(1)");
       break;
     case StartPosition:
-      bluetooth.println("initPosition(1)");
+      componentData = targetValue;
+      state = Finish;
       break;
     case NoPosition:
       //do nothing.
