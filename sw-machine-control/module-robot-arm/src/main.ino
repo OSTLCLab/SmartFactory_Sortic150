@@ -3,6 +3,7 @@
 #include <Wire.h>
 #include <Adafruit_PWMServoDriver.h>
 
+//#define BLUETOOTH
 //Servo Ports
 #define SERVO_TURN 0    //Turn Servo
 #define SERVO_LIFT 1    //Lift Servo
@@ -88,7 +89,7 @@ void loop() {
       posGrab = moveServo(SERVO_GRAB, posGrab, GRAB_OPEN);
       posLift = moveServo(SERVO_LIFT, posLift, LIFT_UP);
       posTurn = moveServo(SERVO_TURN, posTurn, TURN_MIDDLE);
-      releaseServos;
+      releaseServos();
       moduleJob = JOB_IDLE;
       sendBT("success(1)");
     }
@@ -103,7 +104,7 @@ void loop() {
       posGrab = moveServo(SERVO_GRAB, posGrab, GRAB_CLOSE);
       posLift = moveServo(SERVO_LIFT, posLift, LIFT_UP);
       posTurn = moveServo(SERVO_TURN, posTurn, TURN_MIDDLE);
-      releaseServos;
+      releaseServos();
       moduleJob = JOB_IDLE;
       sendBT("success(1)");
     }
