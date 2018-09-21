@@ -14,13 +14,16 @@ public:
                                                   waitingTime{waitingTime},
                                                   receiver{receiver},
                                                   millisOfLastSending{0}
-  { }
+  { 
+    componentData = StartPosition;
+  }
 
 protected:
   HandlingUnitPosition loop()
   {
     if(receiver->getData().actualPosition == targetValue)
     {
+      componentData = targetValue;
       state = Finish;
       return targetValue;
     }

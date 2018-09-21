@@ -16,13 +16,13 @@
 static Adafruit_MotorShield currentMotorShield{};
 static Adafruit_DCMotor *driverMotor = currentMotorShield.getMotor(MOTOR_NR);
 static MFRC522 partDetector{RFIDDETECTOR_SDA, RFIDDETECTOR_RST_PIN};
-static SoftwareSerial bluetooth{BLUETOOTH_RX, BLUETOOTH_TX};
+// static SoftwareSerial bluetooth{BLUETOOTH_RX, BLUETOOTH_TX};
 static NewPing *distanceSensor = new NewPing{CHASSIS_DIGITAL_TRIG_PIN, CHASSIS_DIGITAL_ECHO_PIN, CHASIS_POS_MAX};
 
 static Component<int> *chassis = new ChassisDigital{driverMotor, distanceSensor};
 static Component<MachineAPI> *receiver = new Receiver{};
 static Component<SortJob> *rfidDetector = new RfidDetector{&partDetector};
-static Component<HandlingUnitPosition> *handlingUnit = new HandlingUnitSerial{1000, receiver};
+static Component<HandlingUnitPosition> *handlingUnit = new HandlingUnitSerial{MILLIS_OF_LAST_SENDING, receiver};
 static Component<MachineAPI> *machineLogic = new MachineLogic{handlingUnit, rfidDetector, chassis};
 
 void setup()
@@ -30,7 +30,7 @@ void setup()
   Serial.begin(9600);
   currentMotorShield.begin();
   SPI.begin();
-  bluetooth.begin(9600);
+  // bluetooth.begin(9600);
   partDetector.PCD_Init();
 
   receiver->on();
