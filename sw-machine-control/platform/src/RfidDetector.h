@@ -1,44 +1,36 @@
 #ifndef RfidDetector_h
 #define RfidDetector_h
 
-#include <Component.h>
 #include <MFRC522.h>
-#include <Receiver.h>
+#include <Sensor.h>
+#include <Config.h>
 
-class RfidDetector : public Component<SortJob>
+class RfidDetector : public Sensor
 {
 public:
-  RfidDetector(MFRC522 *rfidReader) : rfidReader{rfidReader}
-  {
-    componentData = DEFAULT_SORTJOB;
-  }
+  RfidDetector(MFRC522 *rfidReader) : rfidReader{rfidReader} {}
 
-protected:
-  SortJob loop()
+  Print &get(Print &out)
   {
-    if (!rfidReader->PICC_IsNewCardPresent())
+    if (cardPresent())
     {
-      return DEFAULT_SORTJOB;
+      for (auto index = 0; index < RFID_LENGTH; index++)
+      {
+        out << rfidReader->uid.uidByte[index];
+      }
     }
 
-    if (!rfidReader->PICC_ReadCardSerial())
-    {
-      debugLn("ReadCardSerial was not successful");
-      return DEFAULT_SORTJOB;
-    }
-
-    state = rfidReader->uid.size != 0 ? State::Finish : State::Invalid;
-
-    debugLn(String(state));
-
-    SortJob newChip{rfidReader->uid.uidByte, -1, NoPosition};
-
-    return newChip;
+    return out;
   }
 
 private:
   MFRC522 *rfidReader;
-  Component<MachineAPI> *Receiver;
+  bool cardPresent()
+  {
+    return rfidReader->PICC_IsNewCardPresent() &&
+           rfidReader->PICC_ReadCardSerial() &&
+           rfidReader->uid.size != 0;
+  }
 };
 
 #endif
