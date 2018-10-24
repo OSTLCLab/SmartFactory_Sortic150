@@ -9,16 +9,16 @@
 Install Libs --> platformio run
 Upload --> platformio run -t
 
-## API
+## API IN 
 
- 1. S->{"method":"initPosition", "params":"1"}: Wartet, bis der Greifarm in der Initposition ist.
- 2. S<-{actualPosition: 5}: Der Greifarm befindet sich an Position 5 (Startposition).
- 3. S->{"method":"askForSortJob", "params":{"dest":"?","handlingUnit":"?","id":[4,43,117,162,231,73,128]}}: Wohin gehört das Packet mit dieser id?
- 4. S<-{"dest":16,"handlingUnit":3, "id":[4,43,117,162,231,73,128]}:Das Packet mit der id gehört an dest 16 handlingUnit 3.
- 5. S->{"method":"pickup", "params":1}: Wurde das Packet entnommen?
- 6. S<-{actualPosition: 2}: Der Greifarm ist in der Position 2.
- 7. S->{"method":"drop", "params":0}: Hat der Greifarm das Packet abgelegt?
- 8. S<-{actualPosition: 3}: Der Greifarm hat das Packet abgelegt und befindet sich an der Position 3.
+    Run action with index 0 with params 100.
+    ``` a0[100]```
 
-S<-{"getState":true}: Schalte Statusmeldungen ein (0 Waiting, 1 Finish, 2 Running, 3 Invalid). 
-S->{"method":"response", "params":{"success":true}}: Ok, alles klar.
+    Create a step with 2 conditions. If sensor with index 1 is equal to 0 
+    and sensor with index 1 is greater than 38 then perform action with index 1 with params 100.
+    ``` s[2(1a0&1c38)1(100)]```
+
+### API Out
+
+    Sends all the sensor values as shown below:
+    ``` [s0,s1,...,sn] ```
