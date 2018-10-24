@@ -35,6 +35,10 @@ void setup()
 
 void loop()
 {
+    // s[2(1b0&1c38)1(100)]
+    // a0[100]
     machineApi->in(Serial);
+
+    // [s0,s1,...,sn]
     machineApi->out(Serial);
 }

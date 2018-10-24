@@ -1,5 +1,4 @@
-#ifndef RfidDetector_h
-#define RfidDetector_h
+#pragma once
 
 #include <MFRC522.h>
 #include <Sensor.h>
@@ -32,5 +31,3 @@ private:
            rfidReader->uid.size != 0;
   }
 };
-
-#endif

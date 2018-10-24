@@ -1,6 +1,7 @@
+#pragma once
+
 #include <Adafruit_MotorShield.h>
 #include <Action.h>
-#pragma once
 
 class Motor : public Action
 {
