@@ -16,6 +16,11 @@
     bluetoothctl
 ist zur interaktiven Konfiguration gedacht. Nach dem Start gelangen Sie in einen Kommandomodus. Die weitere Vorgehensweise zur Verbindung eines Bluetooth-Geräts sieht so aus:
 
+     scan on
+     pair [mac-adresse]
+     connect [mac-adresse]
+     trust [mac-adresse]
+
 
 ## node-red
 
