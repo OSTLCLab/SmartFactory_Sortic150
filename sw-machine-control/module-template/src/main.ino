@@ -80,6 +80,7 @@ void handleApiCommands(String command) {
   if (command == "drop();") {
     moduleJob = JOB_DROP;
   }
+  sendBLE("start job: " + moduleJob);
 }
 
 // Listen to incomminc commands from Bluetooth
@@ -140,6 +141,6 @@ void initBLE() {
   ble.println("AT+GAPDEVNAME=Ferdinand");
 
   Serial.println(F("Please use Adafruit Bluefruit LE app to connect in UART mode"));
-  Serial.println(F("Then Enter characters to send to Bluefruit"));
+  //Serial.println(F("Then Enter characters to send to Bluefruit"));
   Serial.println();
 }

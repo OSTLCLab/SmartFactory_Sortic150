@@ -5,17 +5,18 @@
 
 //#define BLUETOOTH
 //Servo Ports
-#define SERVO_TURN 0    //Turn Servo
-#define SERVO_LIFT 1    //Lift Servo
-#define SERVO_GRAB 2    //Grab Servo
+#define SERVO_TURN 4    //Turn Servo
+#define SERVO_LIFT 5    //Lift Servo
+#define SERVO_GRAB 6    //Grab Servo
 //PULSES
 #define TURN_BACK 165 //(BACK)Turn Servo
-#define TURN_MIDDLE 310 //(FRONT)
-#define TURN_FRONT 472 //(FRONT)
-#define LIFT_DOWN 265 //(DOWN)Lift Servo
+#define TURN_MIDDLE 330 //(FRONT) ...
+#define TURN_FRONT 505 //(FRONT) ...
+#define LIFT_DOWN_PICKUP 340 //(DOWN)Lift Servo
+#define LIFT_DOWN_DROP 390 //(DOWN)Lift Servo
 #define LIFT_UP 510 //(UP)
-#define GRAB_CLOSE 150 //(CLOSED)Grab Servo
-#define GRAB_OPEN 395 //(OPEN)
+#define GRAB_CLOSE 380 //150 //(CLOSED)Grab Servo
+#define GRAB_OPEN 50 //395 //(OPEN)
 
 Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver(0x40);
 
@@ -71,7 +72,7 @@ void setup() {
 
   posGrab = moveServo(SERVO_GRAB, posGrab, GRAB_CLOSE);
   posGrab = moveServo(SERVO_GRAB, posGrab, GRAB_OPEN);
-  releaseServos;
+  releaseServos();
   moduleJob = JOB_IDLE;
 }
 
@@ -85,7 +86,7 @@ void loop() {
       } else {
         posTurn = moveServo(SERVO_TURN, posTurn, TURN_FRONT);
       }
-      posLift = moveServo(SERVO_LIFT, posLift, LIFT_DOWN);
+      posLift = moveServo(SERVO_LIFT, posLift, LIFT_DOWN_DROP);
       posGrab = moveServo(SERVO_GRAB, posGrab, GRAB_OPEN);
       posLift = moveServo(SERVO_LIFT, posLift, LIFT_UP);
       posTurn = moveServo(SERVO_TURN, posTurn, TURN_MIDDLE);
@@ -100,7 +101,7 @@ void loop() {
       } else {
         posTurn = moveServo(SERVO_TURN, posTurn, TURN_FRONT);
       }
-      posLift = moveServo(SERVO_LIFT, posLift, LIFT_DOWN);
+      posLift = moveServo(SERVO_LIFT, posLift, LIFT_DOWN_PICKUP);
       posGrab = moveServo(SERVO_GRAB, posGrab, GRAB_CLOSE);
       posLift = moveServo(SERVO_LIFT, posLift, LIFT_UP);
       posTurn = moveServo(SERVO_TURN, posTurn, TURN_MIDDLE);
@@ -126,9 +127,6 @@ void handleApiCommands(String command) {
   }
   if (command.startsWith("drop(1)")) {
     moduleJob = JOB_DROP_FRONT;
-  }
-  if (command.startsWith("initPosition(1)")) {
-    moduleJob = JOB_IDLE;
   }
 }
 
@@ -176,5 +174,5 @@ void initBT() {
       delay(1);
     }
   #endif
-  sendBT("bluetooth connected and ready");
+  sendBT("ready");
 }
