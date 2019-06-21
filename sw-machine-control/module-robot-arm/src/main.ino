@@ -12,7 +12,7 @@
 #define TURN_BACK 165        //(BACK)Turn Servo
 #define TURN_MIDDLE 330      //(FRONT) ...
 #define TURN_FRONT 505       //(FRONT) ...
-#define LIFT_DOWN_PICKUP 340 //(DOWN)Lift Servo
+#define LIFT_DOWN_PICKUP 375 //(DOWN)Lift Servo
 #define LIFT_DOWN_DROP 390   //(DOWN)Lift Servo
 #define LIFT_UP 510          //(UP)
 #define GRAB_CLOSE 380       //150 //(CLOSED)Grab Servo
