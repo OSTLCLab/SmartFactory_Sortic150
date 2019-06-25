@@ -1,44 +1,44 @@
 #include <Arduino.h>
 #include <NewPing.h>
 #include <MFRC522.h>
-#include <MachineApi.h>
-#include <Action.h>
-#include <Sensor.h>
 
+#include "Action.h"
+#include "Sensor.h"
+#include "Config.h"
 #include "Distance.h"
 #include "Motor.h"
 #include "RfidDetector.h"
 
-static Adafruit_MotorShield motorShield{};
-static Adafruit_DCMotor *motor = motorShield.getMotor(MOTOR_NR);
-static MFRC522 rfidDetector{RFIDDETECTOR_SDA, RFIDDETECTOR_RST_PIN};
-static NewPing *distanceSensor = new NewPing{TRIGGER_PIN, ECHO_PIN, MAX_DISTANCE};
+static Adafruit_MotorShield currentMotorShield{};
+static Adafruit_DCMotor *driverMotor = currentMotorShield.getMotor(MOTOR_NR);
+static MFRC522 partDetector{RFIDDETECTOR_SDA, RFIDDETECTOR_RST_PIN};
+static NewPing *newPing = new NewPing{CHASSIS_DIGITAL_TRIG_PIN, CHASSIS_DIGITAL_ECHO_PIN, CHASIS_POS_MAX};
 
-static Sensor *sensors[] = {
-    new RfidDetector{&rfidDetector},
-    new Distance{distanceSensor}};
-
-static Action *actions[] = {
-    new Motor{motor, FORWARD},
-    new Motor{motor, BACKWARD},
-    new Motor{motor, RELEASE}};
-
-static MachineApi *machineApi = new MachineApi{sensors, NofSensors, actions};
+static Sensor *sensors[NofSensors]{
+    new RfidDetector{&partDetector},
+    new Distance{newPing}};
+static Action *actions[NofActions]{
+    new Motor{driverMotor, FORWARD},
+    new Motor{driverMotor, BACKWARD}};
 
 void setup()
 {
     Serial.begin(9600);
-    motorShield.begin();
+    currentMotorShield.begin();
     SPI.begin();
-    rfidDetector.PCD_Init();
+    partDetector.PCD_Init();
 }
 
 void loop()
 {
-    // s[2(1b0&1c38)1(100)]
-    // a0[100]
-    machineApi->in(Serial);
-
-    // [s0,s1,...,sn]
-    machineApi->out(Serial);
+    if (Serial.available())
+    {
+        Action *action = actions[Serial.parseInt()];
+        action->start(Serial.parseInt());
+    }
+    Serial << '[';
+    for (auto index = 0; index < NofSensors; index++)
+    {
+        sensors[index]->get(Serial) << (index == NofSensors - 1 ? ']' : ',');
+    }
 }

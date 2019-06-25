@@ -2,16 +2,16 @@
 
 #include <NewPing.h>
 #include <Sensor.h>
+#include <Stream.h>
 
 class Distance : public Sensor
 {
 public:
   Distance(NewPing *sensor) : sensor{sensor} {}
-
-  Print &get(Print &out)
+  Stream &get(Stream &obj)
   {
-    auto value = sensor->ping_cm();
-    return value == 0 ? out : out << value;
+    obj << String(sensor->ping_cm());
+    return obj;
   }
 
 private:
