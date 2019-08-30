@@ -1,6 +1,0 @@
-[submodule "embeded/lib/modular"]
-	path = embeded/lib/modular
-	url = https://github.com/HSRLCLab/modular.git
-[submodule "sw-machine-control/platform/lib/modular"]
-	path = sw-machine-control/platform/lib/modular
-	url = https://github.com/HSRLCLab/modular.git
