@@ -3,7 +3,7 @@
 Sortic150 consists of several modules located in the sw-modules directory.
 The individual modules are presented below:
 
-# module-chassis
+# module-chassis and module-roboter-arm
 
 ## Requirements
 
@@ -14,15 +14,34 @@ The individual modules are presented below:
 Build&Upload
 `python -m platformio run -t upload`
 
-## API IN
+## API chassis
 
-    Run action with index 0 with params 100.
-    `a0[100]`
+IN
+Run action with index 0 with params 100.
+`a0[100]`
 
-## API Out
+Out
+Sends all the sensor values as shown below:
+`[s0,s1,...,sn]`
 
-    Sends all the sensor values as shown below:
-    `[s0,s1,...,sn]`
+## API roboter-arm
+
+### IN
+
+Pickup 0: left, 1: right
+`pickup(0)`
+`pickup(1)`
+
+Drop 0: left, 1:right
+`drop(0)`
+`drop(1)`
+
+### Out
+
+Success:
+`success(1)`
+Fail:
+`success(0)`
 
 # module-raspbi
 
@@ -44,6 +63,7 @@ Build&Upload
 
 1. Connect the RaspberryPi with the Internet
 2. Install latest the Node-Red [follow instructions](https://nodered.org/docs/getting-started/raspberrypi)
+3. [Autostart Chromium in Kioskmode](https://itrig.de/index.php?/archives/2309-Raspberry-Pi-3-Kiosk-Chromium-Autostart-im-Vollbildmodus-einrichten.html)
 
 ### Configure Node-Red
 
@@ -51,11 +71,7 @@ Build&Upload
 2. Install node-red-dashboard
 3. Autostart node-red on boot: sudo systemctl enable nodered.service
 
-### Finaly
-
-1. [Autostart Chromium in Kioskmode](https://itrig.de/index.php?/archives/2309-Raspberry-Pi-3-Kiosk-Chromium-Autostart-im-Vollbildmodus-einrichten.html)
-
-### Testing
+## Testing
 
 ip_raspbi:1880/ui
 
