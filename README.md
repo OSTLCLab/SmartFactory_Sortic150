@@ -1,3 +1,9 @@
+# Introducton
+
+This is the condbase of our Lego sorting robot for an educational setup as OST.
+While there is another experimental implementaiton of this robot in the rep SmartFactory_SorticRoboter, this is the current stable code that is used in production. For installation, please use the "production" branch to get stable code with the latest bugfixes.
+
+
 # structure
 
 Sortic150 consists of several modules located in the sw-modules directory.
