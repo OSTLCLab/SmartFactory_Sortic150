@@ -1,21 +1,25 @@
-#include <Arduino.h>
+//#include <Arduino.h>
 #include <SPI.h>
 #include <Wire.h>
 #include <Adafruit_PWMServoDriver.h>
 #include "Platform.h"
 #include "Settimino.h"
 
+
 // Enter a MAC address and IP address for your controller below.
 // The IP address will be dependent on your local network:
 byte mac[] = {
-    0x28, 0x63, 0x36, 0x7F, 0xB0, 0x31};
+  0x28, 0x63, 0x36, 0x7F, 0xB0, 0x31
+};
 
 IPAddress Local(192, 168, 0, 16); // Local Address
 IPAddress PLC(192, 168, 0, 100);  // PLC Address
 
 // Connecting via WIFI
 char ssid[] = "WG61";   // Your network SSID
-char pass[] = "C0meinandfind0ut"; 
+char pass[] = "C0meinandfind0ut";
+
+int status = WL_IDLE_STATUS;     // the WiFi radio's status
 IPAddress Gateway(192, 168, 0, 1);
 IPAddress Subnet(255, 255, 255, 0);
 
@@ -96,7 +100,10 @@ void releaseServos()
 void setup()
 {
 
-    // Open serial communications and wait for port to open:
+  // feather M0 ATWINC1500
+  WiFi.setPins(8, 7, 4, 2);
+
+  // Open serial communications and wait for port to open:
   Serial.begin(115200);
   while (!Serial)
   {
@@ -108,7 +115,8 @@ void setup()
   Serial.print("Connecting to ");
   Serial.println(ssid);
   WiFi.begin(ssid, pass);
-  WiFi.config(Local, Gateway, Subnet);
+
+  //WiFi.config(Local, Gateway, Subnet);
   while (WiFi.status() != WL_CONNECTED)
   {
     delay(500);
@@ -174,11 +182,11 @@ void loop()
       posTurn = moveServo(SERVO_TURN, posTurn, TURN_MIDDLE);
       releaseServos();
       moduleJob = JOB_IDLE;
-     
+
       Serial.println("success(1)");
     }
   }
-  
+
   delay(100);
 }
 
@@ -213,27 +221,27 @@ void listen()
   {
     ShowTime();
 
-// print bool and float
-bool isTrue = Helper.BitAt(Target, 0, 0);
-  Serial.print("isTrue = ");
-  Serial.println(isTrue);
+    // print bool and float
+    bool isTrue = Helper.BitAt(Target, 0, 0);
+    Serial.print("isTrue = ");
+    Serial.println(isTrue);
 
-int comPos = Helper.FloatAt(Target, 2);
-  Serial.print("sollPos = ");
-  Serial.println(comPos);
+    int comPos = Helper.FloatAt(Target, 2);
+    Serial.print("sollPos = ");
+    Serial.println(comPos);
 
-  if(comPos == 1){
-  moduleJob = JOB_PICKUP_BACK;
-  }
-   if (comPos == 2){
-  moduleJob = JOB_PICKUP_FRONT;
-  }
-if (comPos == 3){
-    moduleJob = JOB_DROP_BACK;
-  }
-if (comPos == 4){
-    moduleJob = JOB_DROP_FRONT
-  }
+    if (comPos == 1) {
+      moduleJob = JOB_PICKUP_BACK;
+    }
+    if (comPos == 2) {
+      moduleJob = JOB_PICKUP_FRONT;
+    }
+    if (comPos == 3) {
+      moduleJob = JOB_DROP_BACK;
+    }
+    if (comPos == 4) {
+      moduleJob = JOB_DROP_FRONT;
+    }
 
 
   }

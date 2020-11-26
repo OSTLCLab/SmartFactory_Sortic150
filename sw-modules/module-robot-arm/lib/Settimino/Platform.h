@@ -75,7 +75,8 @@
 
 //#define ARDUINO_LAN    
 //#define ESP8266_FAMILY  
-#define ESP32_WIFI
+//#define ESP32_WIFI
+#define featherM0_ATWINC1500
 //#define M5STACK_WIFI
 //#define M5STACK_LAN
 
@@ -97,6 +98,12 @@
 #ifdef ESP32_WIFI
   #include <Ethernet.h>
   #include <WiFi.h>
+  #define S7WIFI
+#endif
+
+#ifdef featherM0_ATWINC1500
+  #include <WiFi101.h>
+   #include <Ethernet.h>
   #define S7WIFI
 #endif
 
