@@ -2,8 +2,31 @@
 #include <SPI.h>
 #include <Wire.h>
 #include <Adafruit_PWMServoDriver.h>
+#include "Platform.h"
+#include "Settimino.h"
 
-//#define BLUETOOTH
+// Enter a MAC address and IP address for your controller below.
+// The IP address will be dependent on your local network:
+byte mac[] = {
+    0x28, 0x63, 0x36, 0x7F, 0xB0, 0x31};
+
+IPAddress Local(192, 168, 0, 16); // Local Address
+IPAddress PLC(192, 168, 0, 100);  // PLC Address
+
+// Connecting via WIFI
+char ssid[] = "WG61";   // Your network SSID
+char pass[] = "C0meinandfind0ut"; 
+IPAddress Gateway(192, 168, 0, 1);
+IPAddress Subnet(255, 255, 255, 0);
+
+int DBNum = 100; // This DB must be present in your PLC
+byte Buffer[1024];
+
+S7Client Client;
+S7Helper Helper;
+
+unsigned long Elapsed; // To calc the execution time
+
 //Servo Ports
 #define SERVO_TURN 0 //Turn Servo
 #define SERVO_LIFT 1 //Lift Servo
@@ -72,7 +95,30 @@ void releaseServos()
 
 void setup()
 {
-  initBT();
+
+    // Open serial communications and wait for port to open:
+  Serial.begin(115200);
+  while (!Serial)
+  {
+    delay(1);
+  }
+
+  //--------------------------------------------- ESP8266 Initialization
+  Serial.println();
+  Serial.print("Connecting to ");
+  Serial.println(ssid);
+  WiFi.begin(ssid, pass);
+  WiFi.config(Local, Gateway, Subnet);
+  while (WiFi.status() != WL_CONNECTED)
+  {
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.println("");
+  Serial.println("WiFi connected");
+  Serial.print("Local IP address : ");
+  Serial.println(WiFi.localIP());
+
   pwm.begin();
   pwm.setPWMFreq(50);
   pwm.setPWM(SERVO_TURN, 0, posTurn);
@@ -88,7 +134,7 @@ void setup()
 // Stupid, most simple implemetation
 void loop()
 {
-  listenBT();
+  listen();
 
   if (moduleJob != JOB_IDLE)
   {
@@ -108,7 +154,8 @@ void loop()
       posTurn = moveServo(SERVO_TURN, posTurn, TURN_MIDDLE);
       releaseServos();
       moduleJob = JOB_IDLE;
-      sendBT("success(1)");
+
+      Serial.println("success(1)");
     }
     if (moduleJob == JOB_PICKUP_BACK || moduleJob == JOB_PICKUP_FRONT)
     {
@@ -127,85 +174,125 @@ void loop()
       posTurn = moveServo(SERVO_TURN, posTurn, TURN_MIDDLE);
       releaseServos();
       moduleJob = JOB_IDLE;
-      sendBT("success(1)");
+     
+      Serial.println("success(1)");
     }
   }
-  //sendBT(".");
+  
   delay(100);
 }
 
-// Handle API commands
-void handleApiCommands(String command)
+// Listen to incomming commands
+void listen()
 {
-  if (command.startsWith("pickup(0)"))
+  int Size, Result;
+  void *Target;
+
+  Size = 1024;
+  Target = &Buffer; // Uses a larger buffer
+
+  // Connection
+  while (!Client.Connected)
   {
-    moduleJob = JOB_PICKUP_BACK;
+    if (!Connect())
+      delay(500);
   }
-  if (command.startsWith("pickup(1)"))
+
+  Serial.print("Reading ");
+  Serial.print(Size);
+  Serial.print(" bytes from DB");
+  Serial.println(DBNum);
+  // Get the current tick
+  MarkTime();
+  Result = Client.ReadArea(S7AreaDB, // We are requesting DB access
+                           DBNum,    // DB Number
+                           0,        // Start from byte N.0
+                           Size,     // We need "Size" bytes
+                           Target);  // Put them into our target (Buffer or PDU)
+  if (Result == 0)
   {
-    moduleJob = JOB_PICKUP_FRONT;
+    ShowTime();
+
+// print bool and float
+bool isTrue = Helper.BitAt(Target, 0, 0);
+  Serial.print("isTrue = ");
+  Serial.println(isTrue);
+
+int comPos = Helper.FloatAt(Target, 2);
+  Serial.print("sollPos = ");
+  Serial.println(comPos);
+
+  if(comPos == 1){
+  moduleJob = JOB_PICKUP_BACK;
   }
-  if (command.startsWith("drop(0)"))
-  {
+   if (comPos == 2){
+  moduleJob = JOB_PICKUP_FRONT;
+  }
+if (comPos == 3){
     moduleJob = JOB_DROP_BACK;
   }
-  if (command.startsWith("drop(1)"))
-  {
-    moduleJob = JOB_DROP_FRONT;
+if (comPos == 4){
+    moduleJob = JOB_DROP_FRONT
   }
-}
 
-// Listen to incomminc commands from BLUETOOTH
-void listenBT()
-{
-  String buffer = "";
-#ifdef BLUETOOTH
-  if (Serial1.available())
-  {
-    buffer = Serial1.readStringUntil('\n');
-  }
-#else
-  if (Serial.available())
-  {
-    buffer = Serial.readStringUntil('\n');
-  }
-#endif
-  if (buffer != "")
-  {
-    handleApiCommands(buffer);
-  }
-}
 
-// Send message over BLUETOOTH
-void sendBT(String msg)
-{
-#ifdef BLUETOOTH
-  Serial1.println(msg);
-#else
-  Serial.println(msg);
-#endif
+  }
+  else
+    CheckError(Result);
+
+  delay(500);
 }
 
 // A small helper
 void error(const __FlashStringHelper *err)
 {
-#ifdef BLUETOOTH
-  Serial1.println(err);
-#else
   Serial.println(err);
-#endif
 }
 
-void initBT()
+bool Connect()
 {
-#ifdef BLUETOOTH
-  Serial1.begin(9600);
-#else
-  Serial.begin(9600);
-  while (!Serial)
+  int Result = Client.ConnectTo(PLC,
+                                0,  // Rack (see the doc.)
+                                0); // Slot (see the doc.)
+  Serial.print("Connecting to ");
+  Serial.println(PLC);
+  if (Result == 0)
   {
-    delay(1);
+    Serial.print("Connected ! PDU Length = ");
+    Serial.println(Client.GetPDULength());
   }
-#endif
-  sendBT("ready");
+  else
+    Serial.println("Connection error");
+  return Result == 0;
+}
+
+//----------------------------------------------------------------------
+// Prints the Error number
+//----------------------------------------------------------------------
+void CheckError(int ErrNo)
+{
+  Serial.print("Error No. 0x");
+  Serial.println(ErrNo, HEX);
+
+  // Checks if it's a Severe Error => we need to disconnect
+  if (ErrNo & 0x00FF)
+  {
+    Serial.println("SEVERE ERROR, disconnecting.");
+    Client.Disconnect();
+  }
+}
+//----------------------------------------------------------------------
+// Profiling routines
+//----------------------------------------------------------------------
+void MarkTime()
+{
+  Elapsed = millis();
+}
+//----------------------------------------------------------------------
+void ShowTime()
+{
+  // Calcs the time
+  Elapsed = millis() - Elapsed;
+  Serial.print("Job time (ms) : ");
+  Serial.println(Elapsed);
 }
