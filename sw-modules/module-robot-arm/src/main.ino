@@ -1,10 +1,9 @@
-//#include <Arduino.h>
+#include <Arduino.h>
 #include <SPI.h>
 #include <Wire.h>
 #include <Adafruit_PWMServoDriver.h>
 #include "Platform.h"
 #include "Settimino.h"
-
 
 // Enter a MAC address and IP address for your controller below.
 // The IP address will be dependent on your local network:
@@ -105,11 +104,11 @@ void setup()
 
   // Open serial communications and wait for port to open:
   Serial.begin(115200);
-  while (!Serial)
+/**  while (!Serial)
   {
     delay(1);
   }
-
+*/
   //--------------------------------------------- ESP8266 Initialization
   Serial.println();
   Serial.print("Connecting to ");
@@ -164,6 +163,8 @@ void loop()
       moduleJob = JOB_IDLE;
 
       Serial.println("success(1)");
+      //Helper.SetFloatAt(Buffer, 2, 1.0); // Position nach Bool im Buffer
+      Helper.SetBitAt(Buffer, 0, 0, true); // Position 0 im DB100 SPS
     }
     if (moduleJob == JOB_PICKUP_BACK || moduleJob == JOB_PICKUP_FRONT)
     {
@@ -184,6 +185,8 @@ void loop()
       moduleJob = JOB_IDLE;
 
       Serial.println("success(1)");
+      //Helper.SetFloatAt(Buffer, 2, 1.0); // Position nach Bool im Buffer
+      Helper.SetBitAt(Buffer, 0, 0, true); // Position 0 im DB100 SPS
     }
   }
 
@@ -222,14 +225,16 @@ void listen()
     ShowTime();
 
     // print bool and float
-    bool isTrue = Helper.BitAt(Target, 0, 0);
-    Serial.print("isTrue = ");
-    Serial.println(isTrue);
+    //bool done = Helper.BitAt(Target, 0, 0);
+    //Serial.print("done = ");
+    //Serial.println(isTrue);
 
     int comPos = Helper.FloatAt(Target, 2);
     Serial.print("sollPos = ");
     Serial.println(comPos);
 
+    if (comPos == 0) { //idle
+    }
     if (comPos == 1) {
       moduleJob = JOB_PICKUP_BACK;
     }
@@ -242,13 +247,37 @@ void listen()
     if (comPos == 4) {
       moduleJob = JOB_DROP_FRONT;
     }
-
-
+    if (comPos > 4) {
+      Serial.println("error OPC: comPos exeeds 4");
+    }
   }
   else
     CheckError(Result);
 
   delay(500);
+
+  if (Helper.BitAt(Target, 0, 0)) {
+    // WRITE (changed data in function dump() )
+    Serial.print("Writing ");
+    Serial.print(Size);
+    Serial.print(" bytes into DB");
+    Serial.println(DBNum);
+    // Get the current tick
+    MarkTime();
+    Result = Client.WriteArea(S7AreaDB, // We are requesting DB access
+                              DBNum,    // DB Number
+                              0,        // Start from byte N.0
+                              Size,     // We need "Size" bytes
+                              Target);  // Pointer to Data
+    if (Result == 0)
+    {
+      ShowTime();
+    }
+    else
+      CheckError(Result);
+
+    delay(500);
+  }
 }
 
 // A small helper
