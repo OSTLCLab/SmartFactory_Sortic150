@@ -1,0 +1,9 @@
+<map id="myMQTT.h" name="myMQTT.h">
+<area shape="rect" id="node1" title="This class handels the MQTT connection." alt="" coords="159,5,246,32"/>
+<area shape="rect" id="node2" title=" " alt="" coords="5,155,83,181"/>
+<area shape="rect" id="node3" title=" " alt="" coords="107,155,237,181"/>
+<area shape="rect" id="node4" href="$_network_8h.html" title="The Network class establishes a WLAN&#45;Connection." alt="" coords="189,80,320,107"/>
+<area shape="rect" id="node7" title=" " alt="" coords="344,80,456,107"/>
+<area shape="rect" id="node5" title=" " alt="" coords="261,155,315,181"/>
+<area shape="rect" id="node6" title=" " alt="" coords="339,155,421,181"/>
+</map>

@@ -1,0 +1,40 @@
+{
+    "name": "MQTTCommunication",
+    "keywords": "MQTT, web, communication",
+    "description": "MQTT communication for Sortic",
+    "homepage": null,
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/LMazzole/MQTTCommunication.git"
+    },
+    "version": "1.0.0",
+    "authors": {
+        "name": "Luca Mazzoleni",
+        "email": null,
+        "url": "https://github.com/LMazzole"
+    },
+    "dependencies": [
+        {
+            "name": "PubSubClient"
+        },
+        {
+            "name": "WiFi101"
+        },
+        {
+            "name": "ArduinoJson"
+        },
+        {
+            "name": "CircularBuffer"
+        }
+    ],
+    "frameworks": "arduino",
+    "platforms": "*",
+    "export": {
+        "exclude": [
+            "doxygen",
+            "docs",
+            "test"
+        ]
+    },
+    "srcFilter": "-<doxygen/> -<docs/> -<test/>"
+}

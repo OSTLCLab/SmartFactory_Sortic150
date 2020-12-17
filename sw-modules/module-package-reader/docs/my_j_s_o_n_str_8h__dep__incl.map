@@ -1,0 +1,7 @@
+<map id="myJSONStr.h" name="myJSONStr.h">
+<area shape="rect" id="node1" title="myJSON Struct defines the format of the messages" alt="" coords="116,5,219,32"/>
+<area shape="rect" id="node2" href="$my_j_s_o_n_8h.html" title="myJSON class handels the conversion from the JSON&#45;Format into a struct" alt="" coords="125,80,210,107"/>
+<area shape="rect" id="node3" href="$_m_q_t_t_communication_8h.html" title="The Connection&#45;class is used as interface." alt="" coords="12,155,171,181"/>
+<area shape="rect" id="node5" href="$my_j_s_o_n_8cpp.html" title="Implementation of the myJSON&#45;class." alt="" coords="195,155,294,181"/>
+<area shape="rect" id="node4" href="$_m_q_t_t_communication_8cpp.html" title="Implementation of the Connection class." alt="" coords="5,229,177,256"/>
+</map>

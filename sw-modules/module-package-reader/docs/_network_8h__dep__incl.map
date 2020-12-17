@@ -1,0 +1,8 @@
+<map id="Network.h" name="Network.h">
+<area shape="rect" id="node1" title="The Network class establishes a WLAN&#45;Connection." alt="" coords="133,5,213,32"/>
+<area shape="rect" id="node2" href="$_m_q_t_t_communication_8h.html" title="The Connection&#45;class is used as interface." alt="" coords="12,155,171,181"/>
+<area shape="rect" id="node4" href="$my_m_q_t_t_8h.html" title="This class handels the MQTT connection." alt="" coords="129,80,216,107"/>
+<area shape="rect" id="node6" href="$_network_8cpp.html" title="Implementation of the Network class." alt="" coords="240,80,335,107"/>
+<area shape="rect" id="node3" href="$_m_q_t_t_communication_8cpp.html" title="Implementation of the Connection class." alt="" coords="5,229,177,256"/>
+<area shape="rect" id="node5" href="$my_m_q_t_t_8cpp.html" title="Implementation of the myMQTT class." alt="" coords="195,155,295,181"/>
+</map>

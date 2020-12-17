@@ -4,63 +4,24 @@
 #include <Adafruit_PWMServoDriver.h>
 #include "Platform.h"
 #include "Settimino.h"
-
-// Enter a MAC address and IP address for your controller below.
-// The IP address will be dependent on your local network:
-byte mac[] = {
-  0x28, 0x63, 0x36, 0x7F, 0xB0, 0x31
-};
-
-IPAddress Local(192, 168, 0, 16); // Local Address
-IPAddress PLC(192, 168, 0, 100);  // PLC Address
-
-// Connecting via WIFI
-char ssid[] = "WG61";   // Your network SSID
-char pass[] = "C0meinandfind0ut";
-
-int status = WL_IDLE_STATUS;     // the WiFi radio's status
-IPAddress Gateway(192, 168, 0, 1);
-IPAddress Subnet(255, 255, 255, 0);
-
-int DBNum = 100; // This DB must be present in your PLC
-byte Buffer[1024];
+#include "config.h"
 
 S7Client Client;
 S7Helper Helper;
 
-unsigned long Elapsed; // To calc the execution time
-
-//Servo Ports
-#define SERVO_TURN 0 //Turn Servo
-#define SERVO_LIFT 1 //Lift Servo
-#define SERVO_GRAB 2 //Grab Servo
-//PULSES
-#define TURN_BACK 165        //(BACK)Turn Servo
-#define TURN_MIDDLE 330      //(FRONT) ...
-#define TURN_FRONT 505       //(FRONT) ...
-#define LIFT_DOWN_PICKUP 362 //(DOWN)Lift Servo
-#define LIFT_DOWN_DROP 300   //(DOWN)Lift Servo
-#define LIFT_UP 505          //(UP)
-#define GRAB_CLOSE 380       //150 //(CLOSED)Grab Servo
-#define GRAB_OPEN 50         //395 //(OPEN)
+int status = WL_IDLE_STATUS;     // the WiFi radio's status
 
 Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
+
+int DBNum = 100; // This DB must be present in your PLC
+byte Buffer[1024];
+unsigned long Elapsed; // To calc the execution time
 
 int posTurn = TURN_MIDDLE;
 int posLift = LIFT_UP;
 int posGrab = GRAB_CLOSE;
 
 int speed = 10;
-
-enum jobs
-{
-  JOB_IDLE,
-  JOB_PICKUP_BACK,
-  JOB_DROP_BACK,
-  JOB_PICKUP_FRONT,
-  JOB_DROP_FRONT
-};
-
 int moduleJob;
 
 int moveServo(int servo, int from, int to, int s)
@@ -103,13 +64,9 @@ void setup()
   WiFi.setPins(8, 7, 4, 2);
 
   // Open serial communications and wait for port to open:
-  Serial.begin(115200);
-/**  while (!Serial)
-  {
-    delay(1);
-  }
-*/
-  //--------------------------------------------- ESP8266 Initialization
+  Serial.begin(BAUDRATE);
+
+  //----------------------------
   Serial.println();
   Serial.print("Connecting to ");
   Serial.println(ssid);
@@ -193,6 +150,9 @@ void loop()
   delay(100);
 }
 
+// FUNCTIONS ----------------------------
+// --------------------------------------
+
 // Listen to incomming commands
 void listen()
 {
@@ -229,7 +189,7 @@ void listen()
     //Serial.print("done = ");
     //Serial.println(isTrue);
 
-    int comPos = Helper.FloatAt(Target, 2);
+    int comPos = Helper.IntegerAt(Target, 2);
     Serial.print("sollPos = ");
     Serial.println(comPos);
 
@@ -256,9 +216,35 @@ void listen()
 
   delay(500);
 
+   if (Helper.BitAt(Target, 0, 0)) {
+    // WRITE  changed Buffer
+    Serial.print("Writing 1");
+    Serial.print(Size);
+    Serial.print(" bytes into DB");
+    Serial.println(DBNum);
+    // Get the current tick
+    MarkTime();
+    Result = Client.WriteArea(S7AreaDB, // We are requesting DB access
+                              DBNum,    // DB Number
+                              0,        // Start from byte N.0
+                              Size,     // We need "Size" bytes
+                              Target);  // Pointer to Data
+    if (Result == 0)
+    {
+      ShowTime();
+    }
+    else
+      CheckError(Result);
+
+    delay(1000);
+  }
+
+// set "done" flag false again
+        Helper.SetBitAt(Buffer, 0, 0, false); // Position 0 im DB100 SPS
+
   if (Helper.BitAt(Target, 0, 0)) {
-    // WRITE (changed data in function dump() )
-    Serial.print("Writing ");
+    // WRITE  changed Buffer
+    Serial.print("Writing 2");
     Serial.print(Size);
     Serial.print(" bytes into DB");
     Serial.println(DBNum);
