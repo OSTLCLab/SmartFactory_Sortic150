@@ -1,13 +1,13 @@
 #include <Arduino.h>
 #include <MFRC522.h>
-#include "MQTTCommunication.cpp"
+#include "MQTTCommunication.h"
 
 #define RFIDDETECTOR_SDA 5
 #define RFIDDETECTOR_RST_PIN 6
 #define RFID_LENGTH 7
 
 MFRC522 mfrc522(RFIDDETECTOR_SDA, RFIDDETECTOR_RST_PIN);   // Instanz des MFRC522 erzeugen
-Communication::Communication("package-reader");
+//Communication::Communication("package-reader");
 
 void setup()
 {
