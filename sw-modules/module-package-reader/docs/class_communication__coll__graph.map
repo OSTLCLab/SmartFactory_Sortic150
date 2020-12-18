@@ -1,0 +1,5 @@
+<map id="Communication" name="Communication">
+<area shape="rect" id="node1" title="The Connection&#45;class provides the interface." alt="" coords="32,95,144,121"/>
+<area shape="rect" id="node2" href="$class_network.html" title="Handels the WLAN&#45;Connection." alt="" coords="5,5,75,32"/>
+<area shape="rect" id="node3" href="$classmy_m_q_t_t.html" title="Handels the MQTT connection." alt="" coords="99,5,173,32"/>
+</map>

@@ -1,0 +1,6 @@
+<map id="myMQTT.h" name="myMQTT.h">
+<area shape="rect" id="node1" title="This class handels the MQTT connection." alt="" coords="124,5,211,32"/>
+<area shape="rect" id="node2" href="$_m_q_t_t_communication_8h.html" title="The Connection&#45;class is used as interface." alt="" coords="12,80,171,107"/>
+<area shape="rect" id="node4" href="$my_m_q_t_t_8cpp.html" title="Implementation of the myMQTT class." alt="" coords="195,80,295,107"/>
+<area shape="rect" id="node3" href="$_m_q_t_t_communication_8cpp.html" title="Implementation of the Connection class." alt="" coords="5,155,177,181"/>
+</map>

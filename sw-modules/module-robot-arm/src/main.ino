@@ -2,39 +2,26 @@
 #include <SPI.h>
 #include <Wire.h>
 #include <Adafruit_PWMServoDriver.h>
+#include "Platform.h"
+#include "Settimino.h"
+#include "config.h"
 
-//#define BLUETOOTH
-//Servo Ports
-#define SERVO_TURN 0 //Turn Servo
-#define SERVO_LIFT 1 //Lift Servo
-#define SERVO_GRAB 2 //Grab Servo
-//PULSES
-#define TURN_BACK 165        //(BACK)Turn Servo
-#define TURN_MIDDLE 330      //(FRONT) ...
-#define TURN_FRONT 505       //(FRONT) ...
-#define LIFT_DOWN_PICKUP 362 //(DOWN)Lift Servo
-#define LIFT_DOWN_DROP 300   //(DOWN)Lift Servo
-#define LIFT_UP 505          //(UP)
-#define GRAB_CLOSE 380       //150 //(CLOSED)Grab Servo
-#define GRAB_OPEN 50         //395 //(OPEN)
+S7Client Client;
+S7Helper Helper;
+
+int status = WL_IDLE_STATUS;     // the WiFi radio's status
 
 Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
+
+int DBNum = 100; // This DB must be present in your PLC
+byte Buffer[1024];
+unsigned long Elapsed; // To calc the execution time
 
 int posTurn = TURN_MIDDLE;
 int posLift = LIFT_UP;
 int posGrab = GRAB_CLOSE;
 
 int speed = 10;
-
-enum jobs
-{
-  JOB_IDLE,
-  JOB_PICKUP_BACK,
-  JOB_DROP_BACK,
-  JOB_PICKUP_FRONT,
-  JOB_DROP_FRONT
-};
-
 int moduleJob;
 
 int moveServo(int servo, int from, int to, int s)
@@ -72,7 +59,30 @@ void releaseServos()
 
 void setup()
 {
-  initBT();
+
+  // feather M0 ATWINC1500
+  WiFi.setPins(8, 7, 4, 2);
+
+  // Open serial communications and wait for port to open:
+  Serial.begin(BAUDRATE);
+
+  //----------------------------
+  Serial.println();
+  Serial.print("Connecting to ");
+  Serial.println(ssid);
+  WiFi.begin(ssid, pass);
+
+  //WiFi.config(Local, Gateway, Subnet);
+  while (WiFi.status() != WL_CONNECTED)
+  {
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.println("");
+  Serial.println("WiFi connected");
+  Serial.print("Local IP address : ");
+  Serial.println(WiFi.localIP());
+
   pwm.begin();
   pwm.setPWMFreq(50);
   pwm.setPWM(SERVO_TURN, 0, posTurn);
@@ -88,7 +98,7 @@ void setup()
 // Stupid, most simple implemetation
 void loop()
 {
-  listenBT();
+  listen();
 
   if (moduleJob != JOB_IDLE)
   {
@@ -108,7 +118,10 @@ void loop()
       posTurn = moveServo(SERVO_TURN, posTurn, TURN_MIDDLE);
       releaseServos();
       moduleJob = JOB_IDLE;
-      sendBT("success(1)");
+
+      Serial.println("success(1)");
+      //Helper.SetFloatAt(Buffer, 2, 1.0); // Position nach Bool im Buffer
+      Helper.SetBitAt(Buffer, 0, 0, true); // Position 0 im DB100 SPS
     }
     if (moduleJob == JOB_PICKUP_BACK || moduleJob == JOB_PICKUP_FRONT)
     {
@@ -127,85 +140,182 @@ void loop()
       posTurn = moveServo(SERVO_TURN, posTurn, TURN_MIDDLE);
       releaseServos();
       moduleJob = JOB_IDLE;
-      sendBT("success(1)");
+
+      Serial.println("success(1)");
+      //Helper.SetFloatAt(Buffer, 2, 1.0); // Position nach Bool im Buffer
+      Helper.SetBitAt(Buffer, 0, 0, true); // Position 0 im DB100 SPS
     }
   }
-  //sendBT(".");
+
   delay(100);
 }
 
-// Handle API commands
-void handleApiCommands(String command)
-{
-  if (command.startsWith("pickup(0)"))
-  {
-    moduleJob = JOB_PICKUP_BACK;
-  }
-  if (command.startsWith("pickup(1)"))
-  {
-    moduleJob = JOB_PICKUP_FRONT;
-  }
-  if (command.startsWith("drop(0)"))
-  {
-    moduleJob = JOB_DROP_BACK;
-  }
-  if (command.startsWith("drop(1)"))
-  {
-    moduleJob = JOB_DROP_FRONT;
-  }
-}
+// FUNCTIONS ----------------------------
+// --------------------------------------
 
-// Listen to incomminc commands from BLUETOOTH
-void listenBT()
+// Listen to incomming commands
+void listen()
 {
-  String buffer = "";
-#ifdef BLUETOOTH
-  if (Serial1.available())
-  {
-    buffer = Serial1.readStringUntil('\n');
-  }
-#else
-  if (Serial.available())
-  {
-    buffer = Serial.readStringUntil('\n');
-  }
-#endif
-  if (buffer != "")
-  {
-    handleApiCommands(buffer);
-  }
-}
+  int Size, Result;
+  void *Target;
 
-// Send message over BLUETOOTH
-void sendBT(String msg)
-{
-#ifdef BLUETOOTH
-  Serial1.println(msg);
-#else
-  Serial.println(msg);
-#endif
+  Size = 1024;
+  Target = &Buffer; // Uses a larger buffer
+
+  // Connection
+  while (!Client.Connected)
+  {
+    if (!Connect())
+      delay(500);
+  }
+
+  Serial.print("Reading ");
+  Serial.print(Size);
+  Serial.print(" bytes from DB");
+  Serial.println(DBNum);
+  // Get the current tick
+  MarkTime();
+  Result = Client.ReadArea(S7AreaDB, // We are requesting DB access
+                           DBNum,    // DB Number
+                           0,        // Start from byte N.0
+                           Size,     // We need "Size" bytes
+                           Target);  // Put them into our target (Buffer or PDU)
+  if (Result == 0)
+  {
+    ShowTime();
+
+    // print bool and float
+    //bool done = Helper.BitAt(Target, 0, 0);
+    //Serial.print("done = ");
+    //Serial.println(isTrue);
+
+    int comPos = Helper.IntegerAt(Target, 2);
+    Serial.print("sollPos = ");
+    Serial.println(comPos);
+
+    if (comPos == 0) { //idle
+    }
+    if (comPos == 1) {
+      moduleJob = JOB_PICKUP_BACK;
+    }
+    if (comPos == 2) {
+      moduleJob = JOB_PICKUP_FRONT;
+    }
+    if (comPos == 3) {
+      moduleJob = JOB_DROP_BACK;
+    }
+    if (comPos == 4) {
+      moduleJob = JOB_DROP_FRONT;
+    }
+    if (comPos > 4) {
+      Serial.println("error OPC: comPos exeeds 4");
+    }
+  }
+  else
+    CheckError(Result);
+
+  delay(500);
+
+   if (Helper.BitAt(Target, 0, 0)) {
+    // WRITE  changed Buffer
+    Serial.print("Writing 1");
+    Serial.print(Size);
+    Serial.print(" bytes into DB");
+    Serial.println(DBNum);
+    // Get the current tick
+    MarkTime();
+    Result = Client.WriteArea(S7AreaDB, // We are requesting DB access
+                              DBNum,    // DB Number
+                              0,        // Start from byte N.0
+                              Size,     // We need "Size" bytes
+                              Target);  // Pointer to Data
+    if (Result == 0)
+    {
+      ShowTime();
+    }
+    else
+      CheckError(Result);
+
+    delay(1000);
+  }
+
+// set "done" flag false again
+        Helper.SetBitAt(Buffer, 0, 0, false); // Position 0 im DB100 SPS
+
+  if (Helper.BitAt(Target, 0, 0)) {
+    // WRITE  changed Buffer
+    Serial.print("Writing 2");
+    Serial.print(Size);
+    Serial.print(" bytes into DB");
+    Serial.println(DBNum);
+    // Get the current tick
+    MarkTime();
+    Result = Client.WriteArea(S7AreaDB, // We are requesting DB access
+                              DBNum,    // DB Number
+                              0,        // Start from byte N.0
+                              Size,     // We need "Size" bytes
+                              Target);  // Pointer to Data
+    if (Result == 0)
+    {
+      ShowTime();
+    }
+    else
+      CheckError(Result);
+
+    delay(500);
+  }
 }
 
 // A small helper
 void error(const __FlashStringHelper *err)
 {
-#ifdef BLUETOOTH
-  Serial1.println(err);
-#else
   Serial.println(err);
-#endif
 }
 
-void initBT()
+bool Connect()
 {
-#ifdef BLUETOOTH
-  Serial1.begin(9600);
-#else
-  Serial.begin(9600);
-  while (!Serial)
+  int Result = Client.ConnectTo(PLC,
+                                0,  // Rack (see the doc.)
+                                0); // Slot (see the doc.)
+  Serial.print("Connecting to ");
+  Serial.println(PLC);
+  if (Result == 0)
   {
-    delay(1);
+    Serial.print("Connected ! PDU Length = ");
+    Serial.println(Client.GetPDULength());
   }
-#endif
-  sendBT("ready");
+  else
+    Serial.println("Connection error");
+  return Result == 0;
+}
+
+//----------------------------------------------------------------------
+// Prints the Error number
+//----------------------------------------------------------------------
+void CheckError(int ErrNo)
+{
+  Serial.print("Error No. 0x");
+  Serial.println(ErrNo, HEX);
+
+  // Checks if it's a Severe Error => we need to disconnect
+  if (ErrNo & 0x00FF)
+  {
+    Serial.println("SEVERE ERROR, disconnecting.");
+    Client.Disconnect();
+  }
+}
+//----------------------------------------------------------------------
+// Profiling routines
+//----------------------------------------------------------------------
+void MarkTime()
+{
+  Elapsed = millis();
+}
+//----------------------------------------------------------------------
+void ShowTime()
+{
+  // Calcs the time
+  Elapsed = millis() - Elapsed;
+  Serial.print("Job time (ms) : ");
+  Serial.println(Elapsed);
 }
