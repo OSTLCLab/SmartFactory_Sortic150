@@ -10,8 +10,8 @@ IPAddress Local(192, 168, 0, 16); // Local Address
 IPAddress PLC(192, 168, 0, 100);  // PLC Address
 
 // Connecting via WIFI
-char ssid[] = "WG61";   // Your network SSID
-char pass[] = "C0meinandfind0ut";
+char ssid[] = "DigitalLab";   // Your network SSID
+char pass[] = "digital42HSR";
 
 IPAddress Gateway(192, 168, 0, 1);
 IPAddress Subnet(255, 255, 255, 0);

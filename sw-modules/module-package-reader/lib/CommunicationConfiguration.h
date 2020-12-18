@@ -20,8 +20,8 @@
 #define COMMUNICATIONCONFIGURATION_H
 
 //=============WLAN CONNECTION==================================
-#define DEFAULT_WIFI_SSID "WG61"        ///< SSID to connect to
-#define DEFAULT_WIFI_PASSWORD "C0meinandfind0ut"  ///< Password to corresponding SSID
+#define DEFAULT_WIFI_SSID "DigitalLab"        ///< SSID to connect to
+#define DEFAULT_WIFI_PASSWORD "digital42HSR"  ///< Password to corresponding SSID
 
 // Pins for Adafruit ATWINC1500 Feather https://learn.adafruit.com/adafruit-feather-m0-wifi-atwinc1500/using-the-wifi-module
 #define DEFAULT_WIFI_CS 8   ///< Chipselct pin
